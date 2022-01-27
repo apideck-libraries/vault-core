@@ -1,0 +1,83 @@
+{
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --passWithNoTests",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "peerDependencies": {
+    "react": ">=16",
+    "react-dom": ">=16"
+  },
+  "dependencies": {
+    "@apideck/components": "^0.6.12",
+    "@headlessui/react": "^1.4.3",
+    "react-table": "^7.7.0",
+    "swr": "^1.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "@apideck/vault",
+  "author": "Jake Prins",
+  "module": "dist/react-vault.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/react-vault.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/react-vault.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@babel/core": "^7.16.12",
+    "@size-limit/preset-small-lib": "^7.0.5",
+    "@storybook/addon-essentials": "next",
+    "@storybook/addon-info": "next",
+    "@storybook/addon-links": "next",
+    "@storybook/addon-postcss": "next",
+    "@storybook/react": "next",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
+    "autoprefixer": "^10.4.2",
+    "babel-loader": "^8.2.3",
+    "husky": "^7.0.4",
+    "postcss": "^8.4.5",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-is": "^17.0.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "size-limit": "^7.0.5",
+    "tailwindcss": "^3.0.17",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.5"
+  }
+}
