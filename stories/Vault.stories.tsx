@@ -1,3 +1,5 @@
+import '../src/styles/tailwind.css';
+
 import { Meta, Story } from '@storybook/react';
 import { Props, Vault } from '../src/components/Vault';
 
@@ -36,12 +38,11 @@ const Template: Story<Props> = (args) => (
 
 // By passing using the Args format for exported stories, you can control the props for a component for reuse in a test
 // https://storybook.js.org/docs/react/workflows/unit-testing
-export const Button = Template.bind({});
-Button.args = {};
+export const Trigger = Template.bind({});
+Trigger.args = {};
 
 export const Programaticly = Template.bind({});
 Programaticly.args = {
-  trigger: undefined,
   open: true,
   onClose: () => console.log('closed'),
 };

@@ -5,29 +5,31 @@
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "src/types"
   ],
   "engines": {
     "node": ">=10"
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build",
+    "build": "tsdx build && yarn build-tailwind",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
-    "prepare": "tsdx build",
+    "prepare": "tsdx build && yarn build-tailwind",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/styles.css --minify"
   },
   "peerDependencies": {
     "react": ">=16",
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@apideck/components": "^0.6.12",
+    "@apideck/components": "^0.7.1",
     "@headlessui/react": "^1.4.3",
+    "classnames": "^2.3.1",
     "react-table": "^7.7.0",
     "swr": "^1.0.1"
   },
@@ -61,7 +63,7 @@
     "@storybook/addon-essentials": "next",
     "@storybook/addon-info": "next",
     "@storybook/addon-links": "next",
-    "@storybook/addon-postcss": "next",
+    "@storybook/addon-postcss": "2.0.0",
     "@storybook/react": "next",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
