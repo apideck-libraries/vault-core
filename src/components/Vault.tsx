@@ -6,9 +6,10 @@ import React, {
   useState,
 } from 'react';
 
-import { Modal } from './Modal';
+import { ConnectionsProvider } from '../utils/useConnections';
+import Modal from './Modal';
 import { ModalContent } from './ModalContent';
-import { SessionProvider } from '../utils/useSession';
+import { ToastProvider } from '@apideck/components';
 
 export interface Props {
   /**
@@ -28,14 +29,6 @@ export interface Props {
    */
   trigger?: ReactElement;
   /**
-   * Title shown in the modal
-   */
-  title?: string;
-  /**
-   * Subtitle shown in the modal
-   */
-  subTitle?: string;
-  /**
    * Show powered by Apideck in the modal backdrop
    */
   showAttribution?: boolean;
@@ -47,6 +40,10 @@ export interface Props {
    * Callback function that gets called when the modal is closed
    */
   onClose?: () => any;
+  /**
+   * Optionally you can give a selected connection to go straight to the connection details view
+   */
+  selectedConnection?: () => any;
 }
 
 /**
@@ -58,8 +55,6 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     consumerId,
     jwt,
     trigger,
-    title,
-    // subTitle,
     showAttribution = true,
     open = false,
     onClose,
@@ -97,15 +92,22 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
       {trigger
         ? React.cloneElement(trigger, { onClick: () => handleClick(), ref })
         : null}
-      <SessionProvider appId={appId} consumerId={consumerId} jwt={jwt}>
-        <Modal
-          isOpen={isOpen}
-          onClose={() => onCloseModal()}
-          showAttribution={showAttribution}
-        >
-          <ModalContent />
-        </Modal>
-      </SessionProvider>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => onCloseModal()}
+        showAttribution={showAttribution}
+      >
+        <ToastProvider>
+          <ConnectionsProvider
+            appId={appId}
+            consumerId={consumerId}
+            jwt={jwt}
+            isOpen={isOpen}
+          >
+            <ModalContent onClose={onCloseModal} />
+          </ConnectionsProvider>
+        </ToastProvider>
+      </Modal>
     </Fragment>
   );
 });
