@@ -1,10 +1,18 @@
 import { Dialog, Transition } from '@headlessui/react';
-import React, { CSSProperties, Fragment, useEffect, useState } from 'react';
+import React, {
+  CSSProperties,
+  Fragment,
+  ReactNode,
+  useEffect,
+  useState,
+} from 'react';
 
 import Logo from './Logo';
+import classNames from 'classnames';
 import { createPortal } from 'react-dom';
 
 export interface Props extends React.HTMLAttributes<HTMLDivElement> {
+  children: ReactNode;
   onClose: () => void;
   isOpen: boolean;
   className?: string;
@@ -19,7 +27,7 @@ export function Modal({
   showAttribution,
   className = '',
   style = {},
-}) {
+}: Props) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -30,8 +38,12 @@ export function Modal({
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 z-10 overflow-y-auto bg-gray-400 bg-opacity-75"
+        className={classNames(
+          'fixed inset-0 z-10 overflow-y-auto bg-gray-400 bg-opacity-75',
+          className
+        )}
         onClose={onClose}
+        style={style}
       >
         <div className="min-h-screen px-4 text-center">
           <Transition.Child
