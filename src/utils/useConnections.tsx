@@ -10,15 +10,16 @@ import useSWR, { useSWRConfig } from 'swr';
 import { Connection } from '../types/Connection';
 import { useToast } from '@apideck/components';
 
-// import { useSession } from './useSession';
-
 const CONNECTIONS_URL = `https://unify.apideck.com/vault/connections`;
 
 interface ContextProps {
   jwt: string;
   appId: string;
   consumerId: string;
+  connections: Connection[];
   selectedConnection?: Connection;
+  error: any;
+  isLoading: boolean;
   isUpdating: boolean;
 }
 
@@ -62,7 +63,7 @@ export const ConnectionsProvider = ({
     return await response.json();
   };
 
-  const { data, error, mutate: mutateList } = useSWR(CONNECTIONS_URL, fetcher);
+  const { data, error } = useSWR(CONNECTIONS_URL, fetcher);
   const { data: dataDetail, mutate: mutateDetail } = useSWR(
     selectedConnection
       ? `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
@@ -100,6 +101,7 @@ export const ConnectionsProvider = ({
         mutate(CONNECTIONS_URL, updatedList, false);
         mutate(`${CONNECTIONS_URL}/${api}/${serviceId}`, updatedDetail, false);
         setSelectedConnection(result.data);
+        return result;
       } else {
         addToast({
           title: 'Updating failed',
@@ -108,7 +110,7 @@ export const ConnectionsProvider = ({
         });
       }
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       addToast({
         title: 'Updating failed',
@@ -140,7 +142,7 @@ export const ConnectionsProvider = ({
         ...data,
         data: [
           updatedConnection,
-          ...data.data?.filter((con) => con.id !== connection.id),
+          ...data.data?.filter((con: Connection) => con.id !== connection.id),
         ],
       };
       mutate(CONNECTIONS_URL, updatedData, false);
@@ -160,9 +162,11 @@ export const ConnectionsProvider = ({
 
   const contextValue = useMemo(
     () => ({
-      connections: data?.data?.sort((a, b) => a.name?.localeCompare(b.name)),
+      connections: data?.data?.sort((a: Connection, b: Connection) =>
+        a.name?.localeCompare(b.name)
+      ),
       isLoading: !error && !data,
-      isError: data?.detail || error,
+      error: data?.detail || error,
       updateConnection,
       deleteConnection,
       selectedConnection: dataDetail?.data

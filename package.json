@@ -27,9 +27,12 @@
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@apideck/components": "^0.7.1",
+    "@apideck/components": "^0.7.2",
     "@headlessui/react": "^1.4.3",
     "classnames": "^2.3.1",
+    "formik": "^2.2.9",
+    "markdown-to-jsx": "^7.1.6",
+    "react-select": "^5.2.2",
     "react-table": "^7.7.0",
     "swr": "^1.0.1"
   },
@@ -67,6 +70,7 @@
     "@storybook/react": "next",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
+    "@types/tailwindcss": "^3.0.4",
     "autoprefixer": "^10.4.2",
     "babel-loader": "^8.2.3",
     "husky": "^7.0.4",

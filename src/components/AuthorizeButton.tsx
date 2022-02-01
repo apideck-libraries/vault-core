@@ -27,7 +27,7 @@ const AuthorizeButton = ({ authorizeUrl, text = 'Authorize' }: Props) => {
         const child = window.open(
           authorizeUrl,
           '_blank',
-          'location=no,height=800,width=600,scrollbars=yes,status=yes,left=0,top=0'
+          'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
         );
         const timer = setInterval(checkChild, 500);
         setIsLoading(true);
