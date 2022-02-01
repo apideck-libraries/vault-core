@@ -15,8 +15,8 @@ const ConnectionsList = ({ connections, isLoading }) => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div>
-                      <p className="w-16 bg-gray-200 h-3 rounded-sm"></p>
-                      <p className="bg-gray-200 w-6 h-2 mt-2 rounded-sm"></p>
+                      <p className="w-20 bg-gray-200 h-3 rounded-sm"></p>
+                      <p className="bg-gray-200 w-8 h-2 mt-2 rounded-sm"></p>
                     </div>
                   </div>
                 </div>
