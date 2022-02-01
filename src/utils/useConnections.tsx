@@ -5,9 +5,10 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import useSWR, { useSWRConfig } from 'swr';
 
 import { Connection } from '../types/Connection';
-import useSWR from 'swr';
+import { useToast } from '@apideck/components';
 
 // import { useSession } from './useSession';
 
@@ -17,6 +18,8 @@ interface ContextProps {
   jwt: string;
   appId: string;
   consumerId: string;
+  selectedConnection?: Connection;
+  isUpdating: boolean;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -36,7 +39,11 @@ export const ConnectionsProvider = ({
   isOpen,
   children,
 }: Props) => {
-  const [selectedConnection, setSelectedConnection] = useState<Connection>();
+  const [selectedConnection, setSelectedConnection] =
+    useState<Connection | null>(null);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const { mutate } = useSWRConfig();
+  const { addToast } = useToast();
 
   const getHeaders = () => {
     return {
@@ -55,7 +62,7 @@ export const ConnectionsProvider = ({
     return await response.json();
   };
 
-  const { data, error, mutate } = useSWR(CONNECTIONS_URL, fetcher);
+  const { data, error, mutate: mutateList } = useSWR(CONNECTIONS_URL, fetcher);
   const { data: dataDetail, mutate: mutateDetail } = useSWR(
     selectedConnection
       ? `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
@@ -69,28 +76,91 @@ export const ConnectionsProvider = ({
     values: any
   ) => {
     try {
+      setIsUpdating(true);
       const response = await fetch(`${CONNECTIONS_URL}/${api}/${serviceId}`, {
         method: 'PATCH',
         headers: getHeaders(),
         body: JSON.stringify(values),
       });
       const result = await response.json();
-      mutate();
+      if (result.data) {
+        const updatedList = {
+          ...data,
+          data: [
+            result.data,
+            ...data.data?.filter(
+              (con: Connection) => con.id !== result.data.id
+            ),
+          ],
+        };
+        const updatedDetail = {
+          ...data,
+          data: result.data,
+        };
+        mutate(CONNECTIONS_URL, updatedList, false);
+        mutate(`${CONNECTIONS_URL}/${api}/${serviceId}`, updatedDetail, false);
+        setSelectedConnection(result.data);
+      } else {
+        addToast({
+          title: 'Updating failed',
+          description: result.message,
+          type: 'error',
+        });
+      }
       return result;
     } catch (error) {
       console.error(error);
+      addToast({
+        title: 'Updating failed',
+        description: error.message,
+        type: 'error',
+      });
       return error;
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const deleteConnection = async (connectionId: string) => {
-    // TODO
-    console.log(connectionId, mutate);
+  const deleteConnection = async (connection: Connection) => {
+    try {
+      setIsUpdating(true);
+      await fetch(
+        `${CONNECTIONS_URL}/${connection.unified_api}/${connection.service_id}`,
+        {
+          method: 'DELETE',
+          headers: getHeaders(),
+        }
+      );
+      const updatedConnection = {
+        ...connection,
+        enabled: false,
+        state: 'available',
+      };
+      const updatedData = {
+        ...data,
+        data: [
+          updatedConnection,
+          ...data.data?.filter((con) => con.id !== connection.id),
+        ],
+      };
+      mutate(CONNECTIONS_URL, updatedData, false);
+      setSelectedConnection(null);
+    } catch (error: any) {
+      console.error(error);
+      addToast({
+        title: 'Updating failed',
+        description: error.message,
+        type: 'error',
+      });
+      return error;
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const contextValue = useMemo(
     () => ({
-      connections: data?.data,
+      connections: data?.data?.sort((a, b) => a.name?.localeCompare(b.name)),
       isLoading: !error && !data,
       isError: data?.detail || error,
       updateConnection,
@@ -100,8 +170,9 @@ export const ConnectionsProvider = ({
         : selectedConnection,
       mutateDetail,
       setSelectedConnection,
+      isUpdating,
     }),
-    [selectedConnection, data, dataDetail, isOpen]
+    [isUpdating, selectedConnection, data, dataDetail, isOpen]
   );
 
   return (
