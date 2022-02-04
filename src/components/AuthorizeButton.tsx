@@ -1,28 +1,34 @@
+import { CONNECTIONS_URL, REDIRECT_URL } from '../constants/urls';
 import React, { useState } from 'react';
 
 import { Button } from '@apideck/components';
-import { useConnections } from '../utils/useConnections';
+import { Connection } from '../types/Connection';
+import { useSWRConfig } from 'swr';
 
 interface Props {
-  text?: string;
-  authorizeUrl: string;
+  connection: Connection;
 }
 
-const AuthorizeButton = ({ authorizeUrl, text = 'Authorize' }: Props) => {
+const AuthorizeButton = ({ connection }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { mutateDetail } = useConnections();
+
+  const { mutate } = useSWRConfig();
+
+  const authorizeUrl = `${connection.authorize_url}&redirect_uri=${REDIRECT_URL}`;
 
   const handleChildWindowCLose = () => {
-    mutateDetail();
+    mutate(
+      `${CONNECTIONS_URL}/${connection?.unified_api}/${connection?.service_id}`
+    );
     setIsLoading(false);
   };
 
   return (
     <Button
-      text={text}
+      text={`Authorize ${connection.name}`}
       isLoading={isLoading}
       size="large"
-      className="w-full px-12 py-3 text-base font-bold leading-7 text-white transition-all duration-200 bg-gray-900 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-700"
+      className="w-full"
       onClick={() => {
         const child = window.open(
           authorizeUrl,

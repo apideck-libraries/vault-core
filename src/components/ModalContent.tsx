@@ -1,32 +1,19 @@
-import React, { useState } from 'react';
-
 import { Connection } from '../types/Connection';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
-import { Dialog } from '@headlessui/react';
-import { Dropdown } from '@apideck/components';
-import SearchInput from './SearchInput';
+import React from 'react';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
 import { useConnections } from '../utils/useConnections';
 
-/**
- * The Modal Content component
- */
-export const ModalContent = ({ onClose }) => {
-  const {
-    connections,
-    isError,
-    isLoading,
-    selectedConnection,
-    setSelectedConnection,
-  } = useConnections();
-  // const [selectedConnection, setSelectedConnection] = useState<Connection>();
+export const ModalContent = ({ onClose }: { onClose: () => any }) => {
+  const { connections, error, isLoading, selectedConnection } =
+    useConnections();
 
-  if (isError) {
+  if (error) {
     return (
-      <div className="relative -m-6 bg-white sm:rounded-xl flex items-center justify-center h-full">
-        {isError}
+      <div className="relative bg-white sm:rounded-xl flex items-center justify-center h-full">
+        {error}
       </div>
     );
   }
@@ -38,40 +25,36 @@ export const ModalContent = ({ onClose }) => {
     (c: Connection) => c.state === 'available'
   );
 
+  if (selectedConnection) return <ConnectionDetails onClose={onClose} />;
+
   return (
     <div className="relative -m-6 sm:rounded-lg h-full">
       <TopBar onClose={onClose} />
       <div className="h-full overflow-hidden rounded-b-xl">
-        {selectedConnection ? (
-          <ConnectionDetails />
-        ) : (
-          <div>
-            <TabSelect
-              tabs={[
-                {
-                  name: 'Added',
-                  content: (
-                    <ConnectionsList
-                      isLoading={isLoading}
-                      connections={addedConnections}
-                    />
-                  ),
-                  count: addedConnections?.length,
-                },
-                {
-                  name: 'Available',
-                  content: (
-                    <ConnectionsList
-                      isLoading={isLoading}
-                      connections={availableConnections}
-                    />
-                  ),
-                  count: availableConnections?.length,
-                },
-              ]}
-            />
-          </div>
-        )}
+        <TabSelect
+          tabs={[
+            {
+              name: 'Connected',
+              content: (
+                <ConnectionsList
+                  isLoading={isLoading}
+                  connections={addedConnections}
+                />
+              ),
+              count: addedConnections?.length,
+            },
+            {
+              name: 'Available',
+              content: (
+                <ConnectionsList
+                  isLoading={isLoading}
+                  connections={availableConnections}
+                />
+              ),
+              count: availableConnections?.length,
+            },
+          ]}
+        />
       </div>
     </div>
   );

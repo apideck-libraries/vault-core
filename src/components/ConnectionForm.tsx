@@ -1,12 +1,18 @@
-import { Button, Select, TextInput } from '@apideck/components';
-import { FormikProps, useFormik } from 'formik';
+import { Button, TextInput } from '@apideck/components';
 
+import { Connection } from '../types/Connection';
 import Markdown from 'markdown-to-jsx';
 import React from 'react';
 import SearchSelect from './SearchSelect';
 import { useConnections } from '../utils/useConnections';
+import { useFormik } from 'formik';
 
-const ConnectionForm = ({ connection, closeForm }) => {
+interface Props {
+  connection: Connection;
+  closeForm: () => void;
+}
+
+const ConnectionForm = ({ connection, closeForm }: Props) => {
   const { updateConnection, isUpdating } = useConnections();
 
   const formFields = connection.form_fields;
@@ -27,7 +33,7 @@ const ConnectionForm = ({ connection, closeForm }) => {
         connection.service_id,
         { settings: { ...values } }
       );
-      if (result.data) {
+      if (result?.data) {
         closeForm();
       }
     },
@@ -72,13 +78,14 @@ const ConnectionForm = ({ connection, closeForm }) => {
               {type === 'select' && (
                 <SearchSelect
                   field={id}
-                  placeholder={placeholder}
                   handleChange={formik.handleChange}
                   disabled={disabled}
                   value={formik.values[id] as any}
                   options={options as any}
                   placeholder={
-                    disabled ? 'Available after authorization' : 'Select..'
+                    disabled
+                      ? 'Available after authorization'
+                      : placeholder || 'Select..'
                   }
                   isCreatable={allowCustomValues}
                 />
@@ -93,15 +100,13 @@ const ConnectionForm = ({ connection, closeForm }) => {
         );
       })}
 
-      <div>
-        <Button
-          type="submit"
-          text="Save"
-          isLoading={isUpdating}
-          size="large"
-          className="w-full"
-        />
-      </div>
+      <Button
+        type="submit"
+        text="Save"
+        isLoading={isUpdating}
+        size="large"
+        className="w-full"
+      />
     </form>
   );
 };

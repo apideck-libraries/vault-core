@@ -7,10 +7,9 @@ import React, {
 } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 
+import { CONNECTIONS_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { useToast } from '@apideck/components';
-
-const CONNECTIONS_URL = `https://unify.apideck.com/vault/connections`;
 
 interface ContextProps {
   jwt: string;
@@ -18,6 +17,15 @@ interface ContextProps {
   consumerId: string;
   connections: Connection[];
   selectedConnection?: Connection;
+  setSelectedConnection?: (connection: Connection) => void;
+  getResourceConfig?: () => any;
+  updateConnection: (
+    api: string,
+    serviceId: string,
+    values: any,
+    resource?: string
+  ) => any;
+  deleteConnection: (connection: Connection) => any;
   error: any;
   isLoading: boolean;
   isUpdating: boolean;
@@ -74,16 +82,21 @@ export const ConnectionsProvider = ({
   const updateConnection = async (
     api: string,
     serviceId: string,
-    values: any
+    values: any,
+    resource?: string
   ) => {
     try {
       setIsUpdating(true);
+      let updateUrl = `${CONNECTIONS_URL}/${api}/${serviceId}`;
+      if (resource) updateUrl = `${updateUrl}/${resource}/config`;
+
       const response = await fetch(`${CONNECTIONS_URL}/${api}/${serviceId}`, {
         method: 'PATCH',
         headers: getHeaders(),
         body: JSON.stringify(values),
       });
       const result = await response.json();
+
       if (result.data) {
         const updatedList = {
           ...data,
@@ -98,9 +111,10 @@ export const ConnectionsProvider = ({
           ...data,
           data: result.data,
         };
+
         mutate(CONNECTIONS_URL, updatedList, false);
-        mutate(`${CONNECTIONS_URL}/${api}/${serviceId}`, updatedDetail, false);
-        setSelectedConnection(result.data);
+        mutate(updateUrl, updatedDetail, false);
+        setSelectedConnection({ ...selectedConnection, ...result.data });
         return result;
       } else {
         addToast({
@@ -160,6 +174,36 @@ export const ConnectionsProvider = ({
     }
   };
 
+  const getResourceConfig = async () => {
+    const getConfig = async (resource: string) => {
+      if (!selectedConnection) return;
+      const raw = await fetch(
+        `${CONNECTIONS_URL}/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
+        {
+          headers: getHeaders(),
+        }
+      );
+      const { data } = await raw.json();
+
+      return { id: resource, config: data.configuration };
+    };
+
+    const requests: any = [];
+    selectedConnection?.configurable_resources.forEach((resource: any) => {
+      requests.push(getConfig(resource));
+    });
+
+    try {
+      const responses = await Promise.all(requests);
+      setSelectedConnection({
+        ...selectedConnection,
+        resources: responses,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const contextValue = useMemo(
     () => ({
       connections: data?.data?.sort((a: Connection, b: Connection) =>
@@ -175,6 +219,7 @@ export const ConnectionsProvider = ({
       mutateDetail,
       setSelectedConnection,
       isUpdating,
+      getResourceConfig,
     }),
     [isUpdating, selectedConnection, data, dataDetail, isOpen]
   );

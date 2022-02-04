@@ -16,18 +16,19 @@ const StatusBadge = ({
   const { state, enabled } = connection;
 
   const statusText = () => {
+    if (state === 'available') return 'Not connected';
     if (!enabled) return 'Disabled';
     if (state === 'added') return 'Unauthorized';
+    if (state === 'authorized' && size === 'small') return 'Input required';
     if (state === 'authorized') return 'Needs configuration';
     if (state === 'callable') return 'Connected';
-    if (state === 'available') return 'Not added';
     return null;
   };
 
   return (
     <div
       className={classNames(
-        'inline-flex items-center font-medium leading-none rounded-full',
+        'inline-flex items-center font-medium leading-none rounded-full whitespace-nowrap',
         {
           'px-4 py-1.5 text-sm': size === 'large',
           'px-2 py-1 text-xs': size === 'small',

@@ -1,22 +1,51 @@
+import React, { useState } from 'react';
+
+import { CONNECTIONS_URL } from '../constants/urls';
 import { Dropdown } from '@apideck/components';
-import React from 'react';
+import { REDIRECT_URL } from '../constants/urls';
 import classNames from 'classnames';
 import { useConnections } from '../utils/useConnections';
+import { useSWRConfig } from 'swr';
 
-const TopBar = ({ onClose }) => {
-  const {
-    isUpdating,
-    selectedConnection,
-    setSelectedConnection,
-    updateConnection,
-    deleteConnection,
-  } = useConnections();
+interface Props {
+  onClose: () => void;
+  onBack?: () => void;
+  setShowSettings?: (show: boolean) => void;
+  setShowResources?: (show: boolean) => void;
+  hideOptions?: boolean;
+}
+
+const TopBar = ({
+  onClose,
+  onBack,
+  setShowSettings,
+  setShowResources,
+  hideOptions,
+}: Props) => {
+  const { isUpdating, selectedConnection, updateConnection, deleteConnection } =
+    useConnections();
+  const [isReAuthorizing, setIsReAuthorizing] = useState(false);
+  const { mutate } = useSWRConfig();
 
   const getOptions = () => {
-    const { state, enabled, unified_api, service_id } = selectedConnection;
+    if (!selectedConnection) return null;
+
+    const {
+      state,
+      enabled,
+      unified_api,
+      service_id,
+      form_fields,
+      auth_type,
+      configurable_resources,
+      authorize_url,
+    } = selectedConnection;
+    const authorizeUrl = `${authorize_url}&redirect_uri=${REDIRECT_URL}`;
     const options = [];
 
-    if (state === 'authorized' || state === 'callable') {
+    const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
+
+    if (hasFormFields) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -31,13 +60,100 @@ const TopBar = ({ onClose }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            Settings
+          </button>
+        ),
+        onClick: () => {
+          setShowSettings && setShowSettings(true);
+          setShowResources && setShowResources(false);
+        },
+      });
+    }
+
+    if (
+      (state === 'authorized' || state === 'callable') &&
+      configurable_resources?.length
+    ) {
+      options.push({
+        label: (
+          <button className="px-1 flex font-medium items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+              />
+            </svg>
+            Configurable Resources
+          </button>
+        ),
+        onClick: () => {
+          setShowSettings && setShowSettings(false);
+          setShowResources && setShowResources(true);
+        },
+      });
+    }
+
+    if (
+      (state === 'authorized' || state === 'callable') &&
+      auth_type === 'oauth2'
+    ) {
+      options.push({
+        label: (
+          <button className="px-1 flex font-medium items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className={classNames('h-4 w-4 mr-2', {
+                'animate-spin': isReAuthorizing,
+              })}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
             Re-authorize
           </button>
         ),
-        onClick: () => console.log('Lets Re-Authorize'),
+        onClick: () => {
+          setIsReAuthorizing(true);
+          const child = window.open(
+            authorizeUrl,
+            '_blank',
+            'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+          );
+          const timer = setInterval(checkChild, 500);
+          function checkChild() {
+            if (child?.closed) {
+              clearInterval(timer);
+              mutate(
+                `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
+              );
+              setIsReAuthorizing(false);
+            }
+          }
+        },
       });
     }
 
@@ -63,12 +179,10 @@ const TopBar = ({ onClose }) => {
           </button>
         ),
         onClick: async () => {
-          const result = await updateConnection(unified_api, service_id, {
+          setShowSettings(false);
+          updateConnection(unified_api, service_id, {
             enabled: false,
           });
-          if (result.status === 'success') {
-            console.log('Updated');
-          }
         },
       });
     }
@@ -94,8 +208,20 @@ const TopBar = ({ onClose }) => {
             Enable
           </button>
         ),
-        onClick: () =>
-          updateConnection(unified_api, service_id, { enabled: true }),
+        onClick: async () => {
+          const result = await updateConnection(unified_api, service_id, {
+            enabled: true,
+          });
+          if (result.data) {
+            const { state, form_fields } = result.data;
+            const hasFormFields = form_fields?.filter(
+              (field) => !field.hidden
+            )?.length;
+            if (state !== 'callable' && hasFormFields) {
+              setShowSettings(true);
+            }
+          }
+        },
       });
     }
 
@@ -157,7 +283,7 @@ const TopBar = ({ onClose }) => {
       {selectedConnection ? (
         <button
           className="inline-flex mt-3 items-center justify-center w-10 h-10 text-gray-900 transition-all duration-200 rounded-full hover:bg-gray-100 focus:outline-none"
-          onClick={() => setSelectedConnection(null)}
+          onClick={onBack}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -181,16 +307,18 @@ const TopBar = ({ onClose }) => {
         src={selectedConnection?.icon ?? 'https://www.apideck.com/favicon.ico'}
         className={classNames(
           'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto',
-          { 'animate-pulse': isUpdating }
+          { 'animate-pulse': isUpdating || isReAuthorizing }
         )}
       />
       <div className="flex flex-col items-end mt-3">
-        {selectedConnection ? (
+        {selectedConnection && !hideOptions ? (
           <Dropdown
             trigger={
               <button
-                className="inline-flex items-center justify-center w-10 h-10 text-gray-900 transition-all duration-200 rounded-full hover:bg-gray-100 focus:outline-none"
-                onClick={() => console.log('Lets do something')}
+                className={classNames(
+                  'inline-flex items-center justify-center w-10 h-10 text-gray-900 transition-all duration-200 rounded-full hover:bg-gray-100 focus:outline-none',
+                  { 'animation-pulse': isReAuthorizing }
+                )}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

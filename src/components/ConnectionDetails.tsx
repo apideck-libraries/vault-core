@@ -1,35 +1,115 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 
 import AuthorizeButton from './AuthorizeButton';
-import { Button } from '@apideck/components';
 import ConnectionForm from './ConnectionForm';
 import { Dialog } from '@headlessui/react';
+import Divider from './Divider';
+import { REDIRECT_URL } from '../constants/urls';
+import ResourceForm from './ResourceForm';
+import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
 import TopBar from './TopBar';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import classNames from 'classnames';
 import { useConnections } from '../utils/useConnections';
 
-const ConnectionDetails = ({ onClose }) => {
-  const { selectedConnection, isUpdating } = useConnections();
+interface Props {
+  onClose: () => void;
+}
+
+const ConnectionDetails = ({ onClose }: Props) => {
+  const [selectedResource, setSelectedResource] = useState<string | null>(null);
+
+  const {
+    selectedConnection,
+    setSelectedConnection,
+    getResourceConfig,
+    isUpdating,
+  } = useConnections();
   if (!selectedConnection) return null;
 
-  const { state, auth_type, authorize_url, name, tag_line, form_fields } =
-    selectedConnection;
+  const {
+    enabled,
+    state,
+    auth_type,
+    authorize_url,
+    name,
+    tag_line,
+    form_fields,
+  } = selectedConnection;
 
-  const [showSettings, setShowSettings] = useState(state !== 'callable');
+  const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
+
+  const [showSettings, setShowSettings] = useState(
+    enabled && state !== 'callable' && hasFormFields
+  );
+
+  // TODO: implement hideResourceSettings from session
+  const [showResources, setShowResources] = useState(false);
 
   const requiredAuth = authorizationVariablesRequired(selectedConnection);
 
   const shouldShowAuthorizeButton =
-    state !== 'callable' && auth_type === 'oauth2' && !requiredAuth;
+    enabled &&
+    state !== 'callable' &&
+    auth_type === 'oauth2' &&
+    !requiredAuth &&
+    !showSettings;
 
-  const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
+  useEffect(() => {
+    if (showResources && getResourceConfig) {
+      getResourceConfig();
+    }
+  }, [showResources]);
+
+  if (selectedResource) {
+    return (
+      <div className="relative -m-6 sm:rounded-lg h-full">
+        <TopBar
+          onClose={onClose}
+          onBack={() => setSelectedResource(null)}
+          setShowSettings={setShowSettings}
+          setShowResources={setShowResources}
+          hideOptions={true}
+        />
+        <div className="h-full rounded-b-xl">
+          <div
+            className={classNames('text-center p-5 md:p-6', {
+              'animate-pulse': isUpdating,
+            })}
+          >
+            <Dialog.Title
+              as="h3"
+              className="text-lg font-medium leading-6 text-gray-900"
+            >
+              <span className="capitalize">{selectedResource}</span>{' '}
+              configuration
+            </Dialog.Title>
+
+            <p className="mt-2 text-sm text-gray-500 mb-5">{`
+                Please provide default values for the fields below. These will be
+                applied when creating new ${selectedResource} through our integration.`}</p>
+            {/* <Divider /> */}
+            <ResourceForm
+              resource={selectedResource}
+              closeForm={() => setSelectedResource(null)}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative -m-6 sm:rounded-lg h-full">
-      <TopBar onClose={onClose} setShowSettings={setShowSettings} />
-      <div className="h-full overflow-hidden rounded-b-xl">
+      <TopBar
+        onClose={onClose}
+        onBack={() => setSelectedConnection(null)}
+        setShowSettings={setShowSettings}
+        setShowResources={setShowResources}
+        authorizeUrl={`${authorize_url}&redirect_uri=${REDIRECT_URL}`}
+      />
+      <div className="h-full rounded-b-xl">
         <div
           className={classNames('text-center p-5 md:p-6', {
             'animate-pulse': isUpdating,
@@ -42,54 +122,45 @@ const ConnectionDetails = ({ onClose }) => {
             {name}
           </Dialog.Title>
 
-          <div>
-            <div className="my-2">
-              <p className="text-sm text-gray-500">{tag_line}</p>
-              <div className="mx-auto mt-4">
-                <StatusBadge
-                  connection={selectedConnection}
-                  isLoading={isUpdating}
-                  size="large"
-                />
-              </div>
-            </div>
-            {requiredAuth ? (
-              <div className={'font-medium text-xs sm:text-sm text-gray-500'}>
-                {requiredAuth}
-              </div>
-            ) : null}
-
-            {shouldShowAuthorizeButton && (
-              <div className="mt-4">
-                <AuthorizeButton
-                  text={`Authorize ${name}`}
-                  authorizeUrl={`${authorize_url}&redirect_uri=http://localhost:3003/oauth/callback`}
-                />
-              </div>
-            )}
-
-            {hasFormFields && showSettings && (
-              <Fragment>
-                <div className="relative my-4">
-                  <div
-                    className="absolute inset-0 flex items-center"
-                    aria-hidden="true"
-                  >
-                    <div className="w-full border-t border-gray-300" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="px-2 bg-white text-sm text-gray-500">
-                      Settings
-                    </span>
-                  </div>
-                </div>
-                <ConnectionForm
-                  connection={selectedConnection}
-                  closeForm={() => setShowSettings(false)}
-                />
-              </Fragment>
-            )}
+          <p className="text-sm text-gray-500 mb-4">{tag_line}</p>
+          <div className="mx-auto">
+            <StatusBadge
+              connection={selectedConnection}
+              isLoading={isUpdating}
+              size="large"
+            />
           </div>
+
+          {shouldShowAuthorizeButton ? (
+            <div className="mt-4">
+              <AuthorizeButton connection={selectedConnection} />
+            </div>
+          ) : null}
+
+          {showResources ? (
+            <Fragment>
+              <Divider text="Configurable resources" />
+              <ResourceList
+                connection={selectedConnection}
+                setSelectedResource={setSelectedResource}
+              />
+            </Fragment>
+          ) : null}
+
+          {hasFormFields && showSettings ? (
+            <Fragment>
+              {requiredAuth ? (
+                <div className={'text-xs sm:text-sm text-gray-500'}>
+                  {requiredAuth}
+                </div>
+              ) : null}
+              <Divider text="Settings" />
+              <ConnectionForm
+                connection={selectedConnection}
+                closeForm={() => setShowSettings(false)}
+              />
+            </Fragment>
+          ) : null}
         </div>
       </div>
     </div>

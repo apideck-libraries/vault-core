@@ -29,18 +29,5 @@ export interface Connection {
   configuration?: FormField[];
   form_fields: FormField[];
   created_at: number;
-}
-
-export interface UpdateConnectionInput {
-  enabled: boolean;
-  settings?: Settings;
-}
-
-export interface UpdateConnectionConfigInput {
-  configuration: ResourceConfig[];
-}
-
-export interface ResourceConfig {
-  resource: string;
-  defaults: Partial<FormField>[];
+  resources?: { id: string; config: any }[];
 }

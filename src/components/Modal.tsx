@@ -74,13 +74,13 @@ export function Modal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="inline-block w-full text-left max-w-md p-6 my-8 align-middle transition-all transform bg-white shadow-xl rounded-xl">
+            <div className="inline-block w-full text-left max-w-sm p-6 my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-xl">
               {children}
             </div>
           </Transition.Child>
           {showAttribution ? (
             <a
-              className="absolute flex text-sm text-center text-gray-100 bottom-5 left-[calc(50% - 85px)] lg:left-5 xl:left-6 xl:bottom-6"
+              className="fixed flex text-sm text-center text-gray-100 bottom-5 left-[calc(50% - 85px)] lg:left-5 xl:left-6 xl:bottom-6"
               href="https://apideck.com/products/unify"
               target="_blank"
               rel="noopener noreferrer"

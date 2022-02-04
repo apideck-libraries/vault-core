@@ -86,7 +86,8 @@ const ConnectionListItem = ({ connection }: Props) => {
                 ></path>
               </svg>
             ) : (
-              connection.state !== 'callable' && (
+              connection.state !== 'callable' &&
+              connection.state !== 'available' && (
                 <StatusBadge connection={connection} size="small" />
               )
             )}
