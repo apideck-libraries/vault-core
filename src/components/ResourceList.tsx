@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-
 import { Connection } from '../types/Connection';
+import { FormField } from '../types/FormField';
+import React from 'react';
+import { useConnections } from '../utils/useConnections';
 
 const ResourceList = ({
   connection,
@@ -9,17 +10,30 @@ const ResourceList = ({
   connection: Connection;
   setSelectedResource: (resource: string) => void;
 }) => {
+  const { resources } = useConnections();
   return (
     <div className="overflow-hidden bg-white border rounded-md">
       <ul className="divide-y divide-gray-200">
         {connection?.configurable_resources.map(
           (resource: string, index: number) => {
+            const config = resources?.find((r) => r.resource === resource);
+            const hasRequiredFieldsWithoutValue = config?.defaults.filter(
+              (field: FormField) => field.required && !field.value
+            )?.length;
+
             return (
               <li key={`resource-${index}`}>
-                <ResourceListItem
-                  resource={resource}
-                  setSelectedResource={setSelectedResource}
-                />
+                <button
+                  className="flex w-full capitalize items-center justify-between px-4 py-3 text-sm font-medium text-gray-800 sm:px-6 hover:bg-gray-50"
+                  onClick={() => setSelectedResource(resource)}
+                >
+                  <span>{resource}</span>
+                  {hasRequiredFieldsWithoutValue ? (
+                    <div className="inline-flex items-center font-medium leading-none rounded-full whitespace-nowrap px-2 py-1 text-xs bg-yellow-100 text-yellow-800">
+                      Missing required fields
+                    </div>
+                  ) : null}
+                </button>
               </li>
             );
           }
@@ -29,15 +43,19 @@ const ResourceList = ({
   );
 };
 
-const ResourceListItem = ({ resource, setSelectedResource }) => {
-  return (
-    <button
-      className="flex w-full capitalize items-center justify-between px-4 py-3 text-sm font-medium text-gray-800 sm:px-6 hover:bg-gray-50"
-      onClick={() => setSelectedResource(resource)}
-    >
-      {resource}
-    </button>
-  );
-};
+// const ResourceListItem = ({ resource, setSelectedResource }) => {
+//   const hasRequiredFieldsWithoutValue = data?.data?.data?.configuration?.filter(
+//     (field: FormField) => field.required && !field.value
+//   )?.length;
+
+//   return (
+//     <button
+//       className="flex w-full capitalize items-center justify-between px-4 py-3 text-sm font-medium text-gray-800 sm:px-6 hover:bg-gray-50"
+//       onClick={() => setSelectedResource(resource)}
+//     >
+//       {resource}
+//     </button>
+//   );
+// };
 
 export default ResourceList;

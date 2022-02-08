@@ -7,6 +7,7 @@ import {
 } from '@apideck/components';
 import React, { ChangeEvent } from 'react';
 
+import FilteredSelect from './FilteredSelect';
 import { FormField } from '../types/FormField';
 import Markdown from 'markdown-to-jsx';
 import SearchSelect from './SearchSelect';
@@ -19,17 +20,44 @@ interface Props {
 }
 
 const ResourceForm = ({ resource, closeForm }: Props) => {
-  const { selectedConnection, updateConnection, isUpdating } = useConnections();
+  const { resources, selectedConnection, updateConnection, isUpdating } =
+    useConnections();
   if (!selectedConnection) return null;
-  const {
-    unified_api: unifiedApi,
-    service_id: serviceId,
-    resources,
-  } = selectedConnection;
+  const { unified_api: unifiedApi, service_id: serviceId } = selectedConnection;
 
-  const formFields = resources?.find((r: any) => r.id === resource)?.config;
+  console.log('resources', resources);
 
-  if (!formFields) return null;
+  const formFields = resources?.find(
+    (config: { resource: string; defaults: FormField[] }) =>
+      config.resource === resource
+  )?.defaults;
+
+  if (!formFields)
+    return (
+      <div className="flex items-center justify-center h-20">
+        <svg
+          data-testid="loading-svg"
+          className="h-6 w-6 animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      </div>
+    );
 
   const sortedFormFields = formFields.sort(
     (a: any, b: any) => b.required - a.required
@@ -63,10 +91,14 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
             : v;
         })
         .filter(Boolean);
+
       const body = { configuration: [{ resource, defaults }] };
-      const result = await updateConnection(unifiedApi, serviceId, {
-        settings: { ...body },
-      });
+      const result = await updateConnection(
+        unifiedApi,
+        serviceId,
+        body,
+        resource
+      );
       if (result?.data) {
         closeForm && closeForm();
       }
@@ -155,13 +187,13 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                     className="max-w-sm"
                   />
                 )}
-                {/* {type === 'filtered-select' && (
+                {type === 'filtered-select' && (
                   <FilteredSelect
                     field={field}
                     formikProps={formik}
                     className="max-w-sm"
                   />
-                )} */}
+                )}
                 {(type === 'date' || type === 'datetime') && (
                   <DateInput
                     name={id}

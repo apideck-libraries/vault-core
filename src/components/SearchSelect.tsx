@@ -5,35 +5,35 @@ import CreatableSelect from 'react-select/creatable';
 import classNames from 'classnames';
 import theme from '../utils/theme';
 
-export interface IOptionType {
+export interface OptionType {
   value: string;
   label: string;
 }
 
-interface ISelectProps {
+interface SelectProps {
   field: string;
   placeholder: string;
   value?: string | string[] | readonly string[];
   handleChange: (event: any) => void;
   disabled?: boolean;
-  options: IOptionType[];
+  options: OptionType[];
   className?: string;
   isMulti?: any;
   isCreatable?: boolean;
 }
 
-interface IOptionProps
-  extends OptionProps<IOptionType, false, GroupTypeBase<IOptionType>> {
+interface ExtendedOptionProps
+  extends OptionProps<OptionType, false, GroupTypeBase<OptionType>> {
   label: string;
   data: { icon: string; name: string };
 }
 
-interface IProvided {
+interface Provided {
   [key: string]: string | number;
 }
 
 const customStyles = {
-  control: (provided: IProvided, state: { isFocused: boolean }) => ({
+  control: (provided: Provided, state: { isFocused: boolean }) => ({
     ...provided,
     border: state.isFocused
       ? `1px solid transparent`
@@ -48,8 +48,14 @@ const customStyles = {
         : `1px solid ${theme.colors.gray[300]}`,
     },
     fontFamily: theme.fontFamily['basier-circle'],
+    fontSize: theme.fontSize.sm,
   }),
-  menu: (provided: IProvided) => ({
+  placeholder: (provided: Provided) => ({
+    ...provided,
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.gray[400],
+  }),
+  menu: (provided: Provided) => ({
     ...provided,
     marginTop: '5px',
     border: `1px solid ${theme.colors.gray[300]}`,
@@ -57,7 +63,7 @@ const customStyles = {
     boxShadow: theme.boxShadow.lg,
   }),
   option: (
-    provided: IProvided,
+    provided: Provided,
     state: { isSelected: boolean; isFocused: boolean }
   ) => ({
     ...provided,
@@ -69,9 +75,10 @@ const customStyles = {
         : theme.colors.gray[900],
     fontFamily: theme.fontFamily['basier-circle'],
     fontWeight: theme.fontWeight.normal,
+    fontSize: theme.fontSize.sm,
     '&:Active': { backgroundColor: theme.colors.primary[400] },
   }),
-  noOptionsMessage: (provided: IProvided) => ({
+  noOptionsMessage: (provided: Provided) => ({
     ...provided,
     fontSize: theme.fontSize.sm,
   }),
@@ -96,7 +103,7 @@ const DropdownIndicator = () => {
   );
 };
 
-const Option = (props: IOptionProps) => {
+const Option = (props: ExtendedOptionProps) => {
   const { label, data } = props;
   const { icon, name } = data;
 
@@ -129,22 +136,22 @@ const SearchSelect = ({
   className = '',
   isCreatable = false,
   ...rest
-}: ISelectProps) => {
+}: SelectProps) => {
   const selectRef = useRef(null) as any;
   const [selectedOption, setSelectedOption] =
-    useState<IOptionType | IOptionType[]>();
+    useState<OptionType | OptionType[]>();
 
   useEffect(() => {
     if (!value) return;
 
     let option = rest.isMulti
-      ? options?.filter((option: IOptionType) => value?.includes(option.value))
-      : options?.find((option: IOptionType) => option.value === value);
+      ? options?.filter((option: OptionType) => value?.includes(option.value))
+      : options?.find((option: OptionType) => option.value === value);
 
     if (isCreatable) {
       option = rest.isMulti
-        ? ([{ label: value, value }] as IOptionType[])
-        : ({ label: value, value } as IOptionType);
+        ? ([{ label: value, value }] as OptionType[])
+        : ({ label: value, value } as OptionType);
     }
 
     if (option) setSelectedOption(option);
@@ -152,7 +159,7 @@ const SearchSelect = ({
 
   const patchedOnChange = (options: any) => {
     const value = rest.isMulti
-      ? options.map((option: IOptionType) => option.value)
+      ? options.map((option: OptionType) => option.value)
       : options.value;
     handleChange({ currentTarget: { value, name: field } });
     setSelectedOption(options);
@@ -190,10 +197,11 @@ const SearchSelect = ({
   return isCreatable ? (
     <CreatableSelect
       formatCreateLabel={(userInput: string) => `Select "${userInput}"`}
+      className="react-select"
       {...selectProps}
     />
   ) : (
-    <Select {...selectProps} />
+    <Select {...selectProps} className="react-select" />
   );
 };
 

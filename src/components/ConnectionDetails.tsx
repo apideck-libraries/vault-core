@@ -10,7 +10,8 @@ import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
 import TopBar from './TopBar';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
-import classNames from 'classnames';
+import { getApiName } from '../utils/getApiName';
+import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
 import { useConnections } from '../utils/useConnections';
 
 interface Props {
@@ -25,6 +26,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
     setSelectedConnection,
     getResourceConfig,
     isUpdating,
+    resources,
   } = useConnections();
   if (!selectedConnection) return null;
 
@@ -57,10 +59,21 @@ const ConnectionDetails = ({ onClose }: Props) => {
     !showSettings;
 
   useEffect(() => {
-    if (showResources && getResourceConfig) {
+    if (!resources?.length && getResourceConfig) {
       getResourceConfig();
     }
-  }, [showResources]);
+  }, []);
+
+  useEffect(() => {
+    // Open / close resource form bases on missing fields
+    if (!showSettings && hasMissingRequiredFields(resources)) {
+      setShowResources(true);
+    }
+
+    if (showResources && !hasMissingRequiredFields(resources)) {
+      setShowResources(false);
+    }
+  }, [resources, showSettings]);
 
   if (selectedResource) {
     return (
@@ -73,11 +86,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
           hideOptions={true}
         />
         <div className="h-full rounded-b-xl">
-          <div
-            className={classNames('text-center p-5 md:p-6', {
-              'animate-pulse': isUpdating,
-            })}
-          >
+          <div className="text-center p-5 md:p-6">
             <Dialog.Title
               as="h3"
               className="text-lg font-medium leading-6 text-gray-900"
@@ -110,18 +119,16 @@ const ConnectionDetails = ({ onClose }: Props) => {
         authorizeUrl={`${authorize_url}&redirect_uri=${REDIRECT_URL}`}
       />
       <div className="h-full rounded-b-xl">
-        <div
-          className={classNames('text-center p-5 md:p-6', {
-            'animate-pulse': isUpdating,
-          })}
-        >
+        <div className="text-center p-5 md:p-6">
           <Dialog.Title
             as="h3"
             className="text-lg font-medium leading-6 text-gray-900"
           >
             {name}
           </Dialog.Title>
-
+          <p className="text-sm text-gray-700 mb-2">
+            {getApiName(selectedConnection)}
+          </p>
           <p className="text-sm text-gray-500 mb-4">{tag_line}</p>
           <div className="mx-auto">
             <StatusBadge

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import StatusBadge, { Status } from './StatusBadge';
 
 import { APIS } from '../constants/apis';
 import { Connection } from '../types/Connection';
+import StatusBadge from './StatusBadge';
 import classNames from 'classnames';
+import { getApiName } from '../utils/getApiName';
 import { useConnections } from '../utils/useConnections';
 
 interface Props {
@@ -60,7 +61,7 @@ const ConnectionListItem = ({ connection }: Props) => {
                 {connection.name}
               </p>
               <p className="text-sm text-gray-500 truncate">
-                {APIS?.find((api) => api.id === connection.unified_api)?.name}
+                {getApiName(connection)}
               </p>
             </div>
             {isLoading ? (

@@ -2,6 +2,7 @@ import React, {
   ReactNode,
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -9,6 +10,7 @@ import useSWR, { useSWRConfig } from 'swr';
 
 import { CONNECTIONS_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
+import { FormField } from '../types/FormField';
 import { useToast } from '@apideck/components';
 
 interface ContextProps {
@@ -26,6 +28,7 @@ interface ContextProps {
     resource?: string
   ) => any;
   deleteConnection: (connection: Connection) => any;
+  resources: { resource: string; defaults: FormField[] }[];
   error: any;
   isLoading: boolean;
   isUpdating: boolean;
@@ -50,6 +53,9 @@ export const ConnectionsProvider = ({
 }: Props) => {
   const [selectedConnection, setSelectedConnection] =
     useState<Connection | null>(null);
+  const [resources, setResources] = useState<
+    { resource: string; defaults: FormField[] }[]
+  >([]);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const { mutate } = useSWRConfig();
   const { addToast } = useToast();
@@ -90,7 +96,7 @@ export const ConnectionsProvider = ({
       let updateUrl = `${CONNECTIONS_URL}/${api}/${serviceId}`;
       if (resource) updateUrl = `${updateUrl}/${resource}/config`;
 
-      const response = await fetch(`${CONNECTIONS_URL}/${api}/${serviceId}`, {
+      const response = await fetch(updateUrl, {
         method: 'PATCH',
         headers: getHeaders(),
         body: JSON.stringify(values),
@@ -115,6 +121,13 @@ export const ConnectionsProvider = ({
         mutate(CONNECTIONS_URL, updatedList, false);
         mutate(updateUrl, updatedDetail, false);
         setSelectedConnection({ ...selectedConnection, ...result.data });
+        if (resource) getResourceConfig();
+        addToast({
+          title: `Successfully updated ${result.data?.name}`,
+          description: '',
+          type: 'success',
+          autoClose: true,
+        });
         return result;
       } else {
         addToast({
@@ -139,7 +152,6 @@ export const ConnectionsProvider = ({
 
   const deleteConnection = async (connection: Connection) => {
     try {
-      setIsUpdating(true);
       await fetch(
         `${CONNECTIONS_URL}/${connection.unified_api}/${connection.service_id}`,
         {
@@ -161,6 +173,11 @@ export const ConnectionsProvider = ({
       };
       mutate(CONNECTIONS_URL, updatedData, false);
       setSelectedConnection(null);
+      addToast({
+        title: `Successfully deleted ${connection.name}`,
+        type: 'success',
+        autoClose: true,
+      });
     } catch (error: any) {
       console.error(error);
       addToast({
@@ -169,46 +186,51 @@ export const ConnectionsProvider = ({
         type: 'error',
       });
       return error;
+    }
+  };
+
+  const fetchConfig = async (resource: string) => {
+    if (!selectedConnection) return;
+    const raw = await fetch(
+      `${CONNECTIONS_URL}/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
+      {
+        headers: getHeaders(),
+      }
+    );
+    const { data } = await raw.json();
+
+    return { resource, defaults: data.configuration };
+  };
+
+  const getResourceConfig = async () => {
+    const requests: any = [];
+    selectedConnection?.configurable_resources.forEach((resource: any) => {
+      requests.push(fetchConfig(resource));
+    });
+
+    try {
+      setIsUpdating(true);
+      const responses = await Promise.all(requests);
+      setResources(responses);
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const getResourceConfig = async () => {
-    const getConfig = async (resource: string) => {
-      if (!selectedConnection) return;
-      const raw = await fetch(
-        `${CONNECTIONS_URL}/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
-        {
-          headers: getHeaders(),
-        }
-      );
-      const { data } = await raw.json();
-
-      return { id: resource, config: data.configuration };
-    };
-
-    const requests: any = [];
-    selectedConnection?.configurable_resources.forEach((resource: any) => {
-      requests.push(getConfig(resource));
-    });
-
-    try {
-      const responses = await Promise.all(requests);
-      setSelectedConnection({
-        ...selectedConnection,
-        resources: responses,
-      });
-    } catch (error) {
-      console.error(error);
+  useEffect(() => {
+    if (!selectedConnection && resources?.length) {
+      setResources([]);
     }
-  };
+  }, [selectedConnection]);
 
   const contextValue = useMemo(
     () => ({
       connections: data?.data?.sort((a: Connection, b: Connection) =>
         a.name?.localeCompare(b.name)
       ),
+      resources,
       isLoading: !error && !data,
       error: data?.detail || error,
       updateConnection,
@@ -221,7 +243,7 @@ export const ConnectionsProvider = ({
       isUpdating,
       getResourceConfig,
     }),
-    [isUpdating, selectedConnection, data, dataDetail, isOpen]
+    [isUpdating, selectedConnection, data, dataDetail, isOpen, resources]
   );
 
   return (

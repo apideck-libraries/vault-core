@@ -26,7 +26,7 @@ export interface Connection {
   settings_required_for_authorization?: string[];
   configurable_resources: string[];
   resource_schema_support: string[];
-  configuration?: FormField[];
+  configuration?: { resource: string; defaults: FormField[] }[];
   form_fields: FormField[];
   created_at: number;
   resources?: { id: string; config: any }[];

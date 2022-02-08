@@ -1,0 +1,8 @@
+@import './tailwind.css';
+
+/* Overwrite react-select input */
+.react-select input {
+  box-shadow: none !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
