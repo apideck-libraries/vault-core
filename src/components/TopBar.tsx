@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { CONNECTIONS_URL } from '../constants/urls';
+import ConfirmModal from './ConfirmModal';
 import { Dropdown } from '@apideck/components';
 import { REDIRECT_URL } from '../constants/urls';
 import classNames from 'classnames';
@@ -22,10 +23,11 @@ const TopBar = ({
   setShowResources,
   hideOptions,
 }: Props) => {
-  const { isUpdating, selectedConnection, updateConnection, deleteConnection } =
+  const { selectedConnection, updateConnection, deleteConnection } =
     useConnections();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const getOptions = () => {
     if (!selectedConnection) return null;
@@ -271,7 +273,9 @@ const TopBar = ({
             Delete
           </button>
         ),
-        onClick: () => deleteConnection(selectedConnection),
+        onClick: () => {
+          setShowDeleteModal(true);
+        },
       });
     }
 
@@ -280,6 +284,11 @@ const TopBar = ({
 
   return (
     <div className="grid grid-cols-3 px-6">
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => deleteConnection(selectedConnection)}
+      />
       {selectedConnection ? (
         <button
           className="inline-flex mt-3 items-center justify-center w-10 h-10 text-gray-900 transition-all duration-200 rounded-full hover:bg-gray-100 focus:outline-none"
@@ -307,7 +316,7 @@ const TopBar = ({
         src={selectedConnection?.icon ?? 'https://www.apideck.com/favicon.ico'}
         className={classNames(
           'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto',
-          { 'animate-pulse': isUpdating || isReAuthorizing }
+          { 'animate-pulse': isReAuthorizing }
         )}
       />
       <div className="flex flex-col items-end mt-3">
