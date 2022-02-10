@@ -128,7 +128,7 @@ export const ConnectionsProvider = ({
       });
       const result = await response.json();
 
-      if (result.data) {
+      if (result?.data) {
         const updatedList = {
           ...data,
           data: [
@@ -268,8 +268,6 @@ export const ConnectionsProvider = ({
   const connection = connectionDetails?.data
     ? { ...selectedConnection, ...connectionDetails?.data }
     : selectedConnection;
-
-  console.log('connection', connection);
 
   const contextValue = useMemo(
     () => ({
