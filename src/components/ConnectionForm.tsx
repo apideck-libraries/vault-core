@@ -41,7 +41,7 @@ const ConnectionForm = ({ connection, closeForm }: Props) => {
 
   return (
     <form className="space-y-4 text-left" onSubmit={formik.handleSubmit}>
-      {filteredFormFields.map((field) => {
+      {filteredFormFields.map((field, i) => {
         const {
           id,
           label,
@@ -54,7 +54,7 @@ const ConnectionForm = ({ connection, closeForm }: Props) => {
           allow_custom_values: allowCustomValues,
         } = field;
         return (
-          <div>
+          <div key={i}>
             <label
               htmlFor={id}
               className="block text-sm font-medium text-gray-700"

@@ -66,6 +66,8 @@ export const ConnectionsProvider = ({
   const { mutate } = useSWRConfig();
   const { addToast } = useToast();
 
+  const singleConnectionMode = unifiedApi && serviceId;
+
   const getHeaders = () => {
     return {
       Authorization: `Bearer ${jwt}`,
@@ -129,21 +131,24 @@ export const ConnectionsProvider = ({
       const result = await response.json();
 
       if (result?.data) {
-        const updatedList = {
-          ...data,
-          data: [
-            result.data,
-            ...data.data?.filter(
-              (con: Connection) => con.id !== result.data.id
-            ),
-          ],
-        };
+        if (!singleConnectionMode) {
+          const updatedList = {
+            ...data,
+            data: [
+              result.data,
+              ...data.data?.filter(
+                (con: Connection) => con.id !== result.data.id
+              ),
+            ],
+          };
+          mutate(CONNECTIONS_URL, updatedList, false);
+        }
+
         const updatedDetail = {
           ...data,
           data: result.data,
         };
 
-        mutate(CONNECTIONS_URL, updatedList, false);
         mutate(updateUrl, updatedDetail, false);
         setSelectedConnection({ ...selectedConnection, ...result.data });
         if (resource) getResourceConfig();
@@ -283,7 +288,7 @@ export const ConnectionsProvider = ({
       selectedConnection: connection,
       setSelectedConnection,
       isUpdating,
-      singleConnectionMode: unifiedApi && serviceId,
+      singleConnectionMode,
     }),
     [isUpdating, selectedConnection, data, connectionDetails, isOpen, resources]
   );

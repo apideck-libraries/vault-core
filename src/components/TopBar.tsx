@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { CONNECTIONS_URL } from '../constants/urls';
 import ConfirmModal from './ConfirmModal';
@@ -12,9 +12,10 @@ import { useSWRConfig } from 'swr';
 interface Props {
   onClose: () => void;
   onBack?: () => void;
-  setShowSettings?: (show: boolean) => void;
-  setShowResources?: (show: boolean) => void;
+  setShowSettings?: Dispatch<SetStateAction<boolean>>;
+  setShowResources?: Dispatch<SetStateAction<boolean>>;
   hideOptions?: boolean;
+  authorizeUrl?: string;
 }
 
 const TopBar = ({
@@ -30,6 +31,25 @@ const TopBar = ({
   const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const handleRedirect = (url: string) => {
+    setIsReAuthorizing(true);
+    const child = window.open(
+      url,
+      '_blank',
+      'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+    );
+    const timer = setInterval(checkChild, 500);
+    function checkChild() {
+      if (child?.closed) {
+        clearInterval(timer);
+        mutate(
+          `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
+        );
+        setIsReAuthorizing(false);
+      }
+    }
+  };
+
   const getOptions = () => {
     if (!selectedConnection) return null;
 
@@ -42,8 +62,10 @@ const TopBar = ({
       auth_type,
       configurable_resources,
       authorize_url,
+      revoke_url,
     } = selectedConnection;
     const authorizeUrl = `${authorize_url}&redirect_uri=${REDIRECT_URL}`;
+    const revokeUrl = `${revoke_url}&redirect_uri=${REDIRECT_URL}`;
     const options = [];
 
     const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
@@ -76,8 +98,8 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          setShowSettings && setShowSettings(true);
-          setShowResources && setShowResources(false);
+          if (setShowSettings) setShowSettings(true);
+          if (setShowResources) setShowResources(false);
         },
       });
     }
@@ -139,24 +161,7 @@ const TopBar = ({
             Re-authorize
           </button>
         ),
-        onClick: () => {
-          setIsReAuthorizing(true);
-          const child = window.open(
-            authorizeUrl,
-            '_blank',
-            'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-          );
-          const timer = setInterval(checkChild, 500);
-          function checkChild() {
-            if (child?.closed) {
-              clearInterval(timer);
-              mutate(
-                `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
-              );
-              setIsReAuthorizing(false);
-            }
-          }
-        },
+        onClick: () => handleRedirect(authorizeUrl),
       });
     }
 
@@ -249,7 +254,7 @@ const TopBar = ({
             Disconnect
           </button>
         ),
-        onClick: () => console.log('Lets disconnect'),
+        onClick: () => handleRedirect(revokeUrl),
       });
     }
 
