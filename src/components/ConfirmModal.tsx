@@ -65,7 +65,8 @@ export function ConfirmModal({ onClose, isOpen, onConfirm }: Props) {
               </Dialog.Title>
               <div className="mt-2">
                 <p className="text-sm text-gray-500">
-                  When you delete a connection you will lose all your settings.
+                  When you delete a connection you will lose all your configured
+                  settings.
                 </p>
               </div>
 

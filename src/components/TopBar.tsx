@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { CONNECTIONS_URL } from '../constants/urls';
 import ConfirmModal from './ConfirmModal';
 import { Dropdown } from '@apideck/components';
+import { FormField } from '../types/FormField';
 import { REDIRECT_URL } from '../constants/urls';
 import classNames from 'classnames';
 import { useConnections } from '../utils/useConnections';
@@ -106,8 +107,8 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          setShowSettings && setShowSettings(false);
-          setShowResources && setShowResources(true);
+          if (setShowResources) setShowResources(true);
+          if (setShowSettings) setShowSettings(false);
         },
       });
     }
@@ -181,7 +182,7 @@ const TopBar = ({
           </button>
         ),
         onClick: async () => {
-          setShowSettings(false);
+          if (setShowSettings) setShowSettings(false);
           updateConnection(unified_api, service_id, {
             enabled: false,
           });
@@ -217,9 +218,9 @@ const TopBar = ({
           if (result.data) {
             const { state, form_fields } = result.data;
             const hasFormFields = form_fields?.filter(
-              (field) => !field.hidden
+              (field: FormField) => !field.hidden
             )?.length;
-            if (state !== 'callable' && hasFormFields) {
+            if (state !== 'callable' && hasFormFields && setShowSettings) {
               setShowSettings(true);
             }
           }

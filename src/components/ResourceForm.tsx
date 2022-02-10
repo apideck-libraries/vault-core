@@ -25,8 +25,6 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
   if (!selectedConnection) return null;
   const { unified_api: unifiedApi, service_id: serviceId } = selectedConnection;
 
-  console.log('resources', resources);
-
   const formFields = resources?.find(
     (config: { resource: string; defaults: FormField[] }) =>
       config.resource === resource

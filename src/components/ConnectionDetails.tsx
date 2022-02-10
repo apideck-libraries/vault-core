@@ -4,6 +4,7 @@ import AuthorizeButton from './AuthorizeButton';
 import ConnectionForm from './ConnectionForm';
 import { Dialog } from '@headlessui/react';
 import Divider from './Divider';
+import LoadingDetails from './LoadingDetails';
 import { REDIRECT_URL } from '../constants/urls';
 import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
@@ -24,9 +25,10 @@ const ConnectionDetails = ({ onClose }: Props) => {
   const {
     selectedConnection,
     setSelectedConnection,
-    getResourceConfig,
     isUpdating,
+    isLoadingDetails,
     resources,
+    singleConnectionMode,
   } = useConnections();
   if (!selectedConnection) return null;
 
@@ -57,12 +59,6 @@ const ConnectionDetails = ({ onClose }: Props) => {
     auth_type === 'oauth2' &&
     !requiredAuth &&
     !showSettings;
-
-  useEffect(() => {
-    if (!resources?.length && getResourceConfig) {
-      getResourceConfig();
-    }
-  }, []);
 
   useEffect(() => {
     // Open / close resource form bases on missing fields
@@ -109,65 +105,80 @@ const ConnectionDetails = ({ onClose }: Props) => {
     );
   }
 
+  // const isLoading = isLoadingDetails || true;
+
+  if (isLoadingDetails) return <LoadingDetails onClose={onClose} />;
+
   return (
-    <div className="relative -m-6 sm:rounded-lg h-full">
-      <TopBar
-        onClose={onClose}
-        onBack={() => setSelectedConnection(null)}
-        setShowSettings={setShowSettings}
-        setShowResources={setShowResources}
-        authorizeUrl={`${authorize_url}&redirect_uri=${REDIRECT_URL}`}
-      />
-      <div className="h-full rounded-b-xl">
-        <div className="text-center p-5 md:p-6">
-          <Dialog.Title
-            as="h3"
-            className="text-lg font-medium leading-6 text-gray-900"
-          >
-            {name}
-          </Dialog.Title>
-          <p className="text-sm text-gray-700 mb-2">
-            {getApiName(selectedConnection)}
-          </p>
-          <p className="text-sm text-gray-500 mb-4">{tag_line}</p>
-          <div className="mx-auto">
-            <StatusBadge
-              connection={selectedConnection}
-              isLoading={isUpdating}
-              size="large"
-            />
-          </div>
-
-          {shouldShowAuthorizeButton ? (
-            <div className="mt-4">
-              <AuthorizeButton connection={selectedConnection} />
+    <div>
+      {/* <LoadingDetails onClose={onClose} /> */}
+      <div className="relative -m-6 sm:rounded-lg h-full">
+        <TopBar
+          onClose={onClose}
+          onBack={() => {
+            if (singleConnectionMode) {
+              onClose();
+            } else {
+              setSelectedConnection(null);
+            }
+          }}
+          setShowSettings={setShowSettings}
+          setShowResources={setShowResources}
+          authorizeUrl={`${authorize_url}&redirect_uri=${REDIRECT_URL}`}
+        />
+        <div className="h-full rounded-b-xl">
+          <div className="text-center p-5 md:p-6">
+            <Dialog.Title
+              as="h3"
+              className="text-lg font-medium leading-6 text-gray-900 mb-2"
+            >
+              {name}
+            </Dialog.Title>
+            <p className="text-sm text-gray-700 mb-2 font-medium">
+              {getApiName(selectedConnection)}
+            </p>
+            <p className="text-sm text-gray-500 mb-4">{tag_line}</p>
+            <div className="mx-auto">
+              <StatusBadge
+                connection={selectedConnection}
+                isLoading={isUpdating}
+                size="large"
+              />
             </div>
-          ) : null}
 
-          {showResources ? (
-            <Fragment>
-              <Divider text="Configurable resources" />
-              <ResourceList
-                connection={selectedConnection}
-                setSelectedResource={setSelectedResource}
-              />
-            </Fragment>
-          ) : null}
+            {isLoadingDetails && 'wefewfgewgewg'}
 
-          {hasFormFields && showSettings ? (
-            <Fragment>
-              {requiredAuth ? (
-                <div className={'text-xs sm:text-sm text-gray-500'}>
-                  {requiredAuth}
-                </div>
-              ) : null}
-              <Divider text="Settings" />
-              <ConnectionForm
-                connection={selectedConnection}
-                closeForm={() => setShowSettings(false)}
-              />
-            </Fragment>
-          ) : null}
+            {shouldShowAuthorizeButton ? (
+              <div className="mt-4">
+                <AuthorizeButton connection={selectedConnection} />
+              </div>
+            ) : null}
+
+            {showResources ? (
+              <Fragment>
+                <Divider text="Configurable resources" />
+                <ResourceList
+                  connection={selectedConnection}
+                  setSelectedResource={setSelectedResource}
+                />
+              </Fragment>
+            ) : null}
+
+            {hasFormFields && showSettings ? (
+              <Fragment>
+                {requiredAuth ? (
+                  <div className={'text-xs sm:text-sm text-gray-500'}>
+                    {requiredAuth}
+                  </div>
+                ) : null}
+                <Divider text="Settings" />
+                <ConnectionForm
+                  connection={selectedConnection}
+                  closeForm={() => setShowSettings(false)}
+                />
+              </Fragment>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

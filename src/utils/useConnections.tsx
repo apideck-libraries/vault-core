@@ -19,7 +19,7 @@ interface ContextProps {
   consumerId: string;
   connections: Connection[];
   selectedConnection?: Connection;
-  setSelectedConnection?: (connection: Connection) => void;
+  setSelectedConnection?: (connection: Connection | null) => void;
   getResourceConfig?: () => any;
   updateConnection: (
     api: string,
@@ -32,6 +32,8 @@ interface ContextProps {
   error: any;
   isLoading: boolean;
   isUpdating: boolean;
+  isLoadingDetails: boolean;
+  singleConnectionMode: boolean;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -41,6 +43,8 @@ interface Props {
   appId: string;
   consumerId: string;
   isOpen: boolean;
+  unifiedApi?: string;
+  serviceId?: string;
   children: ReactNode;
 }
 
@@ -49,6 +53,8 @@ export const ConnectionsProvider = ({
   appId,
   consumerId,
   isOpen,
+  unifiedApi,
+  serviceId,
   children,
 }: Props) => {
   const [selectedConnection, setSelectedConnection] =
@@ -78,12 +84,31 @@ export const ConnectionsProvider = ({
   };
 
   const { data, error } = useSWR(CONNECTIONS_URL, fetcher);
-  const { data: dataDetail, mutate: mutateDetail } = useSWR(
+  const { data: connectionDetails } = useSWR(
     selectedConnection
       ? `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
       : null,
     fetcher
   );
+
+  useEffect(() => {
+    if (unifiedApi && serviceId) {
+      setSelectedConnection({
+        unified_api: unifiedApi,
+        service_id: serviceId,
+      } as Connection);
+    }
+  }, [unifiedApi && serviceId]);
+
+  useEffect(() => {
+    if (
+      connectionDetails?.data?.configurable_resources?.length &&
+      !resources.length &&
+      !isUpdating
+    ) {
+      getResourceConfig();
+    }
+  }, [connectionDetails?.data]);
 
   const updateConnection = async (
     api: string,
@@ -197,20 +222,35 @@ export const ConnectionsProvider = ({
         headers: getHeaders(),
       }
     );
-    const { data } = await raw.json();
+    const response = await raw.json();
 
-    return { resource, defaults: data.configuration };
+    if (response.error) return response;
+
+    return { resource, defaults: response?.data.configuration };
   };
 
   const getResourceConfig = async () => {
     const requests: any = [];
-    selectedConnection?.configurable_resources.forEach((resource: any) => {
+    const resources =
+      selectedConnection?.configurable_resources ||
+      connectionDetails?.data?.configurable_resources;
+
+    resources.forEach((resource: any) => {
       requests.push(fetchConfig(resource));
     });
 
     try {
       setIsUpdating(true);
       const responses = await Promise.all(requests);
+      const errorResponse = responses.find((res: any) => res.error);
+      if (error) {
+        addToast({
+          title: 'Failed to fetch resource config',
+          description: errorResponse?.message || errorResponse.error,
+          type: 'error',
+        });
+        return;
+      }
       setResources(responses);
     } catch (error) {
       console.error(error);
@@ -225,6 +265,12 @@ export const ConnectionsProvider = ({
     }
   }, [selectedConnection]);
 
+  const connection = connectionDetails?.data
+    ? { ...selectedConnection, ...connectionDetails?.data }
+    : selectedConnection;
+
+  console.log('connection', connection);
+
   const contextValue = useMemo(
     () => ({
       connections: data?.data?.sort((a: Connection, b: Connection) =>
@@ -232,18 +278,16 @@ export const ConnectionsProvider = ({
       ),
       resources,
       isLoading: !error && !data,
+      isLoadingDetails: connection && !connection.id,
       error: data?.detail || error,
       updateConnection,
       deleteConnection,
-      selectedConnection: dataDetail?.data
-        ? { ...selectedConnection, ...dataDetail?.data }
-        : selectedConnection,
-      mutateDetail,
+      selectedConnection: connection,
       setSelectedConnection,
       isUpdating,
-      getResourceConfig,
+      singleConnectionMode: unifiedApi && serviceId,
     }),
-    [isUpdating, selectedConnection, data, dataDetail, isOpen, resources]
+    [isUpdating, selectedConnection, data, connectionDetails, isOpen, resources]
   );
 
   return (

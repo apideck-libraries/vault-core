@@ -1,40 +1,38 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, ReactNode } from 'react';
 
 import { Tab } from '@headlessui/react';
+import classNames from 'classnames';
 
-/*
-  This example requires Tailwind CSS v2.0+
-
-  This example requires some changes to your config:
-
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
+interface Props {
+  tabs: Tab[];
 }
 
-export default function TabSelect({ tabs }) {
+interface Tab {
+  name: string;
+  count: number;
+  content: ReactNode;
+}
+
+const TabSelect = ({ tabs }: Props) => {
   return (
     <Tab.Group>
       <Tab.List>
-        {tabs.map((tab) => (
+        {tabs.map((tab: Tab, i: number) => (
           <Tab
+            key={i}
             className={({ selected }) =>
               classNames(
                 selected
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                'w-1/2 py-4 px-2 text-center border-b-2 font-medium text-sm'
+                'w-1/2 py-4 px-2 text-center border-b-2 font-medium text-sm',
+                {
+                  'w-full': tabs.length === 1,
+                  'w-1/2': tabs.length === 2,
+                  'w-1/3': tabs.length === 3,
+                  'w-1/4': tabs.length === 4,
+                  'w-1/5': tabs.length === 5,
+                }
               )
             }
           >
@@ -62,10 +60,12 @@ export default function TabSelect({ tabs }) {
         className="border-t border-gray-200 overflow-y-auto"
         style={{ maxHeight: 485 }}
       >
-        {tabs.map((tab, i: number) => (
-          <Tab.Panel key={i}>{tab.content}</Tab.Panel>
+        {tabs.map((tab: Tab, i: number) => (
+          <Tab.Panel key={`tab-${i}`}>{tab.content}</Tab.Panel>
         ))}
       </Tab.Panels>
     </Tab.Group>
   );
-}
+};
+
+export default TabSelect;

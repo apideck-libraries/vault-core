@@ -41,9 +41,15 @@ export interface Props {
    */
   onClose?: () => any;
   /**
-   * Optionally you can give a selected connection to go straight to the connection details view
+   * Optionally you can filter connection on API. You can also provide the unifiedApi to go straight to the connection details view.
+   * It that case make sure you also pass the serviceId.
    */
-  selectedConnection?: () => any;
+  unifiedApi?: string;
+  /**
+   * Optionally you can give a serviceId to go straight to the connection details view
+   * Make sure you also pass the unifiedApi
+   */
+  serviceId?: string;
 }
 
 /**
@@ -58,6 +64,8 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     showAttribution = true,
     open = false,
     onClose,
+    unifiedApi,
+    serviceId,
   },
   ref
 ) {
@@ -103,6 +111,8 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
             consumerId={consumerId}
             jwt={jwt}
             isOpen={isOpen}
+            unifiedApi={unifiedApi}
+            serviceId={serviceId}
           >
             <ModalContent onClose={onCloseModal} />
           </ConnectionsProvider>
