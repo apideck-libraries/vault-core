@@ -1,18 +1,18 @@
 import { Button, TextInput } from '@apideck/components';
+import React, { Dispatch, SetStateAction } from 'react';
 
 import { Connection } from '../types/Connection';
 import Markdown from 'markdown-to-jsx';
-import React from 'react';
 import SearchSelect from './SearchSelect';
 import { useConnections } from '../utils/useConnections';
 import { useFormik } from 'formik';
 
 interface Props {
   connection: Connection;
-  closeForm: () => void;
+  setShowSettings: Dispatch<SetStateAction<boolean>>;
 }
 
-const ConnectionForm = ({ connection, closeForm }: Props) => {
+const ConnectionForm = ({ connection, setShowSettings }: Props) => {
   const { updateConnection, isUpdating } = useConnections();
 
   const formFields = connection.form_fields;
@@ -28,13 +28,14 @@ const ConnectionForm = ({ connection, closeForm }: Props) => {
   const formik = useFormik({
     initialValues,
     onSubmit: async (values) => {
+      setShowSettings(false);
       const result = await updateConnection(
         connection.unified_api,
         connection.service_id,
         { settings: { ...values } }
       );
-      if (result?.data) {
-        closeForm();
+      if (result?.error) {
+        setShowSettings(true);
       }
     },
   });

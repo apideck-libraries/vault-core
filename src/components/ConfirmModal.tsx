@@ -16,6 +16,7 @@ export function ConfirmModal({ onClose, isOpen, onConfirm }: Props) {
     try {
       setIsLoading(true);
       await onConfirm();
+      onClose();
     } finally {
       setIsLoading(false);
     }

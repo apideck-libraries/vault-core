@@ -135,6 +135,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
           <p className="text-sm text-gray-700 mb-2 font-medium">
             {getApiName(selectedConnection)}
           </p>
+
           <p className="text-sm text-gray-500 mb-4">{tag_line}</p>
           <div className="mx-auto">
             <StatusBadge
@@ -163,14 +164,14 @@ const ConnectionDetails = ({ onClose }: Props) => {
           {hasFormFields && showSettings ? (
             <Fragment>
               {requiredAuth ? (
-                <div className={'text-xs sm:text-sm text-gray-500'}>
+                <div className={'mt-4 text-xs sm:text-sm text-gray-700'}>
                   {requiredAuth}
                 </div>
               ) : null}
               <Divider text="Settings" />
               <ConnectionForm
                 connection={selectedConnection}
-                closeForm={() => setShowSettings(false)}
+                setShowSettings={setShowSettings}
               />
             </Fragment>
           ) : null}

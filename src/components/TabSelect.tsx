@@ -1,5 +1,6 @@
 import React, { Fragment, ReactNode } from 'react';
 
+import SearchInput from './SearchInput';
 import { Tab } from '@headlessui/react';
 import classNames from 'classnames';
 
@@ -9,7 +10,7 @@ interface Props {
 
 interface Tab {
   name: string;
-  count: number;
+  count?: number;
   content: ReactNode;
 }
 
@@ -44,7 +45,7 @@ const TabSelect = ({ tabs }: Props) => {
                     className={classNames(
                       selected
                         ? 'bg-primary-100 text-primary-600'
-                        : 'bg-gray-100 text-gray-900',
+                        : 'bg-gray-100 text-gray-600',
                       'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'
                     )}
                   >
@@ -56,10 +57,7 @@ const TabSelect = ({ tabs }: Props) => {
           </Tab>
         ))}
       </Tab.List>
-      <Tab.Panels
-        className="border-t border-gray-200 overflow-y-auto"
-        style={{ maxHeight: 485 }}
-      >
+      <Tab.Panels>
         {tabs.map((tab: Tab, i: number) => (
           <Tab.Panel key={`tab-${i}`}>{tab.content}</Tab.Panel>
         ))}

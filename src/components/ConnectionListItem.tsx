@@ -35,7 +35,7 @@ const ConnectionListItem = ({ connection }: Props) => {
   return (
     <li
       key={connection.id}
-      className="bg-white cursor-pointer"
+      className="bg-white cursor-pointer fade-in"
       onClick={handleClick}
     >
       <div

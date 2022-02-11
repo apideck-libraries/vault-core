@@ -18,9 +18,8 @@ interface ContextProps {
   appId: string;
   consumerId: string;
   connections: Connection[];
-  selectedConnection?: Connection;
-  setSelectedConnection?: (connection: Connection | null) => void;
-  getResourceConfig?: () => any;
+  selectedConnection: Connection | null;
+  setSelectedConnection: (connection: Connection | null) => void;
   updateConnection: (
     api: string,
     serviceId: string,
@@ -86,7 +85,7 @@ export const ConnectionsProvider = ({
   };
 
   const { data, error } = useSWR(CONNECTIONS_URL, fetcher);
-  const { data: connectionDetails } = useSWR(
+  const { data: connectionDetails, error: detailsError } = useSWR(
     selectedConnection
       ? `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
       : null,
@@ -105,8 +104,7 @@ export const ConnectionsProvider = ({
   useEffect(() => {
     if (
       connectionDetails?.data?.configurable_resources?.length &&
-      !resources.length &&
-      !isUpdating
+      !resources.length
     ) {
       getResourceConfig();
     }
@@ -282,7 +280,8 @@ export const ConnectionsProvider = ({
       resources,
       isLoading: !error && !data,
       isLoadingDetails: connection && !connection.id,
-      error: data?.detail || error,
+      error: data?.message || error,
+      detailsError: connectionDetails?.message || detailsError,
       updateConnection,
       deleteConnection,
       selectedConnection: connection,

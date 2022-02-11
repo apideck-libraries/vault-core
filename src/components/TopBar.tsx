@@ -15,7 +15,7 @@ interface Props {
   setShowSettings?: Dispatch<SetStateAction<boolean>>;
   setShowResources?: Dispatch<SetStateAction<boolean>>;
   hideOptions?: boolean;
-  authorizeUrl?: string;
+  hideBackButton?: boolean;
 }
 
 const TopBar = ({
@@ -24,6 +24,7 @@ const TopBar = ({
   setShowSettings,
   setShowResources,
   hideOptions,
+  hideBackButton,
 }: Props) => {
   const { selectedConnection, updateConnection, deleteConnection } =
     useConnections();
@@ -233,7 +234,7 @@ const TopBar = ({
       });
     }
 
-    if (state === 'authorized' || state === 'callable') {
+    if ((revoke_url && state === 'authorized') || state === 'callable') {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -295,7 +296,7 @@ const TopBar = ({
         onClose={() => setShowDeleteModal(false)}
         onConfirm={() => deleteConnection(selectedConnection)}
       />
-      {selectedConnection ? (
+      {selectedConnection && !hideBackButton ? (
         <button
           className="inline-flex mt-3 items-center justify-center w-10 h-10 text-gray-900 transition-all duration-200 rounded-full hover:bg-gray-100 focus:outline-none"
           onClick={onBack}

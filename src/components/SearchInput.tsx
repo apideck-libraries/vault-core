@@ -1,15 +1,4 @@
-import React, {
-  ChangeEvent,
-  KeyboardEventHandler,
-  RefObject,
-  useEffect,
-  useState,
-} from 'react';
-
-import { TextInput } from '@apideck/components';
-
-const ACTION_KEY_DEFAULT = ['Ctrl ', 'Control'];
-const ACTION_KEY_APPLE = ['⌘', 'Command'];
+import React, { ChangeEvent, KeyboardEventHandler, RefObject } from 'react';
 
 interface Props {
   value: string;
@@ -24,23 +13,9 @@ const SearchInput = ({
   handleKeyDown,
   onChange,
 }: Props) => {
-  const [browserDetected, setBrowserDetected] = useState(false);
-  const [actionKey, setActionKey] = useState(ACTION_KEY_DEFAULT);
-
-  useEffect(() => {
-    if (typeof navigator !== 'undefined') {
-      if (/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
-        setActionKey(ACTION_KEY_APPLE);
-      } else {
-        setActionKey(ACTION_KEY_DEFAULT);
-      }
-      setBrowserDetected(true);
-    }
-  }, []);
-
   return (
-    <div className="relative mt-6 lg:mt-8">
-      <div className="absolute left-0 flex items-center pt-2.5 md:pt-3 pl-3 pointer-events-none">
+    <div className="relative px-6 py-4">
+      <div className="absolute left-0 flex items-center pt-2.5 md:pt-3 pl-10 pointer-events-none">
         <svg
           className="w-5 h-5 text-gray-400"
           xmlns="http://www.w3.org/2000/svg"
@@ -55,23 +30,17 @@ const SearchInput = ({
           />
         </svg>
       </div>
-      <TextInput
+      <input
         name="search"
         type="text"
         ref={searchInputRef}
         placeholder="Search integrations"
         value={value}
-        className="pl-10 md:py-2.5 lg:py-3 border-gray-50"
+        className="w-full text-gray-600 border border-transparent bg-gray-100 rounded-md sm:text-sm focus:ring-transparent focus:border-gray-200 placeholder-gray-400 pl-12 md:py-2.5 lg:py-3"
         autoComplete="off"
         onKeyDown={handleKeyDown}
         onChange={onChange}
       />
-      <span
-        style={{ opacity: browserDetected ? '1' : '0' }}
-        className="hidden whitespace-nowrap sm:block ml-2 md:ml-4 text-gray-400 text-sm py-0.5 px-1.5 border border-gray-300 rounded-md absolute right-2.5 top-2.5"
-      >
-        <span className="mr-1 font-medium">{actionKey[0]}</span>K
-      </span>
     </div>
   );
 };
