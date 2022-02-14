@@ -34,6 +34,11 @@ module.exports = {
           insertAt: 'top',
         },
         sourceMap: false,
+      }),
+      commonjs({
+        namedExports: {
+          'react-js': ['isValidElementType'],
+        },
       })
     );
     return config;

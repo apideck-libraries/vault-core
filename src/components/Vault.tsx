@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 
 import { ConnectionsProvider } from '../utils/useConnections';
+import Logo from './Logo';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
 import { ToastProvider } from '@apideck/components';
@@ -100,11 +101,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
       {trigger
         ? React.cloneElement(trigger, { onClick: () => handleClick(), ref })
         : null}
-      <Modal
-        isOpen={isOpen}
-        onClose={() => onCloseModal()}
-        showAttribution={showAttribution}
-      >
+      <Modal isOpen={isOpen} onClose={() => onCloseModal()}>
         <ToastProvider>
           <ConnectionsProvider
             appId={appId}
@@ -118,6 +115,16 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
           </ConnectionsProvider>
         </ToastProvider>
       </Modal>
+      {showAttribution ? (
+        <a
+          className="z-50 fixed flex text-sm text-center text-gray-100 bottom-5 left-[calc(50% - 85px)] lg:left-5 xl:left-6 xl:bottom-6"
+          href="https://apideck.com/products/unify"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by <Logo className="h-5" />
+        </a>
+      ) : null}
     </Fragment>
   );
 });

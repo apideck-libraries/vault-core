@@ -43,19 +43,4 @@ const ResourceList = ({
   );
 };
 
-// const ResourceListItem = ({ resource, setSelectedResource }) => {
-//   const hasRequiredFieldsWithoutValue = data?.data?.data?.configuration?.filter(
-//     (field: FormField) => field.required && !field.value
-//   )?.length;
-
-//   return (
-//     <button
-//       className="flex w-full capitalize items-center justify-between px-4 py-3 text-sm font-medium text-gray-800 sm:px-6 hover:bg-gray-50"
-//       onClick={() => setSelectedResource(resource)}
-//     >
-//       {resource}
-//     </button>
-//   );
-// };
-
 export default ResourceList;

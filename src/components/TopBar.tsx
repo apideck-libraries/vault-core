@@ -4,6 +4,7 @@ import { CONNECTIONS_URL } from '../constants/urls';
 import ConfirmModal from './ConfirmModal';
 import { Dropdown } from '@apideck/components';
 import { FormField } from '../types/FormField';
+import { Option } from '@apideck/components/dist/components/Dropdown';
 import { REDIRECT_URL } from '../constants/urls';
 import classNames from 'classnames';
 import { useConnections } from '../utils/useConnections';
@@ -52,7 +53,7 @@ const TopBar = ({
   };
 
   const getOptions = () => {
-    if (!selectedConnection) return null;
+    if (!selectedConnection) return [];
 
     const {
       state,
@@ -67,7 +68,7 @@ const TopBar = ({
     } = selectedConnection;
     const authorizeUrl = `${authorize_url}&redirect_uri=${REDIRECT_URL}`;
     const revokeUrl = `${revoke_url}&redirect_uri=${REDIRECT_URL}`;
-    const options = [];
+    const options: Option[] = [];
 
     const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
 
@@ -221,7 +222,7 @@ const TopBar = ({
           const result = await updateConnection(unified_api, service_id, {
             enabled: true,
           });
-          if (result.data) {
+          if (result?.data) {
             const { state, form_fields } = result.data;
             const hasFormFields = form_fields?.filter(
               (field: FormField) => !field.hidden
@@ -234,7 +235,7 @@ const TopBar = ({
       });
     }
 
-    if ((revoke_url && state === 'authorized') || state === 'callable') {
+    if (revoke_url && (state === 'authorized' || state === 'callable')) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -294,7 +295,9 @@ const TopBar = ({
       <ConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={() => deleteConnection(selectedConnection)}
+        onConfirm={() => {
+          if (selectedConnection) deleteConnection(selectedConnection);
+        }}
       />
       {selectedConnection && !hideBackButton ? (
         <button

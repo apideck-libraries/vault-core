@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Select, { OptionProps, components } from 'react-select';
+import Select, { CSSObjectWithLabel } from 'react-select';
 
 import CreatableSelect from 'react-select/creatable';
 import classNames from 'classnames';
@@ -22,65 +22,57 @@ interface SelectProps {
   isCreatable?: boolean;
 }
 
-interface ExtendedOptionProps
-  extends OptionProps<OptionType, false, GroupTypeBase<OptionType>> {
-  label: string;
-  data: { icon: string; name: string };
-}
-
-interface Provided {
-  [key: string]: string | number;
-}
-
 const customStyles = {
-  control: (provided: Provided, state: { isFocused: boolean }) => ({
+  control: (provided: CSSObjectWithLabel, state: { isFocused: boolean }) => ({
     ...provided,
     border: state.isFocused
       ? `1px solid transparent`
-      : `1px solid ${theme.colors.gray[300]}`,
-    borderRadius: theme.borderRadius.md,
+      : `1px solid ${theme?.colors?.gray[300]}`,
+    borderRadius: theme?.borderRadius.md,
     boxShadow: state.isFocused
-      ? `0 0 0 2px ${theme.colors.primary[500]}`
+      ? `0 0 0 2px ${theme?.colors.primary[500]}`
       : 'none',
     '&:hover': {
       border: state.isFocused
         ? `1px solid transparent`
-        : `1px solid ${theme.colors.gray[300]}`,
+        : `1px solid ${theme?.colors.gray[300]}`,
     },
-    fontFamily: theme.fontFamily['basier-circle'],
-    fontSize: theme.fontSize.sm,
+    fontFamily: theme?.fontFamily['basier-circle'],
+    fontSize: theme?.fontSize.sm,
   }),
-  placeholder: (provided: Provided) => ({
+  placeholder: (provided: CSSObjectWithLabel) => ({
     ...provided,
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.gray[400],
+    fontSize: theme?.fontSize.sm,
+    color: theme?.colors.gray[400],
   }),
-  menu: (provided: Provided) => ({
+  menu: (provided: CSSObjectWithLabel) => ({
     ...provided,
     marginTop: '5px',
-    border: `1px solid ${theme.colors.gray[300]}`,
-    borderRadius: theme.borderRadius.md,
-    boxShadow: theme.boxShadow.lg,
+    border: `1px solid ${theme?.colors.gray[300]}`,
+    borderRadius: theme?.borderRadius.md,
+    boxShadow: theme?.boxShadow.lg,
   }),
   option: (
-    provided: Provided,
+    provided: CSSObjectWithLabel,
     state: { isSelected: boolean; isFocused: boolean }
   ) => ({
     ...provided,
     backgroundColor:
-      state.isSelected || state.isFocused ? theme.colors.primary[500] : 'none',
+      state.isSelected || state.isFocused
+        ? `${theme?.colors.primary[500]}`
+        : 'none',
     color:
       state.isSelected || state.isFocused
-        ? theme.colors.white
-        : theme.colors.gray[900],
-    fontFamily: theme.fontFamily['basier-circle'],
-    fontWeight: theme.fontWeight.normal,
-    fontSize: theme.fontSize.sm,
-    '&:Active': { backgroundColor: theme.colors.primary[400] },
+        ? `${theme?.colors.white}`
+        : `${theme?.colors.gray[900]}`,
+    fontFamily: `${theme?.fontFamily['basier-circle']}`,
+    fontWeight: `${theme?.fontWeight.normal}`,
+    fontSize: `${theme?.fontSize.sm}`,
+    '&:Active': { backgroundColor: `${theme?.colors.primary[400]}` },
   }),
-  noOptionsMessage: (provided: Provided) => ({
+  noOptionsMessage: (provided: CSSObjectWithLabel) => ({
     ...provided,
-    fontSize: theme.fontSize.sm,
+    fontSize: theme?.fontSize.sm,
   }),
 };
 
@@ -100,29 +92,6 @@ const DropdownIndicator = () => {
         d="M19 9l-7 7-7-7"
       />
     </svg>
-  );
-};
-
-const Option = (props: ExtendedOptionProps) => {
-  const { label, data } = props;
-  const { icon, name } = data;
-
-  return (
-    <components.Option {...props}>
-      <div className="flex items-center justify-start">
-        {icon && (
-          <img
-            className="mr-2"
-            style={{ width: '20px', height: '20px' }}
-            src={icon}
-            alt={name}
-          />
-        )}
-        <span className="font-medium" style={{ fontSize: '0.9735rem' }}>
-          {label}
-        </span>
-      </div>
-    </components.Option>
   );
 };
 
@@ -173,9 +142,10 @@ const SearchSelect = ({
     value: selectedOption,
     isDisabled: disabled,
     onChange: patchedOnChange,
-    placeholder: placeholder,
-    options: options,
+    placeholder,
+    options,
     className: classNames(
+      'react-select',
       'text-base text-gray-600 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-primary-500 focus:border-primary-500 react-select',
       className
     ),
@@ -186,7 +156,6 @@ const SearchSelect = ({
       }
     },
     components: {
-      Option,
       DropdownIndicator,
       IndicatorSeparator: null,
     },
@@ -197,11 +166,10 @@ const SearchSelect = ({
   return isCreatable ? (
     <CreatableSelect
       formatCreateLabel={(userInput: string) => `Select "${userInput}"`}
-      className="react-select"
       {...selectProps}
     />
   ) : (
-    <Select {...selectProps} className="react-select" />
+    <Select {...selectProps} />
   );
 };
 

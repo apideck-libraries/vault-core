@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import { APIS } from '../constants/apis';
 import { Connection } from '../types/Connection';
 import StatusBadge from './StatusBadge';
 import classNames from 'classnames';
@@ -23,7 +22,7 @@ const ConnectionListItem = ({ connection }: Props) => {
         connection.service_id,
         { enabled: true }
       );
-      if (result.data) {
+      if (result?.data) {
         setSelectedConnection(result.data);
       }
       setIsLoading(false);

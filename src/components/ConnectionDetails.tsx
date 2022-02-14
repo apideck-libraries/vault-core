@@ -5,7 +5,6 @@ import ConnectionForm from './ConnectionForm';
 import { Dialog } from '@headlessui/react';
 import Divider from './Divider';
 import LoadingDetails from './LoadingDetails';
-import { REDIRECT_URL } from '../constants/urls';
 import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
@@ -36,10 +35,10 @@ const ConnectionDetails = ({ onClose }: Props) => {
     enabled,
     state,
     auth_type,
-    authorize_url,
     name,
     tag_line,
     form_fields,
+    unified_api,
   } = selectedConnection;
 
   const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
@@ -122,7 +121,6 @@ const ConnectionDetails = ({ onClose }: Props) => {
         }}
         setShowSettings={setShowSettings}
         setShowResources={setShowResources}
-        authorizeUrl={`${authorize_url}&redirect_uri=${REDIRECT_URL}`}
       />
       <div className="h-full rounded-b-xl">
         <div className="text-center p-5 md:p-6">
@@ -132,11 +130,16 @@ const ConnectionDetails = ({ onClose }: Props) => {
           >
             {name}
           </Dialog.Title>
-          <p className="text-sm text-gray-700 mb-2 font-medium">
+          <a
+            className="text-sm text-gray-700 mb-2 font-medium hover:text-gray-900"
+            href={`https://developers.apideck.com/apis/${unified_api}/reference`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {getApiName(selectedConnection)}
-          </p>
+          </a>
 
-          <p className="text-sm text-gray-500 mb-4">{tag_line}</p>
+          <p className="text-sm text-gray-500 mt-2 mb-4">{tag_line}</p>
           <div className="mx-auto">
             <StatusBadge
               connection={selectedConnection}

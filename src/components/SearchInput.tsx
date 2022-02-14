@@ -1,18 +1,12 @@
-import React, { ChangeEvent, KeyboardEventHandler, RefObject } from 'react';
+import React, { ChangeEvent, RefObject } from 'react';
 
 interface Props {
   value: string;
   searchInputRef: RefObject<HTMLInputElement>;
-  handleKeyDown: KeyboardEventHandler<HTMLInputElement>;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const SearchInput = ({
-  value,
-  searchInputRef,
-  handleKeyDown,
-  onChange,
-}: Props) => {
+const SearchInput = ({ value, searchInputRef, onChange }: Props) => {
   return (
     <div className="relative px-6 py-4">
       <div className="absolute left-0 flex items-center pt-2.5 md:pt-3 pl-10 pointer-events-none">
@@ -38,7 +32,6 @@ const SearchInput = ({
         value={value}
         className="w-full text-gray-600 border border-transparent bg-gray-100 rounded-md sm:text-sm focus:ring-transparent focus:border-gray-200 placeholder-gray-400 pl-12 md:py-2.5 lg:py-3"
         autoComplete="off"
-        onKeyDown={handleKeyDown}
         onChange={onChange}
       />
     </div>

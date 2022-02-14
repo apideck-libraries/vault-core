@@ -6,33 +6,32 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { usePrevious, useToast } from '@apideck/components';
 import useSWR, { useSWRConfig } from 'swr';
 
 import { CONNECTIONS_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
-import { useToast } from '@apideck/components';
 
 interface ContextProps {
-  jwt: string;
-  appId: string;
-  consumerId: string;
   connections: Connection[];
+  deleteConnection: (connection: Connection) => void;
+  detailsError: any;
+  error: any;
+  isLoading: boolean;
+  isLoadingDetails: boolean;
+  isUpdating: boolean;
+  resources: { resource: string; defaults: FormField[] }[] | [];
   selectedConnection: Connection | null;
   setSelectedConnection: (connection: Connection | null) => void;
+  singleConnectionMode: boolean;
+  sessionExpired: boolean;
   updateConnection: (
     api: string,
     serviceId: string,
     values: any,
     resource?: string
   ) => any;
-  deleteConnection: (connection: Connection) => any;
-  resources: { resource: string; defaults: FormField[] }[];
-  error: any;
-  isLoading: boolean;
-  isUpdating: boolean;
-  isLoadingDetails: boolean;
-  singleConnectionMode: boolean;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -65,7 +64,8 @@ export const ConnectionsProvider = ({
   const { mutate } = useSWRConfig();
   const { addToast } = useToast();
 
-  const singleConnectionMode = unifiedApi && serviceId;
+  const singleConnectionMode =
+    unifiedApi?.length && serviceId?.length ? true : false;
 
   const getHeaders = () => {
     return {
@@ -92,23 +92,47 @@ export const ConnectionsProvider = ({
     fetcher
   );
 
+  const connection = connectionDetails?.data
+    ? { ...selectedConnection, ...connectionDetails?.data }
+    : selectedConnection;
+
+  const prevConnection: any = usePrevious(connection);
+
   useEffect(() => {
-    if (unifiedApi && serviceId) {
+    if (singleConnectionMode) {
+      // Set unified_api and service_id id as selected connection so the component only shows the connection details view
+      // and useSWR gets triggered to fetch the connectionDetails
       setSelectedConnection({
         unified_api: unifiedApi,
         service_id: serviceId,
       } as Connection);
     }
-  }, [unifiedApi && serviceId]);
+  }, [singleConnectionMode]);
 
   useEffect(() => {
+    // Enable connection if it's in singleConnectionMode and connection is not yet enabled/disabled
     if (
-      connectionDetails?.data?.configurable_resources?.length &&
-      !resources.length
+      unifiedApi?.length &&
+      serviceId?.length &&
+      prevConnection &&
+      !prevConnection?.hasOwnProperty('enabled') &&
+      connection?.hasOwnProperty('enabled') &&
+      !connection.enabled
     ) {
+      updateConnection(unifiedApi, serviceId, { enabled: true });
+    }
+  }, [connection]);
+
+  useEffect(() => {
+    if (!connection) return;
+
+    const { configurable_resources, state } = connection;
+    const isReAuthorized = state === 'authorized' || state === 'callable';
+
+    if (configurable_resources?.length && isReAuthorized && !resources.length) {
       getResourceConfig();
     }
-  }, [connectionDetails?.data]);
+  }, [connection]);
 
   const updateConnection = async (
     api: string,
@@ -129,12 +153,13 @@ export const ConnectionsProvider = ({
       const result = await response.json();
 
       if (result?.data) {
+        // Mutate list view only if we are in NOT in single connection mode
         if (!singleConnectionMode) {
           const updatedList = {
             ...data,
             data: [
               result.data,
-              ...data.data?.filter(
+              ...data?.data?.filter(
                 (con: Connection) => con.id !== result.data.id
               ),
             ],
@@ -142,6 +167,7 @@ export const ConnectionsProvider = ({
           mutate(CONNECTIONS_URL, updatedList, false);
         }
 
+        // Update selected connection and mutate client cache
         const updatedDetail = {
           ...data,
           data: result.data,
@@ -149,13 +175,20 @@ export const ConnectionsProvider = ({
 
         mutate(updateUrl, updatedDetail, false);
         setSelectedConnection({ ...selectedConnection, ...result.data });
+
         if (resource) getResourceConfig();
+
+        const message = values.hasOwnProperty('enabled')
+          ? `${result.data?.name} is ${values.enabled ? 'enabled' : 'disabled'}`
+          : `${result.data?.name} settings are updated`;
+
         addToast({
-          title: `Successfully updated ${result.data?.name}`,
+          title: message,
           description: '',
           type: 'success',
           autoClose: true,
         });
+
         return result;
       } else {
         addToast({
@@ -165,11 +198,10 @@ export const ConnectionsProvider = ({
         });
       }
       return result;
-    } catch (error: any) {
-      console.error(error);
+    } catch (error) {
       addToast({
         title: 'Updating failed',
-        description: error.message,
+        description: (error as any)?.message,
         type: 'error',
       });
       return error;
@@ -202,18 +234,16 @@ export const ConnectionsProvider = ({
       mutate(CONNECTIONS_URL, updatedData, false);
       setSelectedConnection(null);
       addToast({
-        title: `Successfully deleted ${connection.name}`,
+        title: `${connection.name} has been deleted`,
         type: 'success',
         autoClose: true,
       });
-    } catch (error: any) {
-      console.error(error);
+    } catch (error) {
       addToast({
         title: 'Updating failed',
-        description: error.message,
+        description: (error as any)?.message,
         type: 'error',
       });
-      return error;
     }
   };
 
@@ -234,9 +264,7 @@ export const ConnectionsProvider = ({
 
   const getResourceConfig = async () => {
     const requests: any = [];
-    const resources =
-      selectedConnection?.configurable_resources ||
-      connectionDetails?.data?.configurable_resources;
+    const resources = connection?.configurable_resources;
 
     resources.forEach((resource: any) => {
       requests.push(fetchConfig(resource));
@@ -244,12 +272,13 @@ export const ConnectionsProvider = ({
 
     try {
       setIsUpdating(true);
-      const responses = await Promise.all(requests);
-      const errorResponse = responses.find((res: any) => res.error);
-      if (error) {
+      const responses: { resource: string; defaults: any }[] =
+        await Promise.all(requests);
+      const errorResponse: any = responses.find((res: any) => res.error);
+      if (errorResponse) {
         addToast({
           title: 'Failed to fetch resource config',
-          description: errorResponse?.message || errorResponse.error,
+          description: errorResponse?.message || errorResponse?.error,
           type: 'error',
         });
         return;
@@ -268,26 +297,24 @@ export const ConnectionsProvider = ({
     }
   }, [selectedConnection]);
 
-  const connection = connectionDetails?.data
-    ? { ...selectedConnection, ...connectionDetails?.data }
-    : selectedConnection;
-
   const contextValue = useMemo(
     () => ({
       connections: data?.data?.sort((a: Connection, b: Connection) =>
         a.name?.localeCompare(b.name)
       ),
-      resources,
+      deleteConnection,
+      sessionExpired:
+        data?.status_code === 401 || connectionDetails?.status_code === 401,
+      detailsError: connectionDetails?.message || detailsError,
+      error: data?.message || error,
       isLoading: !error && !data,
       isLoadingDetails: connection && !connection.id,
-      error: data?.message || error,
-      detailsError: connectionDetails?.message || detailsError,
-      updateConnection,
-      deleteConnection,
+      isUpdating,
+      resources,
       selectedConnection: connection,
       setSelectedConnection,
-      isUpdating,
       singleConnectionMode,
+      updateConnection,
     }),
     [isUpdating, selectedConnection, data, connectionDetails, isOpen, resources]
   );

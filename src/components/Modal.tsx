@@ -20,14 +20,14 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   showAttribution?: boolean;
 }
 
-export function Modal({
+const Modal: any = ({
   children,
   onClose,
   isOpen,
   showAttribution,
   className = '',
   style = {},
-}: Props) {
+}: Props) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -94,6 +94,6 @@ export function Modal({
   );
 
   return mounted ? createPortal(modalComponent, document.body) : null;
-}
+};
 
 export default Modal;

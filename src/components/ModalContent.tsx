@@ -2,21 +2,31 @@ import { Connection } from '../types/Connection';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
 import React from 'react';
-import SearchInput from './SearchInput';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
 import { useConnections } from '../utils/useConnections';
 
 export const ModalContent = ({ onClose }: { onClose: () => any }) => {
-  const { connections, error, detailsError, isLoading, selectedConnection } =
-    useConnections();
+  const {
+    connections,
+    error,
+    detailsError,
+    isLoading,
+    selectedConnection,
+    sessionExpired,
+  } = useConnections();
 
   if ((error && !selectedConnection) || (detailsError && selectedConnection)) {
     return (
       <div className="relative -m-6 sm:rounded-lg h-full">
         <TopBar onClose={onClose} onBack={onClose} hideOptions hideBackButton />
-        <div className="flex items-center justify-center h-full p-8 mb-4">
-          <h3 className="font-medium text-red-700">{error}</h3>
+        <div className="flex items-center text-center text-red-700 flex-col justify-center h-full p-4 m-5 rounded bg-red-100">
+          <h3 className="font-medium">{error}</h3>
+          {sessionExpired ? (
+            <p className="text-sm font-base mt-1">
+              Your session is invalid or has been expired
+            </p>
+          ) : null}
         </div>
       </div>
     );

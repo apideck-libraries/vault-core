@@ -1,6 +1,5 @@
 import React, { Fragment, ReactNode } from 'react';
 
-import SearchInput from './SearchInput';
 import { Tab } from '@headlessui/react';
 import classNames from 'classnames';
 

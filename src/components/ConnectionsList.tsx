@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { Connection } from '../types/Connection';
 import ConnectionListItem from './ConnectionListItem';
@@ -23,7 +17,6 @@ const ConnectionsList = ({ connections, isLoading }: Props) => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [list, setList] = useState<Connection[]>([]);
-  const [cursor, setCursor] = useState(0);
   const debouncedSearchTerm = useDebounce(searchTerm, 250);
   const searchInputRef: any = useRef();
 

@@ -38,7 +38,7 @@ const AuthorizeButton = ({ connection }: Props) => {
         const timer = setInterval(checkChild, 500);
         setIsLoading(true);
         function checkChild() {
-          if (child.closed) {
+          if (child?.closed) {
             clearInterval(timer);
             handleChildWindowCLose();
           }
