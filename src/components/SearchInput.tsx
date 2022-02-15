@@ -33,6 +33,7 @@ const SearchInput = ({ value, searchInputRef, onChange }: Props) => {
         className="w-full text-gray-600 border border-transparent bg-gray-100 rounded-md sm:text-sm focus:ring-transparent focus:border-gray-200 placeholder-gray-400 pl-12 md:py-2.5 lg:py-3"
         autoComplete="off"
         onChange={onChange}
+        data-testid="search-input"
       />
     </div>
   );

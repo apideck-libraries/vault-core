@@ -259,7 +259,7 @@ export const ConnectionsProvider = ({
 
     if (response.error) return response;
 
-    return { resource, defaults: response?.data.configuration };
+    return { resource, defaults: response?.data?.configuration };
   };
 
   const getResourceConfig = async () => {
@@ -329,3 +329,5 @@ export const ConnectionsProvider = ({
 export const useConnections = () => {
   return useContext(ConnectionsContext) as ContextProps;
 };
+
+// export default useConnections;

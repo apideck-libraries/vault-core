@@ -109,7 +109,10 @@ const ConnectionDetails = ({ onClose }: Props) => {
   if (isLoadingDetails) return <LoadingDetails />;
 
   return (
-    <div className="relative -m-6 sm:rounded-lg h-full">
+    <div
+      className="relative -m-6 sm:rounded-lg h-full"
+      data-testid={`details-${selectedConnection.id}`}
+    >
       <TopBar
         onClose={onClose}
         onBack={() => {

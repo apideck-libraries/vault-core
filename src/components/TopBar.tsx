@@ -333,7 +333,7 @@ const TopBar = ({
         {selectedConnection && !hideOptions ? (
           <Dropdown
             trigger={
-              <button
+              <div
                 className={classNames(
                   'inline-flex items-center justify-center w-10 h-10 text-gray-900 transition-all duration-200 rounded-full hover:bg-gray-100 focus:outline-none',
                   { 'animation-pulse': isReAuthorizing }
@@ -353,7 +353,7 @@ const TopBar = ({
                     d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
                   />
                 </svg>
-              </button>
+              </div>
             }
             options={getOptions()}
             minWidth={0}

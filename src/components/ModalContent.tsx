@@ -18,7 +18,10 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
 
   if ((error && !selectedConnection) || (detailsError && selectedConnection)) {
     return (
-      <div className="relative -m-6 sm:rounded-lg h-full">
+      <div
+        className="relative -m-6 sm:rounded-lg h-full"
+        data-testid="error-message"
+      >
         <TopBar onClose={onClose} onBack={onClose} hideOptions hideBackButton />
         <div className="flex items-center text-center text-red-700 flex-col justify-center h-full p-4 m-5 rounded bg-red-100">
           <h3 className="font-medium">{error}</h3>

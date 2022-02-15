@@ -44,6 +44,7 @@ const Modal: any = ({
         )}
         onClose={onClose}
         style={style}
+        data-testid="backdrop"
       >
         <div className="min-h-screen px-4 text-center">
           <Transition.Child

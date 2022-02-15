@@ -41,7 +41,11 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
   });
 
   return (
-    <form className="space-y-4 text-left" onSubmit={formik.handleSubmit}>
+    <form
+      className="space-y-4 text-left"
+      onSubmit={formik.handleSubmit}
+      data-testid="connection-form"
+    >
       {filteredFormFields.map((field, i) => {
         const {
           id,

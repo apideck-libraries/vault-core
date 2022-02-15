@@ -22,10 +22,10 @@ const ConnectionListItem = ({ connection }: Props) => {
         connection.service_id,
         { enabled: true }
       );
+      setIsLoading(false);
       if (result?.data) {
         setSelectedConnection(result.data);
       }
-      setIsLoading(false);
     } else {
       setSelectedConnection(connection);
     }
@@ -36,6 +36,7 @@ const ConnectionListItem = ({ connection }: Props) => {
       key={connection.id}
       className="bg-white cursor-pointer fade-in"
       onClick={handleClick}
+      data-testid={connection.id}
     >
       <div
         className={classNames(
