@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 
 import { ConnectionsProvider } from '../utils/useConnections';
-import Logo from './Logo';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
 import { ToastProvider } from '@apideck/components';
