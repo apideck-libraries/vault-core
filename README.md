@@ -15,26 +15,31 @@ yarn add @apideck/react-vault
 Create a [Vault session](https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate) inside your application to get a JSON Web Token.
 It's recommended to do this server-side, so you don't expose your API key.
 
+With `@apideck/node`:
+
+```sh
+yarn add @apideck/node
 ```
-import { Apideck } from '@apideck/node'
+
+```js
+import { Apideck } from '@apideck/node';
 
 const apideck = new Apideck({
   apiKey: 'REPLACE_WITH_API_KEY',
   appId: 'REPLACE_WITH_APP_ID',
-  consumerId: 'REPLACE_WITH_CONSUMER_ID'
-})
+  consumerId: 'REPLACE_WITH_CONSUMER_ID',
+});
 
-const { data } = await apideck.vault.sessionsCreate()
+const { data } = await apideck.vault.sessionsCreate();
 
-console.log("JWT:", data.session_token)
-
+console.log('JWT:', data.session_token);
 ```
 
 Pass the JWT together with your App ID and a consumer ID to the Vault component
 
 ```js
 import { Vault } from '@apideck/react-vault';
-import '@apideck/react-vault/dist/styles.css'; // Only if not using Tailwind
+import '@apideck/react-vault/dist/styles.css'; // Only if not using Tailwind CSS already
 
 const MyApp = () => {
   return (

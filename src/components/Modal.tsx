@@ -39,7 +39,7 @@ const Modal: any = ({
       <Dialog
         as="div"
         className={classNames(
-          'fixed inset-0 z-10 overflow-y-auto bg-gray-400 bg-opacity-75',
+          'fixed inset-0 z-40 overflow-y-auto bg-gray-400 bg-opacity-75',
           className
         )}
         onClose={onClose}

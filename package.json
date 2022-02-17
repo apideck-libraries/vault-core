@@ -35,7 +35,6 @@
     "fuse.js": "^6.5.3",
     "markdown-to-jsx": "^7.1.6",
     "react-select": "^5.2.2",
-    "react-table": "^7.7.0",
     "swr": "^1.0.1"
   },
   "husky": {
@@ -51,6 +50,15 @@
   },
   "name": "@apideck/react-vault",
   "author": "Jake Prins",
+  "keywords": [
+    "react",
+    "vault",
+    "apideck",
+    "unify",
+    "unified-apis",
+    "integrations",
+    "oauth"
+  ],
   "publishConfig": {
     "access": "public"
   },
