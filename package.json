@@ -51,6 +51,9 @@
   },
   "name": "@apideck/react-vault",
   "author": "Jake Prins",
+  "publishConfig": {
+    "access": "public"
+  },
   "module": "dist/react-vault.esm.js",
   "size-limit": [
     {
