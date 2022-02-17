@@ -9,6 +9,7 @@ const externals = [
   ...Object.keys(pkg.peerDependencies || {}),
   './src',
 ];
+const commonjs = require('@rollup/plugin-commonjs');
 
 module.exports = {
   rollup(config, options) {
