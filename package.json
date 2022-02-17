@@ -49,7 +49,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "@apideck/vault",
+  "name": "@apideck/react-vault",
   "author": "Jake Prins",
   "module": "dist/react-vault.esm.js",
   "size-limit": [
