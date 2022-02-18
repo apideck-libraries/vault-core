@@ -39,7 +39,6 @@ Pass the JWT together with your App ID and a consumer ID to the Vault component
 
 ```js
 import { Vault } from '@apideck/react-vault';
-import '@apideck/react-vault/dist/styles.css'; // Only if not using Tailwind CSS already
 
 const MyApp = () => {
   return (
@@ -66,27 +65,3 @@ const MyApp = () => {
 | onClose         | event   | false    | -       | Function that gets called when the modal is closed                         |
 | unifiedApi      | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection |
 | serviceId       | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection |
-
-### Using Tailwind?
-
-The Vault modal is styled using [Tailwind CSS](https://tailwindcss.com/). If you were to use the Vault component in a project that also uses Tailwind CSS, you can omit the CSS file import, and include the package in the content or purge path of the `tailwind.config.js`.
-
-```js
-// tailwind.config.js
-
-// Tailwind 3+
-module.exports = {
-  content: [
-    './node_modules/@apideck/react-vault/**/*.js',
-  ],
-  ...
-}
-
-// Tailwind 1 or 2
-module.exports = {
-  purge: [
-    './node_modules/@apideck/react-vault/**/*.js',
-  ],
-  ...
-}
-```

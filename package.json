@@ -28,8 +28,7 @@
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@apideck/components": "^0.7.2",
-    "@headlessui/react": "^1.4.3",
+    "@apideck/components": "^0.8.3",
     "classnames": "^2.3.1",
     "formik": "^2.2.9",
     "fuse.js": "^6.5.3",

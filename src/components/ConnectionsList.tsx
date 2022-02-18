@@ -39,7 +39,7 @@ const ConnectionsList = ({ connections, isLoading }: Props) => {
   return (
     <div
       className="border-b border-t border-gray-100 overflow-y-auto"
-      style={{ height: 486 }}
+      style={{ height: 488 }}
     >
       {showSearch ? (
         <SearchInput
