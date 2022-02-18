@@ -25,7 +25,7 @@ export function ConfirmModal({ onClose, isOpen, onConfirm }: Props) {
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 z-10 overflow-y-auto"
+        className="fixed inset-0 z-40 overflow-y-auto"
         onClose={onClose}
       >
         <div className="min-h-screen px-4 text-center">
