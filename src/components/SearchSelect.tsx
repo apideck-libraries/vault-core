@@ -37,7 +37,6 @@ const customStyles = {
         ? `1px solid transparent`
         : `1px solid ${theme?.colors.gray[300]}`,
     },
-    fontFamily: theme?.fontFamily['basier-circle'],
     fontSize: theme?.fontSize.sm,
   }),
   placeholder: (provided: CSSObjectWithLabel) => ({
@@ -65,7 +64,6 @@ const customStyles = {
       state.isSelected || state.isFocused
         ? `${theme?.colors.white}`
         : `${theme?.colors.gray[900]}`,
-    fontFamily: `${theme?.fontFamily['basier-circle']}`,
     fontWeight: `${theme?.fontWeight.normal}`,
     fontSize: `${theme?.fontSize.sm}`,
     '&:Active': { backgroundColor: `${theme?.colors.primary[400]}` },
@@ -107,8 +105,9 @@ const SearchSelect = ({
   ...rest
 }: SelectProps) => {
   const selectRef = useRef(null) as any;
-  const [selectedOption, setSelectedOption] =
-    useState<OptionType | OptionType[]>();
+  const [selectedOption, setSelectedOption] = useState<
+    OptionType | OptionType[]
+  >();
 
   useEffect(() => {
     if (!value) return;

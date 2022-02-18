@@ -29,7 +29,7 @@ const Template: Story<Props> = (args) => (
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     appId="cfaZrORgaH2PMQpIcjTpfhERIpIEUJHev09ucjTp"
     consumerId="test-consumer"
-    jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6ImNmYVpyT1JnYUgyUE1RcEljalRwZmhFUklwSUVVSkhldjA5dWNqVHAiLCJzY29wZXMiOltdLCJpYXQiOjE2NDUxODEwMjcsImV4cCI6MTY0NTE4NDYyN30.r293EJlsdJiVNhJofbs6vDN_FOxKUtBk1UzSfAr3Pxc"
+    jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6ImNmYVpyT1JnYUgyUE1RcEljalRwZmhFUklwSUVVSkhldjA5dWNqVHAiLCJzY29wZXMiOltdLCJpYXQiOjE2NDUxOTE5MjgsImV4cCI6MTY0NTE5NTUyOH0.CzER1cF-YS2VTs9jtNLC6oJXRTvyueI9OrDuhnMEESo"
     {...args}
   />
 );

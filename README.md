@@ -52,6 +52,27 @@ const MyApp = () => {
 };
 ```
 
+If you are NOT using [Tailwind CSS](https://tailwindcss.com/) in your project, make your to include the styles in your project:
+
+```js
+import '@apideck/react-vault/dist/styles.css';
+```
+
+If you are using [Tailwind CSS](https://tailwindcss.com/) you should include the package path in the content path of the `tailwind.config.js`.
+Also make sure you have the Tailwindcss Forms plugin installed.
+
+```js
+// tailwind.config.js
+
+module.exports = {
+  content: [
+    './node_modules/@apideck/components/**/*.js',
+  ],
+  plugins: [require('@tailwindcss/forms')]
+  ...
+}
+```
+
 ### Properties
 
 | Property        | Type    | Required | Default | Description                                                                |
