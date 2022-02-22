@@ -84,11 +84,12 @@ export const ConnectionsProvider = ({
     return await response.json();
   };
 
-  const { data, error } = useSWR(CONNECTIONS_URL, fetcher);
+  const listUrl = `${CONNECTIONS_URL}${unifiedApi ? `?api=${unifiedApi}` : ''}`;
+  const detailsUrl = `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
+
+  const { data, error } = useSWR(listUrl, fetcher);
   const { data: connectionDetails, error: detailsError } = useSWR(
-    selectedConnection
-      ? `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
-      : null,
+    selectedConnection ? detailsUrl : null,
     fetcher
   );
 

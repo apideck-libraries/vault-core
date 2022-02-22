@@ -1,29 +1,25 @@
 const postcss = require('rollup-plugin-postcss');
 const peerDepsExternal = require('rollup-plugin-peer-deps-external');
-const pkg = require('./package.json');
-const { nodeResolve } = require('@rollup/plugin-node-resolve');
-
-const extensions = ['.js', '.jsx', '.ts', '.tsx'];
-const externals = [
-  ...Object.keys(pkg.dependencies || {}),
-  ...Object.keys(pkg.peerDependencies || {}),
-  './src',
-];
 const commonjs = require('@rollup/plugin-commonjs');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const pkg = require('./package.json');
 
 module.exports = {
-  rollup(config, options) {
+  rollup(config) {
     if (config.output.format === 'umd') {
       delete config.external;
     }
-    config.external = externals;
+    config.external = [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+      './src',
+    ];
     config.plugins.push(
       peerDepsExternal(),
       nodeResolve({
         ignoreGlobal: false,
         include: ['node_modules/**'],
-        extensions,
-        // skip: keys(externals) // <<-- skip: ['react', 'react-dom']
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
       }),
       postcss({
         config: {
@@ -34,7 +30,6 @@ module.exports = {
         inject: {
           insertAt: 'top',
         },
-        sourceMap: false,
       }),
       commonjs({
         namedExports: {

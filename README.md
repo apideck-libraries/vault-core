@@ -40,16 +40,18 @@ Pass the JWT together with your App ID and a consumer ID to the Vault component
 ```js
 import { Vault } from '@apideck/react-vault';
 
-const MyApp = () => {
+const MyComponent = () => {
   return (
     <Vault
-      trigger={<button>Open Vault</button>}
-      jwt="REPLACE_WITH_SESSION_TOKEN"
       appId="REPLACE_WITH_APP_ID"
       consumerId="REPLACE_WITH_CONSUMER_ID"
+      jwt="REPLACE_WITH_SESSION_TOKEN"
+      trigger={<button>Open Vault</button>}
     />
   );
 };
+
+export default MyComponent;
 ```
 
 If you are NOT using [Tailwind CSS](https://tailwindcss.com/) in your project, make your to include the styles in your project:
@@ -73,16 +75,68 @@ module.exports = {
 }
 ```
 
+If you want to scope the connection results to a single Unified API, you can do that by giving the `unifiedApi` prop. If you want to open Vault for only a single connector, you should also provide the `serviceId`.
+
+```js
+import { Vault } from '@apideck/react-vault';
+
+const MyComponent = () => {
+  return (
+    <Vault
+      appId="REPLACE_WITH_APP_ID"
+      consumerId="REPLACE_WITH_CONSUMER_ID"
+      jwt="REPLACE_WITH_SESSION_TOKEN"
+      unifiedApi="accounting"
+      serviceId="quickbooks"
+      trigger={<button>Open Vault</button>}
+    />
+  );
+};
+
+export default MyComponent;
+```
+
+If you want to manually control the opening and closing of the modal, you can provide the `open` and `onClose` props.
+
+```jsx
+import { Button } from '@apideck/components';
+import { Vault } from '@apideck/react-vault';
+import { useState } from 'react';
+
+const VaultButton = ({ consumerId, jwt }) => {
+  const [openVault, setOpenVault] = useState(false);
+
+  const toggleVault = () => {
+    setOpenVault(!openVault);
+  };
+
+  return (
+    <div className="flex items-center space-x-3">
+      <Button text="Open Vault" onClick={toggleVault} />
+      <Vault
+        appId={process.env.NEXT_PUBLIC_APP_ID}
+        consumerId={consumerId}
+        jwt={jwt}
+        open={openVault}
+        onClose={toggleVault}
+      />
+    </div>
+  );
+};
+
+export default VaultButton;
+```
+
 ### Properties
 
-| Property        | Type    | Required | Default | Description                                                                |
-| --------------- | ------- | -------- | ------- | -------------------------------------------------------------------------- |
-| appId           | string  | true     | -       | The ID of your Unify application                                           |
-| consumerId      | string  | true     | -       | The ID of the consumer which you want to fetch integrations from           |
-| jwt             | string  | true     | -       | The JSON Web Token returned from the Create Session call                   |
-| trigger         | element | false    | -       | The component that should trigger the Vault modal on click                 |
-| showAttribution | boolean | false    | true    | Show "Powered by Apideck" in the backdrop of the modal backdrop            |
-| open            | boolean | false    | false   | Opens the Vault modal if set to true                                       |
-| onClose         | event   | false    | -       | Function that gets called when the modal is closed                         |
-| unifiedApi      | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection |
-| serviceId       | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection |
+| Property        | Type    | Required | Default | Description                                                                                                                                       |
+| --------------- | ------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| appId           | string  | true     | -       | The ID of your Unify application                                                                                                                  |
+| consumerId      | string  | true     | -       | The ID of the consumer which you want to fetch integrations from                                                                                  |
+| jwt             | string  | true     | -       | The JSON Web Token returned from the Create Session call                                                                                          |
+| trigger         | element | false    | -       | The component that should trigger the Vault modal on click                                                                                        |
+| showAttribution | boolean | false    | true    | Show "Powered by Apideck" in the backdrop of the modal backdrop                                                                                   |
+| open            | boolean | false    | false   | Opens the Vault modal if set to true                                                                                                              |
+| onClose         | event   | false    | -       | Function that gets called when the modal is closed                                                                                                |
+| unifiedApi      | string  | false    | -       | When unifiedApi is provided it will scope the connection results to that API. If also a serviceId is provided Vault opens for a single connection |
+| serviceId       | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection                                                                        |

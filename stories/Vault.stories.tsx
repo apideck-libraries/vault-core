@@ -29,7 +29,7 @@ const Template: Story<Props> = (args) => (
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     appId="cfaZrORgaH2PMQpIcjTpfhERIpIEUJHev09ucjTp"
     consumerId="test-consumer"
-    jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiJodHRwOi8vbG9jYWxob3N0OjMwMDMvIiwiY29uc3VtZXJfbWV0YWRhdGEiOnsiYWNjb3VudF9uYW1lIjoidGVzdEBzYWxlc2ZvcmNlLmNvbSIsInVzZXJfbmFtZSI6IlRlc3QgVXNlciIsImltYWdlIjoiaHR0cHM6Ly91bmF2YXRhci5ub3cuc2gvamFrZSJ9LCJzZXR0aW5ncyI6eyJzYW5kYm94X21vZGUiOnRydWV9LCJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6ImNmYVpyT1JnYUgyUE1RcEljalRwZmhFUklwSUVVSkhldjA5dWNqVHAiLCJzY29wZXMiOltdLCJpYXQiOjE2NDU1Mzk5NTMsImV4cCI6MTY0NTU0MzU1M30.70cu22oNYJvINzZhh8r9ZYs-k_EldAPOTTpDP4dUV9g"
+    jwt="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiJodHRwOi8vbG9jYWxob3N0OjMwMDMvIiwiY29uc3VtZXJfbWV0YWRhdGEiOnsiYWNjb3VudF9uYW1lIjoidGVzdEBzYWxlc2ZvcmNlLmNvbSIsInVzZXJfbmFtZSI6IlRlc3QgVXNlciIsImltYWdlIjoiaHR0cHM6Ly91bmF2YXRhci5ub3cuc2gvamFrZSJ9LCJzZXR0aW5ncyI6eyJzYW5kYm94X21vZGUiOnRydWV9LCJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6ImNmYVpyT1JnYUgyUE1RcEljalRwZmhFUklwSUVVSkhldjA5dWNqVHAiLCJzY29wZXMiOltdLCJpYXQiOjE2NDU1NDUwMTIsImV4cCI6MTY0NTU0ODYxMn0.3bRVy0Y6Mr7mRSQDs4cQODVpXwfeDrVjE-5cu6KcVrA"
     {...args}
   />
 );
@@ -52,4 +52,14 @@ SingleConnection.args = {
   ),
   unifiedApi: 'crm',
   serviceId: 'pipedrive',
+};
+
+export const SingleUnifiedApi = Template.bind({});
+SingleUnifiedApi.args = {
+  trigger: (
+    <button className="p-2 border rounded shadow">
+      Open File Storage connectors
+    </button>
+  ),
+  unifiedApi: 'file-storage',
 };
