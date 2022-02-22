@@ -2,14 +2,14 @@
 
 A React component to embed [Apideck Vault](https://www.apideck.com/products/vault) in any React application.
 
-Sign up for a free account at [apideck.com](https://app.apideck.com/signup) to obtain an API key and App ID.
+Go to the [developer docs](https://developers.apideck.com/guides/react-vault) for a step-by-step guide.
 
 ## Usage
 
-Install the component
+Install the packages
 
 ```sh
-yarn add @apideck/react-vault
+npm install @apideck/components @apideck/react-vault
 ```
 
 Create a [Vault session](https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate) inside your application to get a JSON Web Token.
@@ -18,7 +18,7 @@ It's recommended to do this server-side, so you don't expose your API key.
 With `@apideck/node`:
 
 ```sh
-yarn add @apideck/node
+npm install @apideck/node
 ```
 
 ```js
@@ -30,7 +30,7 @@ const apideck = new Apideck({
   consumerId: 'REPLACE_WITH_CONSUMER_ID',
 });
 
-const { data } = await apideck.vault.sessionsCreate();
+const { data } = await apideck.vault.sessionsCreate({});
 
 console.log('JWT:', data.session_token);
 ```
@@ -66,7 +66,7 @@ Also make sure you have the Tailwindcss Forms plugin installed.
 
 module.exports = {
   content: [
-    './node_modules/@apideck/components/**/*.js',
+    './node_modules/@apideck/react-vault/**/*.js',
   ],
   plugins: [require('@tailwindcss/forms')]
   ...
