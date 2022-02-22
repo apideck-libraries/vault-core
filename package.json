@@ -1,5 +1,5 @@
 {
-  "version": "0.1.8",
+  "version": "0.1.7",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -23,11 +23,11 @@
     "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/styles.css --minify"
   },
   "peerDependencies": {
-    "@apideck/components": ">= 0.8.6",
     "react": ">=16",
     "react-dom": ">=16"
   },
   "dependencies": {
+    "@apideck/components": "^0.8.6",
     "formik": "^2.2.9",
     "fuse.js": "^6.5.3",
     "markdown-to-jsx": "^7.1.6",
@@ -74,7 +74,6 @@
     "jest-environment-jsdom": "^26.0.1"
   },
   "devDependencies": {
-    "@apideck/components": "^0.8.6",
     "@babel/core": "^7.16.12",
     "@size-limit/preset-small-lib": "^7.0.5",
     "@storybook/addon-essentials": "next",

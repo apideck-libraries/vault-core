@@ -9,7 +9,7 @@ Go to the [developer docs](https://developers.apideck.com/guides/react-vault) fo
 Install the packages
 
 ```sh
-npm install @apideck/components @apideck/react-vault
+npm install @apideck/react-vault
 ```
 
 Create a [Vault session](https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate) inside your application to get a JSON Web Token.
