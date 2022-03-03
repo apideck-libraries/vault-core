@@ -67,7 +67,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     decoded = jwtDecode<{ application_id: string; consumer_id: string }>(token);
   } catch (e) {
     console.log(
-      'Invalid token provided. Make sure you first create a session and then provide the returned token. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate'
+      'Invalid token provided to React Vault. Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate'
     );
   }
 
