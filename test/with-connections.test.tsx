@@ -19,7 +19,7 @@ describe('Vault - With connections', () => {
   it('should not show the Manage your integrations message', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(
@@ -30,7 +30,7 @@ describe('Vault - With connections', () => {
   it('should show the tab select', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(screen.queryByText('Connected')).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe('Vault - With connections', () => {
   it('should show the search input', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(screen.getByTestId('search-input')).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('Vault - With connections', () => {
   it('should show the list of added connectors', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(screen.getAllByText('ActiveCampaign')[0]).toBeInTheDocument();

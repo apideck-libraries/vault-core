@@ -32,10 +32,10 @@ const apideck = new Apideck({
 
 const { data } = await apideck.vault.sessionsCreate({});
 
-console.log('JWT:', data.session_token);
+console.log('Token:', data.session_token);
 ```
 
-Pass the JWT together with your App ID and a consumer ID to the Vault component
+Pass the JSON Web Token to the Vault component:
 
 ```js
 import { Vault } from '@apideck/react-vault';
@@ -43,9 +43,7 @@ import { Vault } from '@apideck/react-vault';
 const MyComponent = () => {
   return (
     <Vault
-      appId="REPLACE_WITH_APP_ID"
-      consumerId="REPLACE_WITH_CONSUMER_ID"
-      jwt="REPLACE_WITH_SESSION_TOKEN"
+      token="REPLACE_WITH_SESSION_TOKEN"
       trigger={<button>Open Vault</button>}
     />
   );
@@ -83,9 +81,7 @@ import { Vault } from '@apideck/react-vault';
 const MyComponent = () => {
   return (
     <Vault
-      appId="REPLACE_WITH_APP_ID"
-      consumerId="REPLACE_WITH_CONSUMER_ID"
-      jwt="REPLACE_WITH_SESSION_TOKEN"
+      token="REPLACE_WITH_SESSION_TOKEN"
       unifiedApi="accounting"
       serviceId="quickbooks"
       trigger={<button>Open Vault</button>}
@@ -103,7 +99,7 @@ import { Button } from '@apideck/components';
 import { Vault } from '@apideck/react-vault';
 import { useState } from 'react';
 
-const VaultButton = ({ consumerId, jwt }) => {
+const VaultButton = ({ token }) => {
   const [openVault, setOpenVault] = useState(false);
 
   const toggleVault = () => {
@@ -113,13 +109,7 @@ const VaultButton = ({ consumerId, jwt }) => {
   return (
     <div className="flex items-center space-x-3">
       <Button text="Open Vault" onClick={toggleVault} />
-      <Vault
-        appId={process.env.NEXT_PUBLIC_APP_ID}
-        consumerId={consumerId}
-        jwt={jwt}
-        open={openVault}
-        onClose={toggleVault}
-      />
+      <Vault token={token} open={openVault} onClose={toggleVault} />
     </div>
   );
 };
@@ -131,9 +121,7 @@ export default VaultButton;
 
 | Property        | Type    | Required | Default | Description                                                                                                                                       |
 | --------------- | ------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| appId           | string  | true     | -       | The ID of your Unify application                                                                                                                  |
-| consumerId      | string  | true     | -       | The ID of the consumer which you want to fetch integrations from                                                                                  |
-| jwt             | string  | true     | -       | The JSON Web Token returned from the Create Session call                                                                                          |
+| token           | string  | true     | -       | The JSON Web Token returned from the Create Session call                                                                                          |
 | trigger         | element | false    | -       | The component that should trigger the Vault modal on click                                                                                        |
 | showAttribution | boolean | false    | true    | Show "Powered by Apideck" in the backdrop of the modal backdrop                                                                                   |
 | open            | boolean | false    | false   | Opens the Vault modal if set to true                                                                                                              |

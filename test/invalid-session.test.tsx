@@ -19,7 +19,7 @@ describe('Vault - Invalid session', () => {
   it('should show the Manage your integrations message', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="invalid" open />);
     });
 
     expect(screen.getByTestId('error-message')).toBeInTheDocument();

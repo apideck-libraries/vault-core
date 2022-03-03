@@ -37,7 +37,7 @@ interface ContextProps {
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
 
 interface Props {
-  jwt: string;
+  token: string;
   appId: string;
   consumerId: string;
   isOpen: boolean;
@@ -47,7 +47,7 @@ interface Props {
 }
 
 export const ConnectionsProvider = ({
-  jwt,
+  token,
   appId,
   consumerId,
   isOpen,
@@ -69,7 +69,7 @@ export const ConnectionsProvider = ({
 
   const getHeaders = () => {
     return {
-      Authorization: `Bearer ${jwt}`,
+      Authorization: `Bearer ${token}`,
       'X-APIDECK-APP-ID': appId,
       'X-APIDECK-CONSUMER-ID': consumerId,
       'X-APIDECK-AUTH-TYPE': 'JWT',

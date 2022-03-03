@@ -10,20 +10,13 @@ import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
 import { ToastProvider } from '@apideck/components';
+import jwtDecode from 'jwt-decode';
 
 export interface Props {
   /**
-   * The ID of your Unify application
-   */
-  appId: string;
-  /**
-   * The ID of the consumer which you want to fetch files from
-   */
-  consumerId: string;
-  /**
    * The JSON Web Token returned from the Create Session call
    */
-  jwt: string;
+  token: string;
   /**
    * The component that should trigger the File Picker modal on click
    */
@@ -57,9 +50,7 @@ export interface Props {
  */
 export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   {
-    appId,
-    consumerId,
-    jwt,
+    token,
     trigger,
     showAttribution = true,
     open = false,
@@ -70,6 +61,18 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   ref
 ) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  let decoded;
+
+  try {
+    decoded = jwtDecode<{ application_id: string; consumer_id: string }>(token);
+  } catch (e: any) {
+    console.error(
+      'Invalid token provided. Make sure you first create a session and then provide the returned token. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate'
+    );
+  }
+
+  const appId = decoded?.application_id;
+  const consumerId = decoded?.consumer_id;
 
   const onCloseModal = () => {
     setIsOpen(false);
@@ -84,21 +87,10 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     }
   }, [open]);
 
-  const handleClick = () => {
-    const hasProvidedCredentials = appId && consumerId && jwt;
-    if (hasProvidedCredentials) {
-      setIsOpen(true);
-    } else {
-      console.error(
-        'You need to provide appId, consumerId and jwt to use Vault'
-      );
-    }
-  };
-
   return (
     <Fragment>
       {trigger
-        ? React.cloneElement(trigger, { onClick: () => handleClick(), ref })
+        ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
       <Modal
         isOpen={isOpen}
@@ -109,7 +101,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
           <ConnectionsProvider
             appId={appId}
             consumerId={consumerId}
-            jwt={jwt}
+            token={token}
             isOpen={isOpen}
             unifiedApi={unifiedApi}
             serviceId={serviceId}

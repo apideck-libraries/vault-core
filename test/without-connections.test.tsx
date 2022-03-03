@@ -25,7 +25,7 @@ describe('Vault - With no connections added yet', () => {
   it('should show the Manage your integrations message', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(screen.getByText('Manage your integrations')).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe('Vault - With no connections added yet', () => {
   it('should not show the tab select', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(screen.queryByText('Connected')).not.toBeInTheDocument();
@@ -44,7 +44,7 @@ describe('Vault - With no connections added yet', () => {
   it('should show the search input', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(screen.getByTestId('search-input')).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe('Vault - With no connections added yet', () => {
   it('should show the list of connectors', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
 
     expect(screen.getAllByText('ActiveCampaign')[0]).toBeInTheDocument();
@@ -64,7 +64,7 @@ describe('Vault - With no connections added yet', () => {
   it('should search connectors', async () => {
     let screen: any;
     await act(async () => {
-      screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+      screen = render(<Vault token="token123" open />);
     });
     const searchInput = screen.getByTestId('search-input');
 
@@ -96,7 +96,7 @@ describe('Vault - With no connections added yet', () => {
     it('should show the list of connectors', async () => {
       let screen: any;
       await act(async () => {
-        screen = render(<Vault appId="x" consumerId="x" jwt="x" open />);
+        screen = render(<Vault token="token123" open />);
       });
 
       const firstConnection = screen.getByTestId('crm+activecampaign');

@@ -20,9 +20,7 @@ describe('Vault - Single connection', () => {
     await act(async () => {
       screen = render(
         <Vault
-          appId="x"
-          consumerId="x"
-          jwt="x"
+          token="token123"
           open
           unifiedApi="crm"
           serviceId="activecampaign"
@@ -45,9 +43,7 @@ describe('Vault - Single connection', () => {
     await act(async () => {
       screen = render(
         <Vault
-          appId="x"
-          consumerId="x"
-          jwt="x"
+          token="token123"
           open
           unifiedApi="crm"
           serviceId="activecampaign"
@@ -68,9 +64,7 @@ describe('Vault - Single connection', () => {
     await act(async () => {
       screen = render(
         <Vault
-          appId="x"
-          consumerId="x"
-          jwt="x"
+          token="token123"
           open
           unifiedApi="crm"
           serviceId="activecampaign"
