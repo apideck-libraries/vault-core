@@ -19,8 +19,9 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
   if ((error && !selectedConnection) || (detailsError && selectedConnection)) {
     return (
       <div
-        className="relative -m-6 sm:rounded-lg h-full"
+        className="relative -m-6 sm:rounded-lg h-full content-error"
         data-testid="error-message"
+        id="react-vault-content"
       >
         <TopBar onClose={onClose} onBack={onClose} hideOptions hideBackButton />
         <div className="flex items-center text-center text-red-700 flex-col justify-center h-full p-4 m-5 rounded bg-red-100">
@@ -45,7 +46,10 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
   if (selectedConnection) return <ConnectionDetails onClose={onClose} />;
 
   return (
-    <div className="relative -m-6 sm:rounded-lg h-full">
+    <div
+      className="relative -m-6 sm:rounded-lg h-full"
+      id="react-vault-content"
+    >
       <TopBar onClose={onClose} />
       <div className="h-full overflow-hidden rounded-b-xl">
         {addedConnections?.length ? (

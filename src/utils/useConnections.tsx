@@ -1,12 +1,12 @@
+import { usePrevious, useToast } from '@apideck/components';
 import React, {
-  ReactNode,
   createContext,
+  ReactNode,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
-import { usePrevious, useToast } from '@apideck/components';
 import useSWR, { useSWRConfig } from 'swr';
 
 import { CONNECTIONS_URL } from '../constants/urls';
@@ -317,7 +317,15 @@ export const ConnectionsProvider = ({
       singleConnectionMode,
       updateConnection,
     }),
-    [isUpdating, selectedConnection, data, connectionDetails, isOpen, resources]
+    [
+      isUpdating,
+      selectedConnection,
+      data,
+      connectionDetails,
+      isOpen,
+      resources,
+      token,
+    ]
   );
 
   return (

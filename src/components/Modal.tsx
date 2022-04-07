@@ -45,6 +45,7 @@ const Modal: any = ({
         onClose={onClose}
         style={style}
         data-testid="backdrop"
+        id="react-vault-backdrop"
       >
         <div className="min-h-screen px-4 text-center">
           <Transition.Child
@@ -75,7 +76,10 @@ const Modal: any = ({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="inline-block w-full text-left max-w-sm p-6 my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-xl">
+            <div
+              className="inline-block w-full text-left max-w-sm p-6 my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-xl"
+              id="react-vault-modal"
+            >
               {children}
             </div>
           </Transition.Child>
