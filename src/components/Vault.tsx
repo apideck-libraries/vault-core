@@ -1,16 +1,16 @@
 import React, {
+  forwardRef,
   Fragment,
   ReactElement,
-  forwardRef,
   useEffect,
   useState,
 } from 'react';
 
+import { ToastProvider } from '@apideck/components';
+import jwtDecode from 'jwt-decode';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
-import { ToastProvider } from '@apideck/components';
-import jwtDecode from 'jwt-decode';
 
 export interface Props {
   /**
@@ -45,6 +45,10 @@ export interface Props {
   serviceId?: string;
 }
 
+const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
+const INVALID_TOKEN_MESSAGE = `Invalid token provided to React Vault. ${SESSION_MESSAGE}`;
+const NO_TOKEN_MESSAGE = `No token provided to React Vault. ${SESSION_MESSAGE}`;
+
 /**
  * The Apideck Vault component
  */
@@ -61,18 +65,9 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   ref
 ) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  let decoded;
-
-  try {
-    decoded = jwtDecode<{ application_id: string; consumer_id: string }>(token);
-  } catch (e) {
-    console.log(
-      'Invalid token provided to React Vault. Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate'
-    );
-  }
-
-  const appId = decoded?.application_id;
-  const consumerId = decoded?.consumer_id;
+  const [jwt, setJwt] = useState<string | null>(null);
+  const [consumerId, setConsumerId] = useState<string | null>(null);
+  const [appId, setAppId] = useState<string | null>(null);
 
   const onCloseModal = () => {
     setIsOpen(false);
@@ -83,9 +78,33 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
 
   useEffect(() => {
     if (open) {
-      setIsOpen(true);
+      if (token) {
+        setIsOpen(true);
+      } else {
+        console.error(NO_TOKEN_MESSAGE);
+      }
     }
-  }, [open]);
+  }, [open, token]);
+
+  useEffect(() => {
+    if (token?.length) {
+      let decoded;
+
+      try {
+        decoded =
+          jwtDecode<{ application_id: string; consumer_id: string }>(token);
+
+        setJwt(token);
+        setConsumerId(decoded.consumer_id);
+        setAppId(decoded.application_id);
+      } catch (e) {
+        setJwt(null);
+        setConsumerId(null);
+        setAppId(null);
+        console.error(INVALID_TOKEN_MESSAGE);
+      }
+    }
+  }, [token]);
 
   return (
     <Fragment>
@@ -93,21 +112,23 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
       <Modal
-        isOpen={isOpen}
+        isOpen={jwt?.length && isOpen}
         onClose={() => onCloseModal()}
         showAttribution={showAttribution}
       >
         <ToastProvider>
-          <ConnectionsProvider
-            appId={appId}
-            consumerId={consumerId}
-            token={token}
-            isOpen={isOpen}
-            unifiedApi={unifiedApi}
-            serviceId={serviceId}
-          >
-            <ModalContent onClose={onCloseModal} />
-          </ConnectionsProvider>
+          {jwt && (
+            <ConnectionsProvider
+              appId={appId}
+              consumerId={consumerId}
+              token={jwt}
+              isOpen={isOpen}
+              unifiedApi={unifiedApi}
+              serviceId={serviceId}
+            >
+              <ModalContent onClose={onCloseModal} />
+            </ConnectionsProvider>
+          )}
         </ToastProvider>
       </Modal>
     </Fragment>
