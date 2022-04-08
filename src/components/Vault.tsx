@@ -98,10 +98,11 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setConsumerId(decoded.consumer_id);
         setAppId(decoded.application_id);
       } catch (e) {
+        console.error(e);
+        console.error(INVALID_TOKEN_MESSAGE);
         setJwt(null);
         setConsumerId(null);
         setAppId(null);
-        console.error(INVALID_TOKEN_MESSAGE);
       }
     }
   }, [token]);
@@ -117,7 +118,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         showAttribution={showAttribution}
       >
         <ToastProvider>
-          {jwt && (
+          {jwt && appId && consumerId && (
             <ConnectionsProvider
               appId={appId}
               consumerId={consumerId}

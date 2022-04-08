@@ -38,8 +38,8 @@ const ConnectionsContext = createContext<Partial<ContextProps>>({});
 
 interface Props {
   token: string;
-  appId: string | null;
-  consumerId: string | null;
+  appId: string;
+  consumerId: string;
   isOpen: boolean;
   unifiedApi?: string;
   serviceId?: string;
