@@ -113,23 +113,21 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
       <Modal
-        isOpen={jwt?.length && isOpen}
+        isOpen={token?.length && isOpen}
         onClose={() => onCloseModal()}
         showAttribution={showAttribution}
       >
         <ToastProvider>
-          {jwt && appId && consumerId && (
-            <ConnectionsProvider
-              appId={appId}
-              consumerId={consumerId}
-              token={jwt}
-              isOpen={isOpen}
-              unifiedApi={unifiedApi}
-              serviceId={serviceId}
-            >
-              <ModalContent onClose={onCloseModal} />
-            </ConnectionsProvider>
-          )}
+          <ConnectionsProvider
+            appId={appId as string}
+            consumerId={consumerId as string}
+            token={jwt as string}
+            isOpen={isOpen}
+            unifiedApi={unifiedApi}
+            serviceId={serviceId}
+          >
+            <ModalContent onClose={onCloseModal} />
+          </ConnectionsProvider>
         </ToastProvider>
       </Modal>
     </Fragment>
