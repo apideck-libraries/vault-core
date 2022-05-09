@@ -134,6 +134,7 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                   'number',
                   'time',
                   'location',
+                  'password',
                 ].includes(type as string) && (
                   <TextInput
                     name={id}
@@ -145,6 +146,7 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                     onBlur={formik.handleBlur}
                     className="max-w-sm"
                     data-testid={id}
+                    sensitive={type === 'password'}
                   />
                 )}
                 {type === 'checkbox' && (

@@ -1,16 +1,16 @@
 import React, {
-  forwardRef,
   Fragment,
   ReactElement,
+  forwardRef,
   useEffect,
   useState,
 } from 'react';
 
-import { ToastProvider } from '@apideck/components';
-import jwtDecode from 'jwt-decode';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
+import { ToastProvider } from '@apideck/components';
+import jwtDecode from 'jwt-decode';
 
 export interface Props {
   /**

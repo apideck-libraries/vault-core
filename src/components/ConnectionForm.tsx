@@ -68,7 +68,7 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
               {required && <span className="ml-1 text-red-600">*</span>}
             </label>
             <div className="mt-1">
-              {type === 'text' && (
+              {(type === 'text' || type === 'password') && (
                 <TextInput
                   name={id}
                   type="text"
@@ -78,6 +78,7 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
                   disabled={disabled}
                   value={formik.values[id] as any}
                   data-testid={id}
+                  sensitive={type === 'password'}
                 />
               )}
               {type === 'select' && (

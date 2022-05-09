@@ -1,12 +1,12 @@
-import { usePrevious, useToast } from '@apideck/components';
 import React, {
-  createContext,
   ReactNode,
+  createContext,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
+import { usePrevious, useToast } from '@apideck/components';
 import useSWR, { useSWRConfig } from 'swr';
 
 import { CONNECTIONS_URL } from '../constants/urls';
@@ -277,11 +277,7 @@ export const ConnectionsProvider = ({
         await Promise.all(requests);
       const errorResponse: any = responses.find((res: any) => res.error);
       if (errorResponse) {
-        addToast({
-          title: 'Failed to fetch resource config',
-          description: errorResponse?.message || errorResponse?.error,
-          type: 'error',
-        });
+        console.error('Failed to fetch resource config', errorResponse);
         return;
       }
       setResources(responses);
