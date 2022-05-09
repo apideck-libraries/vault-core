@@ -43,6 +43,9 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
     (c: Connection) => c.state === 'available'
   );
 
+  const noConnections =
+    !addedConnections?.length && !availableConnections?.length;
+
   if (selectedConnection) return <ConnectionDetails onClose={onClose} />;
 
   return (
@@ -52,7 +55,7 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
     >
       <TopBar onClose={onClose} />
       <div className="h-full overflow-hidden rounded-b-xl">
-        {addedConnections?.length ? (
+        {addedConnections?.length > 0 && (
           <TabSelect
             tabs={[
               {
@@ -77,7 +80,8 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
               },
             ]}
           />
-        ) : (
+        )}
+        {addedConnections?.length === 0 && availableConnections.length > 0 && (
           <div>
             <div className="text-center p-5 text-lg font-medium leading-6 text-gray-900">
               <h3>Manage your integrations</h3>
@@ -86,6 +90,17 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
               isLoading={isLoading}
               connections={availableConnections}
             />
+          </div>
+        )}
+        {noConnections && (
+          <div className="text-center p-5">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">
+              No integrations found
+            </h3>
+            <p className="text-gray-600 mt-2 text-base">
+              It looks like the application owner did not yet make any
+              integrations available
+            </p>
           </div>
         )}
       </div>
