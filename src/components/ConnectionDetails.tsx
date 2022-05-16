@@ -124,6 +124,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
         }}
         setShowSettings={setShowSettings}
         setShowResources={setShowResources}
+        singleConnectionMode={singleConnectionMode}
       />
       <div className="h-full rounded-b-xl">
         <div className="text-center p-5 md:p-6">

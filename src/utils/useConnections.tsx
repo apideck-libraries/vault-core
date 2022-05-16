@@ -130,7 +130,12 @@ export const ConnectionsProvider = ({
     const { configurable_resources, state } = connection;
     const isReAuthorized = state === 'authorized' || state === 'callable';
 
-    if (configurable_resources?.length && isReAuthorized && !resources.length) {
+    if (
+      configurable_resources?.length &&
+      isReAuthorized &&
+      !resources.length &&
+      !isUpdating
+    ) {
       getResourceConfig();
     }
   }, [connection]);
