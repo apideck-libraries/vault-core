@@ -23,7 +23,7 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
 const Modal: any = ({
   children,
   onClose,
-  isOpen,
+  isOpen = false,
   showAttribution,
   className = '',
   style = {},

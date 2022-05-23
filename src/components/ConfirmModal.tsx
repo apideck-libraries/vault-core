@@ -9,7 +9,7 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   onConfirm: () => void;
 }
 
-export function ConfirmModal({ onClose, isOpen, onConfirm }: Props) {
+export function ConfirmModal({ onClose, isOpen = false, onConfirm }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async () => {
