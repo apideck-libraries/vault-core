@@ -145,8 +145,8 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                     placeholder={placeholder}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    sensitive={sensitive}
-                    canBeCopied={sensitive}
+                    sensitive={type === 'password' || sensitive}
+                    canBeCopied={type === 'password' || sensitive}
                     className="max-w-sm"
                     data-testid={id}
                   />

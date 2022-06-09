@@ -79,8 +79,8 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
                   disabled={disabled}
                   value={formik.values[id] as any}
                   data-testid={id}
-                  sensitive={sensitive}
-                  canBeCopied={sensitive}
+                  sensitive={type === 'password' || sensitive}
+                  canBeCopied={type === 'password' || sensitive}
                 />
               )}
               {type === 'select' && (
