@@ -30,6 +30,7 @@ export interface FormField {
   target?: 'custom_fields' | 'resource';
   filter?: Record<string, string>;
   allow_custom_values?: boolean;
+  sensitive?: boolean;
 }
 
 export interface FormFieldOption {
