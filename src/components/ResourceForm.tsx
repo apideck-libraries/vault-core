@@ -115,6 +115,7 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
             description,
             type,
             options,
+            sensitive,
           } = field;
           return (
             <div key={id}>
@@ -144,9 +145,10 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                     placeholder={placeholder}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
+                    sensitive={sensitive}
+                    canBeCopied={sensitive}
                     className="max-w-sm"
                     data-testid={id}
-                    sensitive={type === 'password'}
                   />
                 )}
                 {type === 'checkbox' && (
