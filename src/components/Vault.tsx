@@ -113,7 +113,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
       <Modal
-        isOpen={token?.length && isOpen}
+        isOpen={token && token?.length > 0 && isOpen}
         onClose={() => onCloseModal()}
         showAttribution={showAttribution}
       >

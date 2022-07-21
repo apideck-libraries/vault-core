@@ -35,7 +35,7 @@ const Modal: any = ({
   }, []);
 
   const modalComponent = (
-    <Transition appear show={isOpen} as={Fragment}>
+    <Transition.Root appear show={isOpen}>
       <Dialog
         as="div"
         className={classNames(
@@ -95,7 +95,7 @@ const Modal: any = ({
           ) : null}
         </div>
       </Dialog>
-    </Transition>
+    </Transition.Root>
   );
 
   return mounted ? createPortal(modalComponent, document.body) : null;
