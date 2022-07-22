@@ -292,7 +292,7 @@ const TopBar = ({
   };
 
   return (
-    <div className="grid grid-cols-3 px-6">
+    <div className="grid grid-cols-3 px-6" id="react-vault-top-bar">
       <ConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -357,6 +357,7 @@ const TopBar = ({
       )}
       <img
         src={selectedConnection?.icon ?? 'https://www.apideck.com/favicon.ico'}
+        id="react-vault-icon"
         className={classNames(
           'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto',
           { 'animate-pulse': isReAuthorizing }

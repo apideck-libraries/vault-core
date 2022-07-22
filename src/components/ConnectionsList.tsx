@@ -52,6 +52,7 @@ const ConnectionsList = ({ connections, isLoading }: Props) => {
       ) : null}
       <ul
         role="list"
+        id="react-vault-connection-list"
         className={classNames(
           'relative z-0 divide-y divide-gray-100 border-b border-gray-100',
           { 'border-t': showSearch }

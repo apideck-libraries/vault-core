@@ -36,6 +36,7 @@ const ConnectionListItem = ({ connection }: Props) => {
       key={connection.id}
       className="bg-white cursor-pointer fade-in"
       onClick={handleClick}
+      id={`react-vault-connection-${connection.id}`}
       data-testid={connection.id}
     >
       <div

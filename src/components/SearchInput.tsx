@@ -8,7 +8,7 @@ interface Props {
 
 const SearchInput = ({ value, searchInputRef, onChange }: Props) => {
   return (
-    <div className="relative px-6 py-4">
+    <div className="relative px-6 py-4" id="react-vault-search-input">
       <div className="absolute left-0 flex items-center pt-2.5 md:pt-3 pl-10 pointer-events-none">
         <svg
           className="w-5 h-5 text-gray-400"

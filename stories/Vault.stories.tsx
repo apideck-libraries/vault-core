@@ -27,8 +27,8 @@ export default meta;
 const Template: Story<Props> = (args) => (
   <Vault
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
-    token="token123"
     {...args}
+    token="token123"
   />
 );
 

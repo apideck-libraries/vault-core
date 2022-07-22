@@ -44,6 +44,7 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
     <form
       className="space-y-4 text-left"
       onSubmit={formik.handleSubmit}
+      id="react-vault-connection-form"
       data-testid="connection-form"
     >
       {filteredFormFields.map((field, i) => {
