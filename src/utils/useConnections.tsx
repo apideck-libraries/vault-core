@@ -9,7 +9,6 @@ import React, {
 import { usePrevious, useToast } from '@apideck/components';
 import useSWR, { useSWRConfig } from 'swr';
 
-import { CONNECTIONS_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
 
@@ -26,6 +25,7 @@ interface ContextProps {
   setSelectedConnection: (connection: Connection | null) => void;
   singleConnectionMode: boolean;
   sessionExpired: boolean;
+  connectionsUrl: string;
   updateConnection: (
     api: string,
     serviceId: string,
@@ -43,6 +43,7 @@ interface Props {
   isOpen: boolean;
   unifiedApi?: string;
   serviceId?: string;
+  connectionsUrl: string;
   children: ReactNode;
 }
 
@@ -53,6 +54,7 @@ export const ConnectionsProvider = ({
   isOpen,
   unifiedApi,
   serviceId,
+  connectionsUrl,
   children,
 }: Props) => {
   const [selectedConnection, setSelectedConnection] =
@@ -84,8 +86,8 @@ export const ConnectionsProvider = ({
     return await response.json();
   };
 
-  const listUrl = `${CONNECTIONS_URL}${unifiedApi ? `?api=${unifiedApi}` : ''}`;
-  const detailsUrl = `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
+  const listUrl = `${connectionsUrl}${unifiedApi ? `?api=${unifiedApi}` : ''}`;
+  const detailsUrl = `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
 
   const { data, error } = useSWR(listUrl, fetcher);
   const { data: connectionDetails, error: detailsError } = useSWR(
@@ -148,7 +150,7 @@ export const ConnectionsProvider = ({
   ) => {
     try {
       setIsUpdating(true);
-      let updateUrl = `${CONNECTIONS_URL}/${api}/${serviceId}`;
+      let updateUrl = `${connectionsUrl}/${api}/${serviceId}`;
       if (resource) updateUrl = `${updateUrl}/${resource}/config`;
 
       const response = await fetch(updateUrl, {
@@ -170,7 +172,7 @@ export const ConnectionsProvider = ({
               ),
             ],
           };
-          mutate(CONNECTIONS_URL, updatedList, false);
+          mutate(connectionsUrl, updatedList, false);
         }
 
         // Update selected connection and mutate client cache
@@ -219,7 +221,7 @@ export const ConnectionsProvider = ({
   const deleteConnection = async (connection: Connection) => {
     try {
       await fetch(
-        `${CONNECTIONS_URL}/${connection.unified_api}/${connection.service_id}`,
+        `${connectionsUrl}/${connection.unified_api}/${connection.service_id}`,
         {
           method: 'DELETE',
           headers: getHeaders(),
@@ -237,7 +239,7 @@ export const ConnectionsProvider = ({
           ...data.data?.filter((con: Connection) => con.id !== connection.id),
         ],
       };
-      mutate(CONNECTIONS_URL, updatedData, false);
+      mutate(connectionsUrl, updatedData, false);
       setSelectedConnection(null);
       addToast({
         title: `${connection.name} has been deleted`,
@@ -256,7 +258,7 @@ export const ConnectionsProvider = ({
   const fetchConfig = async (resource: string) => {
     if (!selectedConnection) return;
     const raw = await fetch(
-      `${CONNECTIONS_URL}/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
+      `${connectionsUrl}/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
       {
         headers: getHeaders(),
       }
@@ -317,6 +319,7 @@ export const ConnectionsProvider = ({
       setSelectedConnection,
       singleConnectionMode,
       updateConnection,
+      connectionsUrl,
     }),
     [
       isUpdating,
@@ -326,6 +329,7 @@ export const ConnectionsProvider = ({
       isOpen,
       resources,
       token,
+      connectionsUrl,
     ]
   );
 

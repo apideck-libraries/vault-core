@@ -1,10 +1,10 @@
-import { CONNECTIONS_URL, REDIRECT_URL } from '../constants/urls';
 import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import ConfirmModal from './ConfirmModal';
 import { Dropdown } from '@apideck/components';
 import { FormField } from '../types/FormField';
 import { Option } from '@apideck/components/dist/components/Dropdown';
+import { REDIRECT_URL } from '../constants/urls';
 import classNames from 'classnames';
 import { useConnections } from '../utils/useConnections';
 import { useSWRConfig } from 'swr';
@@ -28,8 +28,12 @@ const TopBar = ({
   hideBackButton,
   singleConnectionMode,
 }: Props) => {
-  const { selectedConnection, updateConnection, deleteConnection } =
-    useConnections();
+  const {
+    selectedConnection,
+    updateConnection,
+    deleteConnection,
+    connectionsUrl,
+  } = useConnections();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -46,7 +50,7 @@ const TopBar = ({
       if (child?.closed) {
         clearInterval(timer);
         mutate(
-          `${CONNECTIONS_URL}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
+          `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
         );
         setIsReAuthorizing(false);
       }

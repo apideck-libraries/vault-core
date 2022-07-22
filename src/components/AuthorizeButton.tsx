@@ -1,8 +1,9 @@
-import { CONNECTIONS_URL, REDIRECT_URL } from '../constants/urls';
 import React, { useState } from 'react';
 
 import { Button } from '@apideck/components';
 import { Connection } from '../types/Connection';
+import { REDIRECT_URL } from '../constants/urls';
+import { useConnections } from '../utils/useConnections';
 import { useSWRConfig } from 'swr';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 const AuthorizeButton = ({ connection }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { connectionsUrl } = useConnections();
 
   const { mutate } = useSWRConfig();
 
@@ -18,7 +20,7 @@ const AuthorizeButton = ({ connection }: Props) => {
 
   const handleChildWindowCLose = () => {
     mutate(
-      `${CONNECTIONS_URL}/${connection?.unified_api}/${connection?.service_id}`
+      `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
     );
     setIsLoading(false);
   };

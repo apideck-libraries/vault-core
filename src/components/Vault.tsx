@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 
+import { BASE_URL } from '../constants/urls';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
@@ -43,6 +44,11 @@ export interface Props {
    * Make sure you also pass the unifiedApi
    */
   serviceId?: string;
+  /**
+   * Optionally you can give a unifyBaseUrl for changing the base url of the unified API
+   * Should only be used for local development or in a staging environment
+   */
+  unifyBaseUrl?: string;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -61,6 +67,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     onClose,
     unifiedApi,
     serviceId,
+    unifyBaseUrl = BASE_URL,
   },
   ref
 ) {
@@ -125,6 +132,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
             isOpen={isOpen}
             unifiedApi={unifiedApi}
             serviceId={serviceId}
+            connectionsUrl={`${unifyBaseUrl}/vault/connections`}
           >
             <ModalContent onClose={onCloseModal} />
           </ConnectionsProvider>
