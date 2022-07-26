@@ -114,30 +114,34 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     }
   }, [token]);
 
+  const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
+
   return (
     <Fragment>
       {trigger
         ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
-      <Modal
-        isOpen={token && token?.length > 0 && isOpen}
-        onClose={() => onCloseModal()}
-        showAttribution={showAttribution}
-      >
-        <ToastProvider>
-          <ConnectionsProvider
-            appId={appId as string}
-            consumerId={consumerId as string}
-            token={jwt as string}
-            isOpen={isOpen}
-            unifiedApi={unifiedApi}
-            serviceId={serviceId}
-            connectionsUrl={`${unifyBaseUrl}/vault/connections`}
-          >
-            <ModalContent onClose={onCloseModal} />
-          </ConnectionsProvider>
-        </ToastProvider>
-      </Modal>
+      {shouldRenderModal ? (
+        <Modal
+          isOpen={token && token?.length > 0 && isOpen}
+          onClose={() => onCloseModal()}
+          showAttribution={showAttribution}
+        >
+          <ToastProvider>
+            <ConnectionsProvider
+              appId={appId as string}
+              consumerId={consumerId as string}
+              token={jwt as string}
+              isOpen={isOpen}
+              unifiedApi={unifiedApi}
+              serviceId={serviceId}
+              connectionsUrl={`${unifyBaseUrl}/vault/connections`}
+            >
+              <ModalContent onClose={onCloseModal} />
+            </ConnectionsProvider>
+          </ToastProvider>
+        </Modal>
+      ) : null}
     </Fragment>
   );
 });
