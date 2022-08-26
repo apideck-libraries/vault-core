@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  ReactElement,
-  forwardRef,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 
 import { BASE_URL } from '../constants/urls';
 import { ConnectionsProvider } from '../utils/useConnections';
@@ -117,7 +111,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
   return (
-    <Fragment>
+    <div id="react-vault">
       {trigger
         ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
@@ -142,6 +136,6 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
           </ToastProvider>
         </Modal>
       ) : null}
-    </Fragment>
+    </div>
   );
 });

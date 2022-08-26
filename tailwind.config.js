@@ -24,5 +24,5 @@ module.exports = {
     },
   },
   plugins: [require('@tailwindcss/forms')],
-  important: '#headlessui-portal-root',
+  important: '#react-vault',
 };
