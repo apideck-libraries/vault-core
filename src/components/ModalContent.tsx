@@ -1,6 +1,7 @@
 import { Connection } from '../types/Connection';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
+import LoadingDetails from './LoadingDetails';
 import React from 'react';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
@@ -48,6 +49,8 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
 
   if (selectedConnection) return <ConnectionDetails onClose={onClose} />;
 
+  if (isLoading && noConnections) return <LoadingDetails />;
+
   return (
     <div
       className="relative -m-6 sm:rounded-lg h-full"
@@ -92,7 +95,7 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
             />
           </div>
         )}
-        {noConnections && (
+        {!isLoading && noConnections && (
           <div className="text-center p-5">
             <h3 className="text-lg font-medium leading-6 text-gray-900">
               No integrations found
