@@ -5,14 +5,8 @@ import 'whatwg-fetch';
 import * as React from 'react';
 
 import { fetchMock, setupIntersectionObserverMock } from './mock';
-import {
-  fireEvent,
-  render,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
-import { ADD_CONNECTION_RESPONSE } from './responses/add-connection';
 import { NO_ADDED_CONNECTIONS_RESPONSE } from './responses/no-added-connections';
 import { Vault } from '../src/components/Vault';
 import { act } from 'react-dom/test-utils';
@@ -87,28 +81,5 @@ describe('Vault - With no connections added yet', () => {
     });
 
     expect(screen.queryByText('Copper')).not.toBeInTheDocument();
-  });
-
-  describe('Adding a connection', () => {
-    beforeEach(() => jest.spyOn(window, 'fetch'));
-    beforeEach(() => fetchMock(ADD_CONNECTION_RESPONSE));
-
-    it('should show the list of connectors', async () => {
-      let screen: any;
-      await act(async () => {
-        screen = render(<Vault token="token123" open />);
-      });
-
-      const firstConnection = screen.getByTestId('crm+activecampaign');
-      fireEvent.click(firstConnection);
-
-      waitForElementToBeRemoved(firstConnection).then(() => {
-        const connectionDetails = screen.getByTestId(
-          'details-crm+activecampaign'
-        );
-
-        expect(connectionDetails).toBeInTheDocument();
-      });
-    });
   });
 });
