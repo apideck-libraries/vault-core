@@ -58,7 +58,13 @@ const ConnectionDetails = ({ onClose }: Props) => {
 
   useEffect(() => {
     // Open / close settings form bases on state
-    if (!showSettings && enabled && state !== 'callable' && hasFormFields) {
+    if (
+      !showSettings &&
+      enabled &&
+      state !== 'callable' &&
+      hasFormFields &&
+      !shouldShowAuthorizeButton
+    ) {
       setShowSettings(true);
     }
   }, [enabled, state, hasFormFields]);
