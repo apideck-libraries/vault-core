@@ -100,7 +100,7 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
                 />
               )}
               {description && (
-                <small className="inline-block mt-2 text-gray-600">
+                <small className="inline-block mt-2 text-gray-600 overflow-x-auto truncate w-full">
                   <Markdown>{description}</Markdown>
                 </small>
               )}

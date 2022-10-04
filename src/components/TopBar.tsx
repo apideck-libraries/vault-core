@@ -296,7 +296,7 @@ const TopBar = ({
   };
 
   return (
-    <div className="grid grid-cols-3 px-6" id="react-vault-top-bar">
+    <div className="grid grid-cols-3 px-6 relative" id="react-vault-top-bar">
       <ConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

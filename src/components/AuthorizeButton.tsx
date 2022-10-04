@@ -1,6 +1,6 @@
+import { Button, useToast } from '@apideck/components';
 import React, { useState } from 'react';
 
-import { Button } from '@apideck/components';
 import { Connection } from '../types/Connection';
 import { REDIRECT_URL } from '../constants/urls';
 import { useConnections } from '../utils/useConnections';
@@ -12,7 +12,8 @@ interface Props {
 
 const AuthorizeButton = ({ connection }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { connectionsUrl } = useConnections();
+  const { connectionsUrl, headers } = useConnections();
+  const { addToast } = useToast();
 
   const { mutate } = useSWRConfig();
 
@@ -25,27 +26,66 @@ const AuthorizeButton = ({ connection }: Props) => {
     setIsLoading(false);
   };
 
+  const authorizeConnection = async () => {
+    setIsLoading(true);
+    if (connection.oauth_grant_type === 'client_credentials') {
+      try {
+        const response: any = await fetch(
+          `${connectionsUrl}/${connection.unified_api}/${connection.service_id}/token`,
+          { method: 'POST', headers }
+        );
+        const data = await response.json();
+        if (data.error) {
+          addToast({
+            title: `Something went wrong`,
+            description: data.message,
+            type: 'error',
+            autoClose: true,
+          });
+          return;
+        }
+        addToast({
+          title: `Authorized ${connection.name}`,
+          type: 'success',
+          autoClose: true,
+        });
+        mutate(
+          `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
+        );
+        mutate('/vault/connections');
+      } catch (error) {
+        addToast({
+          title: `Something went wrong`,
+          description: `The integration could not be authorized. Please make sure your settings are correct and try again.`,
+          type: 'error',
+          autoClose: true,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      const child = window.open(
+        authorizeUrl,
+        '_blank',
+        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+      );
+      const timer = setInterval(() => {
+        if (child?.closed) {
+          clearInterval(timer);
+          handleChildWindowCLose();
+        }
+      }, 500);
+    }
+  };
+
   return (
     <Button
       text={`Authorize ${connection.name}`}
       isLoading={isLoading}
+      disabled={isLoading}
       size="large"
       className="w-full"
-      onClick={() => {
-        const child = window.open(
-          authorizeUrl,
-          '_blank',
-          'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-        );
-        const timer = setInterval(checkChild, 500);
-        setIsLoading(true);
-        function checkChild() {
-          if (child?.closed) {
-            clearInterval(timer);
-            handleChildWindowCLose();
-          }
-        }
-      }}
+      onClick={authorizeConnection}
     />
   );
 };
