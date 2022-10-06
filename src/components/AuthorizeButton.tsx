@@ -28,7 +28,10 @@ const AuthorizeButton = ({ connection }: Props) => {
 
   const authorizeConnection = async () => {
     setIsLoading(true);
-    if (connection.oauth_grant_type === 'client_credentials') {
+    if (
+      connection.oauth_grant_type === 'client_credentials' ||
+      connection.oauth_grant_type === 'password'
+    ) {
       try {
         const response: any = await fetch(
           `${connectionsUrl}/${connection.unified_api}/${connection.service_id}/token`,
