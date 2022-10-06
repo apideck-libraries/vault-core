@@ -26,6 +26,7 @@ interface ContextProps {
   singleConnectionMode: boolean;
   sessionExpired: boolean;
   connectionsUrl: string;
+  headers: any;
   updateConnection: (
     api: string,
     serviceId: string,
@@ -69,20 +70,19 @@ export const ConnectionsProvider = ({
   const singleConnectionMode =
     unifiedApi?.length && serviceId?.length ? true : false;
 
-  const getHeaders = () => {
-    return {
+  const headers = useMemo(
+    () => ({
       Authorization: `Bearer ${token}`,
       'X-APIDECK-APP-ID': appId,
       'X-APIDECK-CONSUMER-ID': consumerId,
       'X-APIDECK-AUTH-TYPE': 'JWT',
       'Content-Type': 'application/json',
-    };
-  };
+    }),
+    [token, appId, consumerId]
+  );
 
   const fetcher = async (url: string) => {
-    const response = await fetch(url, {
-      headers: getHeaders(),
-    });
+    const response = await fetch(url, { headers });
     return await response.json();
   };
 
@@ -155,7 +155,7 @@ export const ConnectionsProvider = ({
 
       const response = await fetch(updateUrl, {
         method: 'PATCH',
-        headers: getHeaders(),
+        headers,
         body: JSON.stringify(values),
       });
       const result = await response.json();
@@ -224,7 +224,7 @@ export const ConnectionsProvider = ({
         `${connectionsUrl}/${connection.unified_api}/${connection.service_id}`,
         {
           method: 'DELETE',
-          headers: getHeaders(),
+          headers,
         }
       );
       const updatedConnection = {
@@ -259,9 +259,7 @@ export const ConnectionsProvider = ({
     if (!selectedConnection) return;
     const raw = await fetch(
       `${connectionsUrl}/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
-      {
-        headers: getHeaders(),
-      }
+      { headers }
     );
     const response = await raw.json();
 
@@ -320,6 +318,7 @@ export const ConnectionsProvider = ({
       singleConnectionMode,
       updateConnection,
       connectionsUrl,
+      headers,
     }),
     [
       isUpdating,

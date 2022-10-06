@@ -11,6 +11,11 @@ export interface Settings extends RawJSON {
 
 export type ConnectionState = 'available' | 'added' | 'authorized' | 'callable';
 
+export type OauthGrantType =
+  | 'client_credentials'
+  | 'authorization_code'
+  | 'password';
+
 export interface Connection {
   id: string;
   service_id: string;
@@ -33,4 +38,6 @@ export interface Connection {
   form_fields: FormField[];
   created_at: number;
   resources?: { id: string; config: any }[];
+  oauth_grant_type?: OauthGrantType;
+  has_guide?: boolean;
 }

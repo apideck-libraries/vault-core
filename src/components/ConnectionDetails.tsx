@@ -47,13 +47,14 @@ const ConnectionDetails = ({ onClose }: Props) => {
   // TODO: implement hideResourceSettings from session
   const [showResources, setShowResources] = useState(false);
 
-  const requiredAuth = authorizationVariablesRequired(selectedConnection);
+  const requiredAuthVariables =
+    authorizationVariablesRequired(selectedConnection);
 
   const shouldShowAuthorizeButton =
     enabled &&
     state !== 'callable' &&
     auth_type === 'oauth2' &&
-    !requiredAuth &&
+    !requiredAuthVariables &&
     !showSettings;
 
   useEffect(() => {
@@ -63,7 +64,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
       enabled &&
       state !== 'callable' &&
       hasFormFields &&
-      !shouldShowAuthorizeButton
+      (!shouldShowAuthorizeButton || state === 'authorized')
     ) {
       setShowSettings(true);
     }
@@ -176,9 +177,9 @@ const ConnectionDetails = ({ onClose }: Props) => {
 
           {hasFormFields && showSettings ? (
             <Fragment>
-              {requiredAuth ? (
+              {requiredAuthVariables ? (
                 <div className={'mt-4 text-xs sm:text-sm text-gray-700'}>
-                  {requiredAuth}
+                  {requiredAuthVariables}
                 </div>
               ) : null}
               <Divider text="Settings" />
