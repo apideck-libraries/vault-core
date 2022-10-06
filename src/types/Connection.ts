@@ -36,4 +36,5 @@ export interface Connection {
   created_at: number;
   resources?: { id: string; config: any }[];
   oauth_grant_type?: OauthGrantType;
+  has_guide?: boolean;
 }
