@@ -119,7 +119,7 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
         />
       </form>
       {connection.has_guide && (
-        <div className="flex text-sm items-center text-gray-600 round-b-xl py-3 px-5 md:px-6 bg-gray-100 -mx-5 md:-mx-6 -mb-5 md:-mb-6 mt-4 border-t border-gray-200">
+        <div className="flex text-sm items-center text-gray-600 rounded-b-xl py-3 px-5 md:px-6 bg-gray-100 -mx-5 md:-mx-6 -mb-5 md:-mb-6 mt-4 border-t border-gray-200">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
