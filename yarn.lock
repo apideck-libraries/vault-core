@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@apideck/components@^0.12.0":
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/@apideck/components/-/components-0.12.0.tgz#56e2b1435a7df2979be7a5b068c773c497189a48"
-  integrity sha512-CHIh7510X9fqQ3MNgTEWVoQ110S4fVPy167dfYJasl79yiTDT00+9YCdinMVQsheTONUz8HkAnj25fASU4TsRQ==
+"@apideck/components@^0.12.1":
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/@apideck/components/-/components-0.12.1.tgz#23db230e9adf10ae14a51928cae48097226135a7"
+  integrity sha512-04rfDV+oyAloA7vNTwp9l5vAH5Ep1K3rkVhGu+LV/YPMEpkp+MDhyqSWCRyIwQoxC/vxAyCfwr53J+At3VG9qA==
   dependencies:
     "@headlessui/react" "^1.6.6"
     classnames "^2.2.6"

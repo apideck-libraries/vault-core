@@ -28,7 +28,7 @@
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@apideck/components": "^0.12.0",
+    "@apideck/components": "^0.12.1",
     "formik": "^2.2.9",
     "fuse.js": "^6.5.3",
     "jwt-decode": "^3.1.2",
