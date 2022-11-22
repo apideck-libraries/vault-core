@@ -20,14 +20,15 @@
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/styles.css"
+    "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/tailwind.css --minify && yarn copy-css-base",
+    "copy-css-base": "cp ./src/styles/base.css ./dist/styles.css"
   },
   "peerDependencies": {
     "react": ">=16",
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@apideck/components": "^0.11.3",
+    "@apideck/components": "^0.12.0",
     "formik": "^2.2.9",
     "fuse.js": "^6.5.3",
     "jwt-decode": "^3.1.2",
@@ -82,7 +83,6 @@
     "@storybook/addon-links": "next",
     "@storybook/addon-postcss": "2.0.0",
     "@storybook/react": "next",
-    "@tailwindcss/forms": "^0.4.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",

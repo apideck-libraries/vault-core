@@ -41,7 +41,7 @@ const Modal: any = ({
         onClose={onClose}
         style={style}
         className={classNames(
-          'react-vault fixed inset-0 z-40 overflow-y-auto bg-gray-400 bg-opacity-75',
+          'apideck react-vault fixed inset-0 z-40 overflow-y-auto bg-gray-400 bg-opacity-75',
           className
         )}
       >

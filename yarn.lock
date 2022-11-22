@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@apideck/components@^0.11.3":
-  version "0.11.3"
-  resolved "https://registry.yarnpkg.com/@apideck/components/-/components-0.11.3.tgz#9952474d70b33befda8718d04230eb3dcf97e2ef"
-  integrity sha512-QUqgyfITEndAc68E0T86W+rPLYfWmXkP1UrPHthUJELFD14iiL5q1SvKvKwEV0bbSL9pc4u9vKGowU1NWoPe1g==
+"@apideck/components@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@apideck/components/-/components-0.12.0.tgz#56e2b1435a7df2979be7a5b068c773c497189a48"
+  integrity sha512-CHIh7510X9fqQ3MNgTEWVoQ110S4fVPy167dfYJasl79yiTDT00+9YCdinMVQsheTONUz8HkAnj25fASU4TsRQ==
   dependencies:
     "@headlessui/react" "^1.6.6"
     classnames "^2.2.6"
@@ -2802,13 +2802,6 @@
     regenerator-runtime "^0.13.7"
     resolve-from "^5.0.0"
     store2 "^2.12.0"
-
-"@tailwindcss/forms@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@tailwindcss/forms/-/forms-0.4.0.tgz#a46715e347a32d216a3973eb67473bd29ae3798e"
-  integrity sha512-DeaQBx6EgEeuZPQACvC+mKneJsD8am1uiJugjgQK1+/Vt+Ai0GpFBC2T2fqnUad71WgOxyrZPE6BG1VaI6YqfQ==
-  dependencies:
-    mini-svg-data-uri "^1.2.3"
 
 "@testing-library/dom@^8.0.0":
   version "8.11.3"
@@ -9681,11 +9674,6 @@ min-indent@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/min-indent/-/min-indent-1.0.1.tgz#a63f681673b30571fbe8bc25686ae746eefa9869"
   integrity sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==
-
-mini-svg-data-uri@^1.2.3:
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/mini-svg-data-uri/-/mini-svg-data-uri-1.4.3.tgz#43177b2e93766ba338931a3e2a84a3dfd3a222b8"
-  integrity sha512-gSfqpMRC8IxghvMcxzzmMnWpXAChSA+vy4cia33RgerMS8Fex95akUyQZPbxJJmeBGiGmK7n/1OpUX8ksRjIdA==
 
 minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
   version "1.0.1"

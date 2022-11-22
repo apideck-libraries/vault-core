@@ -59,7 +59,6 @@ import '@apideck/react-vault/dist/styles.css';
 ```
 
 If you are using [Tailwind CSS](https://tailwindcss.com/) you should include the package path in the content path of the `tailwind.config.js`.
-Also make sure you have the Tailwindcss Forms plugin installed.
 
 ```js
 // tailwind.config.js
@@ -68,7 +67,6 @@ module.exports = {
   content: [
     './node_modules/@apideck/react-vault/**/*.js',
   ],
-  plugins: [require('@tailwindcss/forms')]
   ...
 }
 ```

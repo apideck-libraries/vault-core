@@ -111,7 +111,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
   return (
-    <div id="react-vault">
+    <div id="react-vault" className="apideck">
       {trigger
         ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
