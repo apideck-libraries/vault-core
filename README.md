@@ -64,9 +64,8 @@ If you are using [Tailwind CSS](https://tailwindcss.com/) you should include the
 // tailwind.config.js
 
 module.exports = {
-  content: [
-    './node_modules/@apideck/react-vault/**/*.js',
-  ],
+  content: ['./node_modules/@apideck/react-vault/**/*.js'],
+  plugins: [require('@tailwindcss/forms')]
   ...
 }
 ```
