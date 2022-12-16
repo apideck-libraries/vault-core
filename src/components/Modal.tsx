@@ -40,12 +40,16 @@ const Modal: any = ({
         as="div"
         onClose={onClose}
         style={style}
-        className={classNames(
-          'apideck react-vault fixed inset-0 z-40 overflow-y-auto bg-gray-400 bg-opacity-75',
-          className
-        )}
+        className="apideck react-vault"
       >
-        <div data-testid="backdrop" id="react-vault">
+        <div
+          data-testid="backdrop"
+          id="react-vault"
+          className={classNames(
+            'fixed inset-0 z-40 overflow-y-auto bg-gray-400 bg-opacity-75',
+            className
+          )}
+        >
           <div className="min-h-screen px-4 text-center">
             <Transition.Child
               as={Fragment}
