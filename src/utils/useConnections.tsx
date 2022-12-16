@@ -89,10 +89,13 @@ export const ConnectionsProvider = ({
   const listUrl = `${connectionsUrl}${unifiedApi ? `?api=${unifiedApi}` : ''}`;
   const detailsUrl = `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
 
-  const { data, error } = useSWR(listUrl, fetcher);
+  const { data, error } = useSWR(listUrl, fetcher, {
+    shouldRetryOnError: false,
+  });
   const { data: connectionDetails, error: detailsError } = useSWR(
     selectedConnection ? detailsUrl : null,
-    fetcher
+    fetcher,
+    { shouldRetryOnError: false }
   );
 
   const connection = connectionDetails?.data

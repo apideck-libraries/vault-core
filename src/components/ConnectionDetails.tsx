@@ -16,9 +16,10 @@ import { useConnections } from '../utils/useConnections';
 
 interface Props {
   onClose: () => void;
+  settings?: { hide_resource_settings?: boolean };
 }
 
-const ConnectionDetails = ({ onClose }: Props) => {
+const ConnectionDetails = ({ onClose, settings }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
 
   const {
@@ -132,6 +133,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
         setShowSettings={setShowSettings}
         setShowResources={setShowResources}
         singleConnectionMode={singleConnectionMode}
+        settings={settings}
       />
       <div className="h-full rounded-b-xl">
         <div className="text-center p-5 md:p-6">

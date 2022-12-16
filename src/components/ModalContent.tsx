@@ -7,7 +7,13 @@ import TabSelect from './TabSelect';
 import TopBar from './TopBar';
 import { useConnections } from '../utils/useConnections';
 
-export const ModalContent = ({ onClose }: { onClose: () => any }) => {
+export const ModalContent = ({
+  onClose,
+  settings,
+}: {
+  onClose: () => any;
+  settings?: { hide_resource_settings?: boolean };
+}) => {
   const {
     connections,
     error,
@@ -47,7 +53,8 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
   const noConnections =
     !addedConnections?.length && !availableConnections?.length;
 
-  if (selectedConnection) return <ConnectionDetails onClose={onClose} />;
+  if (selectedConnection)
+    return <ConnectionDetails onClose={onClose} settings={settings} />;
 
   if (isLoading && noConnections) return <LoadingDetails />;
 
@@ -56,7 +63,7 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
       className="relative -m-6 sm:rounded-lg h-full"
       id="react-vault-content"
     >
-      <TopBar onClose={onClose} />
+      <TopBar onClose={onClose} settings={settings} />
       <div className="h-full overflow-hidden rounded-b-xl">
         {addedConnections?.length > 0 && (
           <TabSelect

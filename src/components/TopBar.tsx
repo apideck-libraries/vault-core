@@ -17,6 +17,7 @@ interface Props {
   hideOptions?: boolean;
   hideBackButton?: boolean;
   singleConnectionMode?: boolean;
+  settings?: { hide_resource_settings?: boolean };
 }
 
 const TopBar = ({
@@ -27,6 +28,7 @@ const TopBar = ({
   hideOptions,
   hideBackButton,
   singleConnectionMode,
+  settings,
 }: Props) => {
   const {
     selectedConnection,
@@ -113,7 +115,8 @@ const TopBar = ({
 
     if (
       (state === 'authorized' || state === 'callable') &&
-      configurable_resources?.length
+      configurable_resources?.length &&
+      !settings?.hide_resource_settings
     ) {
       options.push({
         label: (
@@ -136,7 +139,8 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          if (setShowResources) setShowResources(true);
+          if (setShowResources && !settings?.hide_resource_settings)
+            setShowResources(true);
           if (setShowSettings) setShowSettings(false);
         },
       });

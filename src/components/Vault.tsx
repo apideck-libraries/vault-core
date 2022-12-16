@@ -69,6 +69,9 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const [jwt, setJwt] = useState<string | null>(null);
   const [consumerId, setConsumerId] = useState<string | null>(null);
   const [appId, setAppId] = useState<string | null>(null);
+  const [settings, setSettings] = useState<{
+    hide_resource_settings?: boolean;
+  }>({});
 
   const onCloseModal = () => {
     setIsOpen(false);
@@ -78,12 +81,10 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   };
 
   useEffect(() => {
-    if (open) {
-      if (token) {
-        setIsOpen(true);
-      } else {
-        console.error(NO_TOKEN_MESSAGE);
-      }
+    if (open && token) {
+      setIsOpen(true);
+    } else if (open && !token) {
+      console.error(NO_TOKEN_MESSAGE);
     }
   }, [open, token]);
 
@@ -98,6 +99,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setJwt(token);
         setConsumerId(decoded.consumer_id);
         setAppId(decoded.application_id);
+        setSettings(decoded.settings);
       } catch (e) {
         console.error(e);
         console.error(INVALID_TOKEN_MESSAGE);
@@ -131,7 +133,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               connectionsUrl={`${unifyBaseUrl}/vault/connections`}
             >
-              <ModalContent onClose={onCloseModal} />
+              <ModalContent onClose={onCloseModal} settings={settings} />
             </ConnectionsProvider>
           </ToastProvider>
         </Modal>
