@@ -4,6 +4,10 @@ A React component to embed [Apideck Vault](https://www.apideck.com/products/vaul
 
 Go to the [developer docs](https://developers.apideck.com/guides/react-vault) for a step-by-step guide.
 
+<img src="https://user-images.githubusercontent.com/8850410/208065819-716c6e02-98c9-4df5-b687-e5acd1e3c4e5.png" width="100%" />
+
+**React Vault** | [Vault JS](https://github.com/apideck-libraries/vault-js) | [Vue Vault](https://github.com/apideck-libraries/vue-vault)
+
 ## Usage
 
 Install the packages
