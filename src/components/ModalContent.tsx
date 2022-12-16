@@ -10,9 +10,11 @@ import { useConnections } from '../utils/useConnections';
 export const ModalContent = ({
   onClose,
   settings,
+  consumer,
 }: {
   onClose: () => any;
-  settings?: { hide_resource_settings?: boolean };
+  settings?: { hide_resource_settings?: boolean; hide_consumer_card?: boolean };
+  consumer?: { image?: string; user_name?: string; account_name?: string };
 }) => {
   const {
     connections,
@@ -58,13 +60,20 @@ export const ModalContent = ({
 
   if (isLoading && noConnections) return <LoadingDetails />;
 
+  const hasConsumerMetadata = consumer && Object.keys(consumer).length > 0;
+  const showConsumer = hasConsumerMetadata && !settings?.hide_consumer_card;
+
   return (
     <div
       className="relative -m-6 sm:rounded-lg h-full"
       id="react-vault-content"
     >
       <TopBar onClose={onClose} settings={settings} />
-      <div className="h-full overflow-hidden rounded-b-xl">
+      <div
+        className={`h-full overflow-hidden ${
+          showConsumer ? '' : 'rounded-b-lg'
+        }`}
+      >
         {addedConnections?.length > 0 && (
           <TabSelect
             tabs={[
@@ -114,6 +123,30 @@ export const ModalContent = ({
           </div>
         )}
       </div>
+      {hasConsumerMetadata && !settings?.hide_consumer_card && (
+        <div className="relative px-6 py-1.5 flex items-center space-x-3 rounded-b-lg">
+          <div className="flex-shrink-0">
+            <img
+              className="h-8 w-8 mx-1 rounded-full ring-2 ring-white"
+              src={consumer?.image}
+              alt={consumer.user_name ? consumer.user_name : 'user'}
+            />
+          </div>
+          <div className="flex-1 min-w-0 flex-col">
+            <div className="flex items-center justify-between">
+              <div className="focus:outline-none">
+                <span className="absolute inset-0" aria-hidden="true" />
+                <p className="text-sm font-medium text-gray-900">
+                  {consumer.user_name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {consumer.account_name}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

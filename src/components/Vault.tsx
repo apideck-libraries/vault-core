@@ -43,6 +43,13 @@ export interface Props {
    * Should only be used for local development or in a staging environment
    */
   unifyBaseUrl?: string;
+
+  /**
+   * Optionally you can show the consumer metadata information in the modal
+   * The consumer metadata should be provided when creating a session
+   * @default false
+   * */
+  showConsumer: boolean;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -62,6 +69,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     unifiedApi,
     serviceId,
     unifyBaseUrl = BASE_URL,
+    showConsumer = false,
   },
   ref
 ) {
@@ -72,6 +80,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const [settings, setSettings] = useState<{
     hide_resource_settings?: boolean;
   }>({});
+  const [consumer, setConsumer] = useState();
 
   const onCloseModal = () => {
     setIsOpen(false);
@@ -100,12 +109,14 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setConsumerId(decoded.consumer_id);
         setAppId(decoded.application_id);
         setSettings(decoded.settings);
+        setConsumer(decoded.consumer_metadata);
       } catch (e) {
         console.error(e);
         console.error(INVALID_TOKEN_MESSAGE);
         setJwt(null);
         setConsumerId(null);
         setAppId(null);
+        setSettings({});
       }
     }
   }, [token]);
@@ -133,7 +144,11 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               connectionsUrl={`${unifyBaseUrl}/vault/connections`}
             >
-              <ModalContent onClose={onCloseModal} settings={settings} />
+              <ModalContent
+                onClose={onCloseModal}
+                settings={settings}
+                consumer={showConsumer ? consumer : undefined}
+              />
             </ConnectionsProvider>
           </ToastProvider>
         </Modal>

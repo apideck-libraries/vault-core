@@ -125,3 +125,4 @@ export default VaultButton;
 | onClose         | event   | false    | -       | Function that gets called when the modal is closed                                                                                                |
 | unifiedApi      | string  | false    | -       | When unifiedApi is provided it will scope the connection results to that API. If also a serviceId is provided Vault opens for a single connection |
 | serviceId       | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection                                                                        |
+| showConsumer    | boolean | false    | false   | Show the consumer metadata provided when creating a session                                                                                       |

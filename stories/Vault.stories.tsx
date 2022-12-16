@@ -28,7 +28,8 @@ const Template: Story<Props> = (args) => (
   <Vault
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     {...args}
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXR0aW5ncyI6eyJoaWRlX3Jlc291cmNlX3NldHRpbmdzIjp0cnVlfSwiY29uc3VtZXJfaWQiOiJ0ZXN0LWNvbnN1bWVyIiwiYXBwbGljYXRpb25faWQiOiJBaUNrenhjcFpXdXhVUk1Va2E5ZjlXT1VSaGtPYjBIeHBLVWthIiwic2NvcGVzIjpbXSwiaWF0IjoxNjcxMTkzNTg3LCJleHAiOjE2NzExOTcxODd9.GnDXyj24U7A7HznuexOYdPwfGvr4OknVVP_iMwYzQ_8"
+    showConsumer={true}
+    token="token"
   />
 );
 
