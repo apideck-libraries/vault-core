@@ -45,7 +45,6 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
   const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
 
   const [showSettings, setShowSettings] = useState(false);
-  // TODO: implement hideResourceSettings from session
   const [showResources, setShowResources] = useState(false);
 
   const requiredAuthVariables =
@@ -73,7 +72,11 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
 
   useEffect(() => {
     // Open / close resource form bases on missing fields
-    if (!showSettings && hasMissingRequiredFields(resources)) {
+    if (
+      !showSettings &&
+      hasMissingRequiredFields(resources) &&
+      !settings?.hide_resource_settings
+    ) {
       setShowResources(true);
     }
 
