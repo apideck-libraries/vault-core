@@ -129,7 +129,7 @@ export const ModalContent = ({
             <img
               className="h-8 w-8 mx-1 rounded-full ring-2 ring-white"
               src={consumer?.image}
-              alt={consumer.user_name ? consumer.user_name : 'user'}
+              alt={consumer?.user_name ? consumer?.user_name : 'user'}
             />
           </div>
           <div className="flex-1 min-w-0 flex-col">
@@ -137,10 +137,10 @@ export const ModalContent = ({
               <div className="focus:outline-none">
                 <span className="absolute inset-0" aria-hidden="true" />
                 <p className="text-sm font-medium text-gray-900">
-                  {consumer.user_name}
+                  {consumer?.user_name}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  {consumer.account_name}
+                  {consumer?.account_name}
                 </p>
               </div>
             </div>
