@@ -49,7 +49,7 @@ export interface Props {
    * The consumer metadata should be provided when creating a session
    * @default false
    * */
-  showConsumer: boolean;
+  showConsumer?: boolean;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
