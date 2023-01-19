@@ -1,20 +1,22 @@
+import React from 'react';
 import { Connection } from '../types/Connection';
+import { useConnections } from '../utils/useConnections';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
 import LoadingDetails from './LoadingDetails';
-import React from 'react';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
-import { useConnections } from '../utils/useConnections';
 
 export const ModalContent = ({
   onClose,
   settings,
   consumer,
+  theme,
 }: {
   onClose: () => any;
   settings?: { hide_resource_settings?: boolean; hide_consumer_card?: boolean };
   consumer?: { image?: string; user_name?: string; account_name?: string };
+  theme?: { logo: string };
 }) => {
   const {
     connections,
@@ -32,7 +34,13 @@ export const ModalContent = ({
         data-testid="error-message"
         id="react-vault-content"
       >
-        <TopBar onClose={onClose} onBack={onClose} hideOptions hideBackButton />
+        <TopBar
+          onClose={onClose}
+          onBack={onClose}
+          theme={theme}
+          hideOptions
+          hideBackButton
+        />
         <div className="flex items-center text-center text-red-700 flex-col justify-center h-full p-4 m-5 rounded bg-red-100">
           <h3 className="font-medium">{error || detailsError}</h3>
           {sessionExpired ? (
@@ -68,7 +76,7 @@ export const ModalContent = ({
       className="relative -m-6 sm:rounded-lg h-full"
       id="react-vault-content"
     >
-      <TopBar onClose={onClose} settings={settings} />
+      <TopBar onClose={onClose} settings={settings} theme={theme} />
       <div
         className={`h-full overflow-hidden ${
           showConsumer ? '' : 'rounded-b-lg'

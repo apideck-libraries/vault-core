@@ -1,18 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
+import { Dialog } from '@headlessui/react';
+import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
+import { getApiName } from '../utils/getApiName';
+import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
+import { useConnections } from '../utils/useConnections';
 import AuthorizeButton from './AuthorizeButton';
 import ConnectionForm from './ConnectionForm';
-import { Dialog } from '@headlessui/react';
 import Divider from './Divider';
 import LoadingDetails from './LoadingDetails';
 import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
 import TopBar from './TopBar';
-import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
-import { getApiName } from '../utils/getApiName';
-import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
-import { useConnections } from '../utils/useConnections';
 
 interface Props {
   onClose: () => void;
@@ -121,7 +121,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
 
   return (
     <div
-      className="relative -m-6 sm:rounded-lg h-full"
+      className="relative -m-6 sm:rounded-lg h-full fade-up"
       data-testid={`details-${selectedConnection.id}`}
     >
       <TopBar

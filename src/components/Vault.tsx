@@ -1,11 +1,11 @@
 import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 
+import { ToastProvider } from '@apideck/components';
+import jwtDecode from 'jwt-decode';
 import { BASE_URL } from '../constants/urls';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
-import { ToastProvider } from '@apideck/components';
-import jwtDecode from 'jwt-decode';
 
 export interface Props {
   /**
@@ -76,6 +76,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [consumerId, setConsumerId] = useState<string | null>(null);
+  const [theme, setTheme] = useState<any>({});
   const [appId, setAppId] = useState<string | null>(null);
   const [settings, setSettings] = useState<{
     hide_resource_settings?: boolean;
@@ -110,6 +111,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setAppId(decoded.application_id);
         setSettings(decoded.settings);
         setConsumer(decoded.consumer_metadata);
+        setTheme(decoded.theme);
       } catch (e) {
         console.error(e);
         console.error(INVALID_TOKEN_MESSAGE);
@@ -117,6 +119,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setConsumerId(null);
         setAppId(null);
         setSettings({});
+        setTheme({});
       }
     }
   }, [token]);
@@ -148,6 +151,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
                 onClose={onCloseModal}
                 settings={settings}
                 consumer={showConsumer ? consumer : undefined}
+                theme={theme}
               />
             </ConnectionsProvider>
           </ToastProvider>
