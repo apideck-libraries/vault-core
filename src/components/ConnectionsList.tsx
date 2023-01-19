@@ -1,11 +1,11 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import { Connection } from '../types/Connection';
-import ConnectionListItem from './ConnectionListItem';
-import Fuse from 'fuse.js';
-import SearchInput from './SearchInput';
 import classNames from 'classnames';
+import Fuse from 'fuse.js';
+import { Connection } from '../types/Connection';
 import useDebounce from '../utils/useDebounce';
+import ConnectionListItem from './ConnectionListItem';
+import SearchInput from './SearchInput';
 
 interface Props {
   connections: Connection[];
@@ -38,8 +38,8 @@ const ConnectionsList = ({ connections, isLoading }: Props) => {
 
   return (
     <div
-      className="border-b border-t border-gray-100 overflow-y-auto"
-      style={{ height: 488 }}
+      className="border-b border-gray-100 overflow-y-auto h-full"
+      style={{ maxHeight: 488 }}
     >
       {showSearch ? (
         <SearchInput

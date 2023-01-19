@@ -110,7 +110,7 @@ export const ModalContent = ({
         )}
         {addedConnections?.length === 0 && availableConnections.length > 0 && (
           <div id="react-vault-connections-container">
-            <div className="text-center p-5 text-lg font-medium leading-6 text-gray-900">
+            <div className="text-center p-6 text-lg font-medium leading-6 text-gray-900">
               <h3>Manage your integrations</h3>
             </div>
             <ConnectionsList
