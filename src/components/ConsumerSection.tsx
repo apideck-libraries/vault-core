@@ -1,3 +1,5 @@
+import React from 'react';
+
 const ConsumerSection = ({ consumer }: { consumer: any }) => {
   return (
     <div className="relative px-3 py-2 flex items-center rounded-b-lg bg-gray-100 border-t">
