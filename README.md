@@ -118,6 +118,8 @@ const VaultButton = ({ token }) => {
 export default VaultButton;
 ```
 
+If you want to provide a custom logo on top of the modal, you can set the `logo` property on the `theme` you can provide through the session. [View Vault API documentation](https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate).
+
 ### Properties
 
 | Property        | Type    | Required | Default | Description                                                                                                                                       |
