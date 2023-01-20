@@ -87,7 +87,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
 
   if (selectedResource) {
     return (
-      <div className="relative -m-6 sm:rounded-lg h-full">
+      <>
         <TopBar
           onClose={onClose}
           onBack={() => setSelectedResource(null)}
@@ -113,17 +113,14 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
             />
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (isLoadingDetails) return <LoadingDetails />;
 
   return (
-    <div
-      className="relative -m-6 sm:rounded-lg h-full fade-up"
-      data-testid={`details-${selectedConnection.id}`}
-    >
+    <>
       <TopBar
         onClose={onClose}
         onBack={() => {
@@ -196,7 +193,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
           ) : null}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 export default ConnectionDetails;
