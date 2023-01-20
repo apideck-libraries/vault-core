@@ -112,7 +112,7 @@ export const ModalContent = ({
           <div id="react-vault-connections-container">
             <div
               className={`text-center text-lg font-medium leading-6 text-gray-900 ${
-                theme?.logo ? 'pt-6 px-6 pb-0' : 'p-6'
+                !theme?.logo ? 'pt-6 px-6 pb-0' : 'p-6'
               }`}
             >
               <h3>Manage your integrations</h3>
