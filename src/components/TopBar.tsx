@@ -382,7 +382,7 @@ const TopBar = ({
           <img
             src={selectedConnection?.icon ?? theme?.logo}
             id="react-vault-icon"
-            className="object-fit w-full h-full p-1"
+            className="object-fit w-full h-full"
           />
         </div>
       ) : (
