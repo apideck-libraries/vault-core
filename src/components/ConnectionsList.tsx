@@ -38,7 +38,7 @@ const ConnectionsList = ({ connections, isLoading }: Props) => {
 
   return (
     <div
-      className="border-b border-gray-100 overflow-y-auto h-full"
+      className="border-t border-gray-100 overflow-y-auto h-full"
       style={{ maxHeight: 488 }}
     >
       {showSearch ? (
