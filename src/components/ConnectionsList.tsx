@@ -10,9 +10,10 @@ import SearchInput from './SearchInput';
 interface Props {
   connections: Connection[];
   isLoading: boolean;
+  type: 'available' | 'added';
 }
 
-const ConnectionsList = ({ connections, isLoading }: Props) => {
+const ConnectionsList = ({ connections, isLoading, type }: Props) => {
   const showSearch = !isLoading && connections?.length > 5;
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,6 +86,11 @@ const ConnectionsList = ({ connections, isLoading }: Props) => {
               );
             })}
       </ul>
+      {connectionsToShow?.length === 0 && (
+        <div className="flex items-center justify-center flex-1 h-64">
+          <p className="text-center text-gray-500">No connections {type}</p>
+        </div>
+      )}
     </div>
   );
 };

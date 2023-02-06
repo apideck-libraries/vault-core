@@ -103,6 +103,7 @@ export const ModalContent = ({
                   <ConnectionsList
                     isLoading={isLoading}
                     connections={addedConnections}
+                    type="added"
                   />
                 ),
                 count: addedConnections?.length,
@@ -113,6 +114,7 @@ export const ModalContent = ({
                   <ConnectionsList
                     isLoading={isLoading}
                     connections={availableConnections}
+                    type="available"
                   />
                 ),
                 count: availableConnections?.length,
@@ -130,6 +132,7 @@ export const ModalContent = ({
             <ConnectionsList
               isLoading={isLoading}
               connections={availableConnections}
+              type="available"
             />
           </div>
         )}
