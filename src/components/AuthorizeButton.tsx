@@ -85,7 +85,9 @@ const AuthorizeButton = ({ connection }: Props) => {
     <Button
       text={`Authorize ${connection.name}`}
       isLoading={isLoading}
-      disabled={isLoading}
+      disabled={
+        connection.integration_state === 'needs_configuration' || isLoading
+      }
       size="large"
       className="w-full"
       onClick={authorizeConnection}
