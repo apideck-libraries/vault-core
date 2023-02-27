@@ -161,7 +161,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
               className="text-left my-2"
               description={
                 <span>
-                  Configure the QuickBooks integration in the{' '}
+                  Configure the {name} integration in the{' '}
                   <a
                     href={`https://platform.apideck.com/configuration/${unified_api}/${service_id}`}
                     target="_blank"

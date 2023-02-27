@@ -41,7 +41,7 @@ export interface Connection {
   resource_schema_support: string[];
   configuration?: { resource: string; defaults: FormField[] }[];
   form_fields: FormField[];
-  created_at: number;
+  created_at?: number;
   resources?: { id: string; config: any }[];
   oauth_grant_type?: OauthGrantType;
   has_guide?: boolean;
