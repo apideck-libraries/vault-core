@@ -13,9 +13,11 @@ const StatusBadge = ({
   isLoading = false,
   size = 'small',
 }: Props) => {
-  const { state, enabled } = connection;
+  const { state, integration_state, enabled } = connection;
 
   const statusText = () => {
+    if (integration_state === 'needs_configuration')
+      return 'Needs configuration';
     if (state === 'available') return 'Not connected';
     if (!enabled) return 'Disabled';
     if (state === 'added') return 'Unauthorized';

@@ -98,7 +98,7 @@ export const ModalContent = ({
           <TabSelect
             tabs={[
               {
-                name: 'Connected',
+                name: 'Added',
                 content: (
                   <ConnectionsList
                     isLoading={isLoading}
