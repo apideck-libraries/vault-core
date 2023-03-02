@@ -4,13 +4,14 @@ import React, { Dispatch, Fragment, SetStateAction } from 'react';
 import { useFormik } from 'formik';
 import Markdown from 'markdown-to-jsx';
 import { Connection } from '../types/Connection';
+import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import SearchSelect from './SearchSelect';
 
 interface Props {
   connection: Connection;
   setShowSettings: Dispatch<SetStateAction<boolean>>;
-  settings: { hide_resource_settings?: boolean; hide_guides?: boolean };
+  settings: SessionSettings;
 }
 
 const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {

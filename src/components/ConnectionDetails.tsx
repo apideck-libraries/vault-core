@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 
 import { Alert } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
+import { SessionSettings } from '../types/SessionSettings';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
 import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
@@ -17,7 +18,7 @@ import TopBar from './TopBar';
 
 interface Props {
   onClose: () => void;
-  settings?: { hide_resource_settings?: boolean; hide_guides?: boolean };
+  settings: SessionSettings;
 }
 
 const ConnectionDetails = ({ onClose, settings }: Props) => {

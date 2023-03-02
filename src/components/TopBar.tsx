@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { FormField } from '../types/FormField';
+import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import ConfirmModal from './ConfirmModal';
 
@@ -17,7 +18,7 @@ interface Props {
   hideOptions?: boolean;
   hideBackButton?: boolean;
   singleConnectionMode?: boolean;
-  settings?: { hide_resource_settings?: boolean };
+  settings?: SessionSettings;
   theme?: { logo: string };
 }
 
