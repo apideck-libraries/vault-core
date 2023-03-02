@@ -89,10 +89,13 @@ export const ConnectionsProvider = ({
   const listUrl = `${connectionsUrl}${unifiedApi ? `?api=${unifiedApi}` : ''}`;
   const detailsUrl = `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
 
-  const { data, error } = useSWR(listUrl, fetcher);
+  const { data, error } = useSWR(listUrl, fetcher, {
+    shouldRetryOnError: false,
+  });
   const { data: connectionDetails, error: detailsError } = useSWR(
     selectedConnection ? detailsUrl : null,
-    fetcher
+    fetcher,
+    { shouldRetryOnError: false }
   );
 
   const connection = connectionDetails?.data
@@ -184,7 +187,7 @@ export const ConnectionsProvider = ({
         mutate(updateUrl, updatedDetail, false);
         setSelectedConnection({ ...selectedConnection, ...result.data });
 
-        if (resource) getResourceConfig();
+        if (resource) await getResourceConfig();
 
         const message = values.hasOwnProperty('enabled')
           ? `${result.data?.name} is ${values.enabled ? 'enabled' : 'disabled'}`
@@ -283,6 +286,13 @@ export const ConnectionsProvider = ({
       const errorResponse: any = responses.find((res: any) => res.error);
       if (errorResponse) {
         console.error('Failed to fetch resource config', errorResponse);
+        addToast({
+          title: 'Failed to fetch resource config',
+          description: `${errorResponse?.message} ${errorResponse?.detail?.error?.[0]?.message}`,
+          type: 'error',
+          autoClose: false,
+        });
+        setResources(responses);
         return;
       }
       setResources(responses);

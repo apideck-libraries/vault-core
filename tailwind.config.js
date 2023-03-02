@@ -23,6 +23,6 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [],
   important: '#react-vault',
 };

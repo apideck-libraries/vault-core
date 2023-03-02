@@ -1,11 +1,12 @@
 import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 
+import { ToastProvider } from '@apideck/components';
+import jwtDecode from 'jwt-decode';
 import { BASE_URL } from '../constants/urls';
+import { SessionSettings } from '../types/SessionSettings';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
-import { ToastProvider } from '@apideck/components';
-import jwtDecode from 'jwt-decode';
 
 export interface Props {
   /**
@@ -43,6 +44,13 @@ export interface Props {
    * Should only be used for local development or in a staging environment
    */
   unifyBaseUrl?: string;
+
+  /**
+   * Optionally you can show the consumer metadata information in the modal
+   * The consumer metadata should be provided when creating a session
+   * @default false
+   * */
+  showConsumer?: boolean;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -62,13 +70,17 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     unifiedApi,
     serviceId,
     unifyBaseUrl = BASE_URL,
+    showConsumer = false,
   },
   ref
 ) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [consumerId, setConsumerId] = useState<string | null>(null);
+  const [theme, setTheme] = useState<any>({});
   const [appId, setAppId] = useState<string | null>(null);
+  const [settings, setSettings] = useState<SessionSettings>({});
+  const [consumer, setConsumer] = useState();
 
   const onCloseModal = () => {
     setIsOpen(false);
@@ -78,12 +90,10 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   };
 
   useEffect(() => {
-    if (open) {
-      if (token) {
-        setIsOpen(true);
-      } else {
-        console.error(NO_TOKEN_MESSAGE);
-      }
+    if (open && token) {
+      setIsOpen(true);
+    } else if (open && !token) {
+      console.error(NO_TOKEN_MESSAGE);
     }
   }, [open, token]);
 
@@ -98,12 +108,17 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setJwt(token);
         setConsumerId(decoded.consumer_id);
         setAppId(decoded.application_id);
+        setSettings(decoded.settings);
+        setConsumer(decoded.consumer_metadata);
+        setTheme(decoded.theme);
       } catch (e) {
         console.error(e);
         console.error(INVALID_TOKEN_MESSAGE);
         setJwt(null);
         setConsumerId(null);
         setAppId(null);
+        setSettings({});
+        setTheme({});
       }
     }
   }, [token]);
@@ -111,7 +126,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
   return (
-    <div id="react-vault">
+    <div id="react-vault" className="apideck">
       {trigger
         ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
         : null}
@@ -131,7 +146,12 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               connectionsUrl={`${unifyBaseUrl}/vault/connections`}
             >
-              <ModalContent onClose={onCloseModal} />
+              <ModalContent
+                onClose={onCloseModal}
+                settings={settings}
+                consumer={showConsumer ? consumer : undefined}
+                theme={theme}
+              />
             </ConnectionsProvider>
           </ToastProvider>
         </Modal>

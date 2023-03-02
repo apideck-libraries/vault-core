@@ -1,13 +1,14 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
-import ConfirmModal from './ConfirmModal';
 import { Dropdown } from '@apideck/components';
-import { FormField } from '../types/FormField';
 import { Option } from '@apideck/components/dist/components/Dropdown';
-import { REDIRECT_URL } from '../constants/urls';
 import classNames from 'classnames';
-import { useConnections } from '../utils/useConnections';
 import { useSWRConfig } from 'swr';
+import { REDIRECT_URL } from '../constants/urls';
+import { FormField } from '../types/FormField';
+import { SessionSettings } from '../types/SessionSettings';
+import { useConnections } from '../utils/useConnections';
+import ConfirmModal from './ConfirmModal';
 
 interface Props {
   onClose: () => void;
@@ -17,6 +18,8 @@ interface Props {
   hideOptions?: boolean;
   hideBackButton?: boolean;
   singleConnectionMode?: boolean;
+  settings?: SessionSettings;
+  theme?: { logo: string };
 }
 
 const TopBar = ({
@@ -27,6 +30,8 @@ const TopBar = ({
   hideOptions,
   hideBackButton,
   singleConnectionMode,
+  settings,
+  theme,
 }: Props) => {
   const {
     selectedConnection,
@@ -113,7 +118,8 @@ const TopBar = ({
 
     if (
       (state === 'authorized' || state === 'callable') &&
-      configurable_resources?.length
+      configurable_resources?.length &&
+      !settings?.hide_resource_settings
     ) {
       options.push({
         label: (
@@ -136,7 +142,8 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          if (setShowResources) setShowResources(true);
+          if (setShowResources && !settings?.hide_resource_settings)
+            setShowResources(true);
           if (setShowSettings) setShowSettings(false);
         },
       });
@@ -295,6 +302,13 @@ const TopBar = ({
     return options;
   };
 
+  const showLogo = useMemo(
+    () => selectedConnection?.icon || theme?.logo,
+    [selectedConnection?.icon, theme?.logo]
+  );
+
+  if (!showLogo && !selectedConnection?.name) return null;
+
   return (
     <div className="grid grid-cols-3 px-6 relative" id="react-vault-top-bar">
       <ConfirmModal
@@ -359,14 +373,22 @@ const TopBar = ({
       ) : (
         <div className="w-10 m-3" />
       )}
-      <img
-        src={selectedConnection?.icon ?? 'https://www.apideck.com/favicon.ico'}
-        id="react-vault-icon"
-        className={classNames(
-          'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto',
-          { 'animate-pulse': isReAuthorizing }
-        )}
-      />
+      {showLogo ? (
+        <div
+          className={classNames(
+            'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto overflow-hidden',
+            { 'animate-pulse': isReAuthorizing }
+          )}
+        >
+          <img
+            src={selectedConnection?.icon ?? theme?.logo}
+            id="react-vault-icon"
+            className="object-fit w-full h-full"
+          />
+        </div>
+      ) : (
+        <div className="-mt-8" />
+      )}
       <div className="flex flex-col items-end mt-3">
         {selectedConnection && !hideOptions && !singleConnectionMode ? (
           <Dropdown

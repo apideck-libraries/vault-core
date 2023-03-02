@@ -1,13 +1,25 @@
+import React from 'react';
 import { Connection } from '../types/Connection';
+import { SessionSettings } from '../types/SessionSettings';
+import { useConnections } from '../utils/useConnections';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
+import ConsumerSection from './ConsumerSection';
 import LoadingDetails from './LoadingDetails';
-import React from 'react';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
-import { useConnections } from '../utils/useConnections';
 
-export const ModalContent = ({ onClose }: { onClose: () => any }) => {
+export const ModalContent = ({
+  onClose,
+  settings,
+  consumer,
+  theme,
+}: {
+  onClose: () => any;
+  settings: SessionSettings;
+  consumer?: { image?: string; user_name?: string; account_name?: string };
+  theme?: { logo: string };
+}) => {
   const {
     connections,
     error,
@@ -24,7 +36,13 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
         data-testid="error-message"
         id="react-vault-content"
       >
-        <TopBar onClose={onClose} onBack={onClose} hideOptions hideBackButton />
+        <TopBar
+          onClose={onClose}
+          onBack={onClose}
+          theme={theme}
+          hideOptions
+          hideBackButton
+        />
         <div className="flex items-center text-center text-red-700 flex-col justify-center h-full p-4 m-5 rounded bg-red-100">
           <h3 className="font-medium">{error || detailsError}</h3>
           {sessionExpired ? (
@@ -46,8 +64,23 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
 
   const noConnections =
     !addedConnections?.length && !availableConnections?.length;
+  const hasConsumerMetadata = consumer && Object.keys(consumer).length > 0;
+  const showConsumer = hasConsumerMetadata && !settings?.hide_consumer_card;
 
-  if (selectedConnection) return <ConnectionDetails onClose={onClose} />;
+  if (selectedConnection)
+    return (
+      <div
+        className="relative -m-6 sm:rounded-lg h-full fade-up"
+        id="react-vault-content"
+      >
+        <ConnectionDetails
+          onClose={onClose}
+          settings={settings}
+          data-testid={`details-${selectedConnection.id}`}
+        />
+        {showConsumer && <ConsumerSection consumer={consumer} />}
+      </div>
+    );
 
   if (isLoading && noConnections) return <LoadingDetails />;
 
@@ -56,17 +89,22 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
       className="relative -m-6 sm:rounded-lg h-full"
       id="react-vault-content"
     >
-      <TopBar onClose={onClose} />
-      <div className="h-full overflow-hidden rounded-b-xl">
+      <TopBar onClose={onClose} settings={settings} theme={theme} />
+      <div
+        className={`h-full overflow-hidden min-h-[469px] ${
+          showConsumer ? '' : 'rounded-b-lg'
+        }`}
+      >
         {addedConnections?.length > 0 && (
           <TabSelect
             tabs={[
               {
-                name: 'Connected',
+                name: 'Added',
                 content: (
                   <ConnectionsList
                     isLoading={isLoading}
                     connections={addedConnections}
+                    type="added"
                   />
                 ),
                 count: addedConnections?.length,
@@ -77,6 +115,7 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
                   <ConnectionsList
                     isLoading={isLoading}
                     connections={availableConnections}
+                    type="available"
                   />
                 ),
                 count: availableConnections?.length,
@@ -86,12 +125,15 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
         )}
         {addedConnections?.length === 0 && availableConnections.length > 0 && (
           <div id="react-vault-connections-container">
-            <div className="text-center p-5 text-lg font-medium leading-6 text-gray-900">
+            <div
+              className={`text-center text-lg font-medium leading-6 text-gray-900 ${'p-6'}`}
+            >
               <h3>Manage your integrations</h3>
             </div>
             <ConnectionsList
               isLoading={isLoading}
               connections={availableConnections}
+              type="available"
             />
           </div>
         )}
@@ -107,6 +149,7 @@ export const ModalContent = ({ onClose }: { onClose: () => any }) => {
           </div>
         )}
       </div>
+      {showConsumer && <ConsumerSection consumer={consumer} />}
     </div>
   );
 };

@@ -1,24 +1,27 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
+import { Alert } from '@apideck/components';
+import { Dialog } from '@headlessui/react';
+import { SessionSettings } from '../types/SessionSettings';
+import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
+import { getApiName } from '../utils/getApiName';
+import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
+import { useConnections } from '../utils/useConnections';
 import AuthorizeButton from './AuthorizeButton';
 import ConnectionForm from './ConnectionForm';
-import { Dialog } from '@headlessui/react';
 import Divider from './Divider';
 import LoadingDetails from './LoadingDetails';
 import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
 import TopBar from './TopBar';
-import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
-import { getApiName } from '../utils/getApiName';
-import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
-import { useConnections } from '../utils/useConnections';
 
 interface Props {
   onClose: () => void;
+  settings: SessionSettings;
 }
 
-const ConnectionDetails = ({ onClose }: Props) => {
+const ConnectionDetails = ({ onClose, settings }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
 
   const {
@@ -39,12 +42,12 @@ const ConnectionDetails = ({ onClose }: Props) => {
     tag_line,
     form_fields,
     unified_api,
+    service_id,
   } = selectedConnection;
 
   const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
 
   const [showSettings, setShowSettings] = useState(false);
-  // TODO: implement hideResourceSettings from session
   const [showResources, setShowResources] = useState(false);
 
   const requiredAuthVariables =
@@ -72,7 +75,11 @@ const ConnectionDetails = ({ onClose }: Props) => {
 
   useEffect(() => {
     // Open / close resource form bases on missing fields
-    if (!showSettings && hasMissingRequiredFields(resources)) {
+    if (
+      !showSettings &&
+      hasMissingRequiredFields(resources) &&
+      !settings?.hide_resource_settings
+    ) {
       setShowResources(true);
     }
 
@@ -83,7 +90,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
 
   if (selectedResource) {
     return (
-      <div className="relative -m-6 sm:rounded-lg h-full">
+      <>
         <TopBar
           onClose={onClose}
           onBack={() => setSelectedResource(null)}
@@ -109,17 +116,14 @@ const ConnectionDetails = ({ onClose }: Props) => {
             />
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (isLoadingDetails) return <LoadingDetails />;
 
   return (
-    <div
-      className="relative -m-6 sm:rounded-lg h-full"
-      data-testid={`details-${selectedConnection.id}`}
-    >
+    <>
       <TopBar
         onClose={onClose}
         onBack={() => {
@@ -132,6 +136,7 @@ const ConnectionDetails = ({ onClose }: Props) => {
         setShowSettings={setShowSettings}
         setShowResources={setShowResources}
         singleConnectionMode={singleConnectionMode}
+        settings={settings}
       />
       <div className="h-full rounded-b-xl">
         <div className="text-center p-5 md:p-6">
@@ -151,13 +156,39 @@ const ConnectionDetails = ({ onClose }: Props) => {
           </a>
 
           <p className="text-sm text-gray-500 mt-2 mb-4">{tag_line}</p>
-          <div className="mx-auto">
-            <StatusBadge
-              connection={selectedConnection}
-              isLoading={isUpdating}
-              size="large"
+
+          {selectedConnection.integration_state === 'needs_configuration' && (
+            <Alert
+              className="text-left my-2"
+              description={
+                <span>
+                  Configure the {name} integration in the{' '}
+                  <a
+                    href={`https://platform.apideck.com/configuration/${unified_api}/${service_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:opacity-80"
+                  >
+                    Apideck admin dashboard
+                  </a>{' '}
+                  before linking your account. This integration will not be
+                  visible to your users until configured.
+                </span>
+              }
+              title="Admin configuration required"
+              variant="warning"
             />
-          </div>
+          )}
+
+          {selectedConnection.integration_state !== 'needs_configuration' && (
+            <div className="mx-auto">
+              <StatusBadge
+                connection={selectedConnection}
+                isLoading={isUpdating}
+                size="large"
+              />
+            </div>
+          )}
 
           {shouldShowAuthorizeButton ? (
             <div className="mt-4">
@@ -186,12 +217,13 @@ const ConnectionDetails = ({ onClose }: Props) => {
               <ConnectionForm
                 connection={selectedConnection}
                 setShowSettings={setShowSettings}
+                settings={settings}
               />
             </Fragment>
           ) : null}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 export default ConnectionDetails;

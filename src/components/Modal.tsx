@@ -7,9 +7,9 @@ import React, {
   useState,
 } from 'react';
 
-import Logo from './Logo';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
+import Logo from './Logo';
 
 export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -40,12 +40,16 @@ const Modal: any = ({
         as="div"
         onClose={onClose}
         style={style}
-        className={classNames(
-          'react-vault fixed inset-0 z-40 overflow-y-auto bg-gray-400 bg-opacity-75',
-          className
-        )}
+        className="apideck react-vault"
       >
-        <div data-testid="backdrop" id="react-vault">
+        <div
+          data-testid="backdrop"
+          id="react-vault"
+          className={classNames(
+            'fixed inset-0 z-40 overflow-y-auto bg-gray-400 bg-opacity-75',
+            className
+          )}
+        >
           <div className="min-h-screen px-4 text-center">
             <Transition.Child
               as={Fragment}
@@ -76,7 +80,7 @@ const Modal: any = ({
               leaveTo="opacity-0 scale-95"
             >
               <div
-                className="inline-block w-full text-left max-w-sm p-6 my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-xl"
+                className="inline-block w-full text-left max-w-sm p-6 my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-lg"
                 id="react-vault-modal"
               >
                 {children}

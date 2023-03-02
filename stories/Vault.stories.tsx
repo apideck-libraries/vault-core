@@ -28,7 +28,8 @@ const Template: Story<Props> = (args) => (
   <Vault
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     {...args}
-    token="token123"
+    showConsumer={true}
+    token="token"
   />
 );
 

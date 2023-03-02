@@ -4,6 +4,10 @@ A React component to embed [Apideck Vault](https://www.apideck.com/products/vaul
 
 Go to the [developer docs](https://developers.apideck.com/guides/react-vault) for a step-by-step guide.
 
+<img src="https://user-images.githubusercontent.com/8850410/208065819-716c6e02-98c9-4df5-b687-e5acd1e3c4e5.png" width="100%" />
+
+**React Vault** | [Vault JS](https://github.com/apideck-libraries/vault-js) | [Vue Vault](https://github.com/apideck-libraries/vue-vault)
+
 ## Usage
 
 Install the packages
@@ -59,15 +63,12 @@ import '@apideck/react-vault/dist/styles.css';
 ```
 
 If you are using [Tailwind CSS](https://tailwindcss.com/) you should include the package path in the content path of the `tailwind.config.js`.
-Also make sure you have the Tailwindcss Forms plugin installed.
 
 ```js
 // tailwind.config.js
 
 module.exports = {
-  content: [
-    './node_modules/@apideck/react-vault/**/*.js',
-  ],
+  content: ['./node_modules/@apideck/react-vault/**/*.js'],
   plugins: [require('@tailwindcss/forms')]
   ...
 }
@@ -117,6 +118,8 @@ const VaultButton = ({ token }) => {
 export default VaultButton;
 ```
 
+If you want to provide a custom logo on top of the modal, you can set the `logo` property on the `theme` you can provide through the session. [View Vault API documentation](https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate).
+
 ### Properties
 
 | Property        | Type    | Required | Default | Description                                                                                                                                       |
@@ -128,3 +131,4 @@ export default VaultButton;
 | onClose         | event   | false    | -       | Function that gets called when the modal is closed                                                                                                |
 | unifiedApi      | string  | false    | -       | When unifiedApi is provided it will scope the connection results to that API. If also a serviceId is provided Vault opens for a single connection |
 | serviceId       | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection                                                                        |
+| showConsumer    | boolean | false    | false   | Show the consumer metadata provided when creating a session                                                                                       |

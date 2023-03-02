@@ -1,5 +1,5 @@
+@import './base.css';
 @import './tailwind.css';
-
 /* Overwrite react-select input */
 .react-select input {
   box-shadow: none !important;

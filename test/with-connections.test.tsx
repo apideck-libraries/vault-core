@@ -33,7 +33,7 @@ describe('Vault - With connections', () => {
       screen = render(<Vault token="token123" open />);
     });
 
-    expect(screen.queryByText('Connected')).toBeInTheDocument();
+    expect(screen.queryByText('Added')).toBeInTheDocument();
     expect(screen.queryByText('Available')).toBeInTheDocument();
   });
 
