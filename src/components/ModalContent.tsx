@@ -15,7 +15,11 @@ export const ModalContent = ({
   theme,
 }: {
   onClose: () => any;
-  settings?: { hide_resource_settings?: boolean; hide_consumer_card?: boolean };
+  settings?: {
+    hide_resource_settings?: boolean;
+    hide_consumer_card?: boolean;
+    hide_guides?: boolean;
+  };
   consumer?: { image?: string; user_name?: string; account_name?: string };
   theme?: { logo: string };
 }) => {
@@ -90,7 +94,7 @@ export const ModalContent = ({
     >
       <TopBar onClose={onClose} settings={settings} theme={theme} />
       <div
-        className={`h-full overflow-hidden ${
+        className={`h-full overflow-hidden min-h-[469px] ${
           showConsumer ? '' : 'rounded-b-lg'
         }`}
       >

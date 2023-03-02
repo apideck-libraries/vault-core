@@ -1,18 +1,19 @@
 import { Button, TextInput } from '@apideck/components';
 import React, { Dispatch, Fragment, SetStateAction } from 'react';
 
-import { Connection } from '../types/Connection';
-import Markdown from 'markdown-to-jsx';
-import SearchSelect from './SearchSelect';
-import { useConnections } from '../utils/useConnections';
 import { useFormik } from 'formik';
+import Markdown from 'markdown-to-jsx';
+import { Connection } from '../types/Connection';
+import { useConnections } from '../utils/useConnections';
+import SearchSelect from './SearchSelect';
 
 interface Props {
   connection: Connection;
   setShowSettings: Dispatch<SetStateAction<boolean>>;
+  settings: { hide_resource_settings?: boolean; hide_guides?: boolean };
 }
 
-const ConnectionForm = ({ connection, setShowSettings }: Props) => {
+const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
   const { updateConnection, isUpdating } = useConnections();
 
   const formFields = connection.form_fields;
@@ -118,7 +119,7 @@ const ConnectionForm = ({ connection, setShowSettings }: Props) => {
           className="w-full"
         />
       </form>
-      {connection.has_guide && (
+      {connection.has_guide && !settings?.hide_guides && (
         <div className="flex text-sm items-center text-gray-600 rounded-b-xl py-3 px-5 md:px-6 bg-gray-100 -mx-5 md:-mx-6 -mb-5 md:-mb-6 mt-4 border-t border-gray-200">
           <svg
             xmlns="http://www.w3.org/2000/svg"

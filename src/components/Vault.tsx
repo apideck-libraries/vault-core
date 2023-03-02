@@ -80,6 +80,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const [appId, setAppId] = useState<string | null>(null);
   const [settings, setSettings] = useState<{
     hide_resource_settings?: boolean;
+    hide_guides?: boolean;
   }>({});
   const [consumer, setConsumer] = useState();
 

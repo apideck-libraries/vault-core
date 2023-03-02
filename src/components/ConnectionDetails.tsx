@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
+import { Alert } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
@@ -13,11 +14,10 @@ import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
 import TopBar from './TopBar';
-import { Alert } from '@apideck/components';
 
 interface Props {
   onClose: () => void;
-  settings?: { hide_resource_settings?: boolean };
+  settings?: { hide_resource_settings?: boolean; hide_guides?: boolean };
 }
 
 const ConnectionDetails = ({ onClose, settings }: Props) => {
@@ -216,6 +216,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
               <ConnectionForm
                 connection={selectedConnection}
                 setShowSettings={setShowSettings}
+                settings={settings}
               />
             </Fragment>
           ) : null}
