@@ -202,8 +202,12 @@ const TopBar = ({
         ),
         onClick: async () => {
           if (setShowSettings) setShowSettings(false);
-          updateConnection(unified_api, service_id, {
-            enabled: false,
+          updateConnection({
+            unifiedApi: unified_api,
+            serviceId: service_id,
+            values: {
+              enabled: false,
+            },
           });
         },
       });
@@ -231,11 +235,15 @@ const TopBar = ({
           </button>
         ),
         onClick: async () => {
-          const result = await updateConnection(unified_api, service_id, {
-            enabled: true,
+          const updatedConnection = await updateConnection({
+            unifiedApi: unified_api,
+            serviceId: service_id,
+            values: {
+              enabled: true,
+            },
           });
-          if (result?.data) {
-            const { state, form_fields } = result.data;
+          if (updatedConnection) {
+            const { state, form_fields } = updatedConnection;
             const hasFormFields = form_fields?.filter(
               (field: FormField) => !field.hidden
             )?.length;

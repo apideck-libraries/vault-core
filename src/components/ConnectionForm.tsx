@@ -31,12 +31,12 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
     initialValues,
     onSubmit: async (values) => {
       setShowSettings(false);
-      const result = await updateConnection(
-        connection.unified_api,
-        connection.service_id,
-        { settings: { ...values } }
-      );
-      if (result?.error) {
+      const updatedConnection = await updateConnection({
+        unifiedApi: connection.unified_api,
+        serviceId: connection.service_id,
+        values: { settings: { ...values } },
+      });
+      if (!updatedConnection) {
         setShowSettings(true);
       }
     },

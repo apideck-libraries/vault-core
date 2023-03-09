@@ -27,12 +27,13 @@ interface ContextProps {
   sessionExpired: boolean;
   connectionsUrl: string;
   headers: any;
-  updateConnection: (
-    api: string,
-    serviceId: string,
-    values: any,
-    resource?: string
-  ) => any;
+  updateConnection: (options: {
+    unifiedApi: string;
+    serviceId: string;
+    values: any;
+    resource?: string;
+    quiet?: boolean;
+  }) => Promise<Connection | null>;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -125,7 +126,12 @@ export const ConnectionsProvider = ({
       connection?.hasOwnProperty('enabled') &&
       !connection.enabled
     ) {
-      updateConnection(unifiedApi, serviceId, { enabled: true });
+      updateConnection({
+        unifiedApi,
+        serviceId,
+        values: { enabled: true },
+        quiet: true,
+      });
     }
   }, [connection]);
 
@@ -145,15 +151,22 @@ export const ConnectionsProvider = ({
     }
   }, [connection]);
 
-  const updateConnection = async (
-    api: string,
-    serviceId: string,
-    values: any,
-    resource?: string
-  ) => {
+  const updateConnection = async ({
+    unifiedApi,
+    serviceId,
+    values,
+    resource,
+    quiet,
+  }: {
+    unifiedApi: string;
+    serviceId: string;
+    values: any;
+    resource?: string;
+    quiet?: boolean;
+  }): Promise<Connection | null> => {
     try {
       setIsUpdating(true);
-      let updateUrl = `${connectionsUrl}/${api}/${serviceId}`;
+      let updateUrl = `${connectionsUrl}/${unifiedApi}/${serviceId}`;
       if (resource) updateUrl = `${updateUrl}/${resource}/config`;
 
       const response = await fetch(updateUrl, {
@@ -189,18 +202,22 @@ export const ConnectionsProvider = ({
 
         if (resource) await getResourceConfig();
 
-        const message = values.hasOwnProperty('enabled')
-          ? `${result.data?.name} is ${values.enabled ? 'enabled' : 'disabled'}`
-          : `${result.data?.name} settings are updated`;
+        if (!quiet) {
+          const message = values.hasOwnProperty('enabled')
+            ? `${result.data?.name} is ${
+                values.enabled ? 'enabled' : 'disabled'
+              }`
+            : `${result.data?.name} settings are updated`;
 
-        addToast({
-          title: message,
-          description: '',
-          type: 'success',
-          autoClose: true,
-        });
+          addToast({
+            title: message,
+            description: '',
+            type: 'success',
+            autoClose: true,
+          });
+        }
 
-        return result;
+        return result.data;
       } else {
         addToast({
           title: 'Updating failed',
@@ -208,14 +225,14 @@ export const ConnectionsProvider = ({
           type: 'error',
         });
       }
-      return result;
+      return null;
     } catch (error) {
       addToast({
         title: 'Updating failed',
         description: (error as any)?.message,
         type: 'error',
       });
-      return error;
+      return null;
     } finally {
       setIsUpdating(false);
     }
