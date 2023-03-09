@@ -9,9 +9,11 @@ import { FormField } from '../types/FormField';
 import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import ConfirmModal from './ConfirmModal';
+import { Connection } from '../types/Connection';
 
 interface Props {
   onClose: () => void;
+  onConnectionChange?: (connection: Connection) => any;
   onBack?: () => void;
   setShowSettings?: Dispatch<SetStateAction<boolean>>;
   setShowResources?: Dispatch<SetStateAction<boolean>>;
@@ -24,6 +26,7 @@ interface Props {
 
 const TopBar = ({
   onClose,
+  onConnectionChange,
   onBack,
   setShowSettings,
   setShowResources,
@@ -56,7 +59,9 @@ const TopBar = ({
         clearInterval(timer);
         mutate(
           `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
-        );
+        ).then((result) => {
+          onConnectionChange?.(result.data);
+        });
         setIsReAuthorizing(false);
       }
     }
