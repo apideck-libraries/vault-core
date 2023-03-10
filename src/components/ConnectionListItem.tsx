@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
-import { Connection } from '../types/Connection';
-import StatusBadge from './StatusBadge';
 import classNames from 'classnames';
+import { Connection } from '../types/Connection';
 import { getApiName } from '../utils/getApiName';
 import { useConnections } from '../utils/useConnections';
+import StatusBadge from './StatusBadge';
 
 interface Props {
   connection: Connection;

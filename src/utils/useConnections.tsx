@@ -1,3 +1,4 @@
+import { usePrevious, useToast } from '@apideck/components';
 import React, {
   ReactNode,
   createContext,
@@ -6,7 +7,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { usePrevious, useToast } from '@apideck/components';
 import useSWR, { useSWRConfig } from 'swr';
 
 import { Connection } from '../types/Connection';
