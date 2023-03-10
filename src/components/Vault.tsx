@@ -123,8 +123,10 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setConsumer(decoded.consumer_metadata);
         setTheme(decoded.theme);
       } catch (e) {
-        console.error(e);
-        console.error(INVALID_TOKEN_MESSAGE);
+        if (process.env.NODE_ENV !== 'test') {
+          console.error(e);
+          console.error(INVALID_TOKEN_MESSAGE);
+        }
         setJwt(null);
         setConsumerId(null);
         setAppId(null);
