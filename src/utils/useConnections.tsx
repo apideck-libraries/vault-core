@@ -1,3 +1,4 @@
+import { usePrevious, useToast } from '@apideck/components';
 import React, {
   ReactNode,
   createContext,
@@ -6,7 +7,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { usePrevious, useToast } from '@apideck/components';
 import useSWR, { useSWRConfig } from 'swr';
 
 import { Connection } from '../types/Connection';
@@ -31,7 +31,8 @@ interface ContextProps {
     api: string,
     serviceId: string,
     values: any,
-    resource?: string
+    resource?: string | null,
+    showToast?: boolean
   ) => any;
 }
 
@@ -125,7 +126,7 @@ export const ConnectionsProvider = ({
       connection?.hasOwnProperty('enabled') &&
       !connection.enabled
     ) {
-      updateConnection(unifiedApi, serviceId, { enabled: true });
+      updateConnection(unifiedApi, serviceId, { enabled: true }, null, false);
     }
   }, [connection]);
 
@@ -149,7 +150,8 @@ export const ConnectionsProvider = ({
     api: string,
     serviceId: string,
     values: any,
-    resource?: string
+    resource?: string | null,
+    showToast = true
   ) => {
     try {
       setIsUpdating(true);
@@ -193,12 +195,14 @@ export const ConnectionsProvider = ({
           ? `${result.data?.name} is ${values.enabled ? 'enabled' : 'disabled'}`
           : `${result.data?.name} settings are updated`;
 
-        addToast({
-          title: message,
-          description: '',
-          type: 'success',
-          autoClose: true,
-        });
+        if (showToast) {
+          addToast({
+            title: message,
+            description: '',
+            type: 'success',
+            autoClose: true,
+          });
+        }
 
         return result;
       } else {
