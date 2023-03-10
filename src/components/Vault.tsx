@@ -7,6 +7,7 @@ import { SessionSettings } from '../types/SessionSettings';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
+import { Connection } from '../types/Connection';
 
 export interface Props {
   /**
@@ -29,6 +30,14 @@ export interface Props {
    * Callback function that gets called when the modal is closed
    */
   onClose?: () => any;
+  /**
+   * Callback function that gets called when the user updates a connection. This can be linking their account, filling out settings or adding a new connection
+   */
+  onConnectionChange?: (connection: Connection) => any;
+  /**
+   * Callback function that gets called when the user deletes a connection
+   */
+  onConnectionDelete?: (connection: Connection) => any;
   /**
    * Optionally you can filter connection on API. You can also provide the unifiedApi to go straight to the connection details view.
    * It that case make sure you also pass the serviceId.
@@ -67,6 +76,8 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     showAttribution = true,
     open = false,
     onClose,
+    onConnectionChange,
+    onConnectionDelete,
     unifiedApi,
     serviceId,
     unifyBaseUrl = BASE_URL,
@@ -112,8 +123,10 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         setConsumer(decoded.consumer_metadata);
         setTheme(decoded.theme);
       } catch (e) {
-        console.error(e);
-        console.error(INVALID_TOKEN_MESSAGE);
+        if (process.env.NODE_ENV !== 'test') {
+          console.error(e);
+          console.error(INVALID_TOKEN_MESSAGE);
+        }
         setJwt(null);
         setConsumerId(null);
         setAppId(null);
@@ -142,12 +155,16 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               consumerId={consumerId as string}
               token={jwt as string}
               isOpen={isOpen}
+              onClose={onCloseModal}
+              onConnectionChange={onConnectionChange}
+              onConnectionDelete={onConnectionDelete}
               unifiedApi={unifiedApi}
               serviceId={serviceId}
               connectionsUrl={`${unifyBaseUrl}/vault/connections`}
             >
               <ModalContent
                 onClose={onCloseModal}
+                onConnectionChange={onConnectionChange}
                 settings={settings}
                 consumer={showConsumer ? consumer : undefined}
                 theme={theme}

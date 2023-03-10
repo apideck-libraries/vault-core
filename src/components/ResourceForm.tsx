@@ -91,13 +91,13 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
         .filter(Boolean);
 
       const body = { configuration: [{ resource, defaults }] };
-      const result = await updateConnection(
+      const updatedConnection = await updateConnection({
         unifiedApi,
         serviceId,
-        body,
-        resource
-      );
-      if (result?.data) {
+        values: body,
+        resource,
+      });
+      if (updatedConnection) {
         closeForm && closeForm();
       }
     },

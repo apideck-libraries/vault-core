@@ -8,9 +8,10 @@ import { useSWRConfig } from 'swr';
 
 interface Props {
   connection: Connection;
+  onConnectionChange?: (connection: Connection) => any;
 }
 
-const AuthorizeButton = ({ connection }: Props) => {
+const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { connectionsUrl, headers } = useConnections();
   const { addToast } = useToast();
@@ -19,10 +20,12 @@ const AuthorizeButton = ({ connection }: Props) => {
 
   const authorizeUrl = `${connection.authorize_url}&redirect_uri=${REDIRECT_URL}`;
 
-  const handleChildWindowCLose = () => {
+  const handleChildWindowClose = () => {
     mutate(
       `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
-    );
+    ).then((result) => {
+      onConnectionChange?.(result.data);
+    });
     setIsLoading(false);
   };
 
@@ -54,7 +57,9 @@ const AuthorizeButton = ({ connection }: Props) => {
         });
         mutate(
           `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
-        );
+        ).then((result) => {
+          onConnectionChange?.(result.data);
+        });
         mutate('/vault/connections');
       } catch (error) {
         addToast({
@@ -75,7 +80,7 @@ const AuthorizeButton = ({ connection }: Props) => {
       const timer = setInterval(() => {
         if (child?.closed) {
           clearInterval(timer);
-          handleChildWindowCLose();
+          handleChildWindowClose();
         }
       }, 500);
     }
