@@ -1,5 +1,6 @@
 import React from 'react';
 import { Connection } from '../types/Connection';
+import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
@@ -15,7 +16,7 @@ export const ModalContent = ({
   theme,
 }: {
   onClose: () => any;
-  settings?: { hide_resource_settings?: boolean; hide_consumer_card?: boolean };
+  settings: SessionSettings;
   consumer?: { image?: string; user_name?: string; account_name?: string };
   theme?: { logo: string };
 }) => {
@@ -90,7 +91,7 @@ export const ModalContent = ({
     >
       <TopBar onClose={onClose} settings={settings} theme={theme} />
       <div
-        className={`h-full overflow-hidden ${
+        className={`h-full overflow-hidden min-h-[469px] ${
           showConsumer ? '' : 'rounded-b-lg'
         }`}
       >
@@ -98,7 +99,7 @@ export const ModalContent = ({
           <TabSelect
             tabs={[
               {
-                name: 'Connected',
+                name: 'Added',
                 content: (
                   <ConnectionsList
                     isLoading={isLoading}

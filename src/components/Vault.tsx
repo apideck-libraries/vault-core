@@ -3,6 +3,7 @@ import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
 import { BASE_URL } from '../constants/urls';
+import { SessionSettings } from '../types/SessionSettings';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
@@ -78,9 +79,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const [consumerId, setConsumerId] = useState<string | null>(null);
   const [theme, setTheme] = useState<any>({});
   const [appId, setAppId] = useState<string | null>(null);
-  const [settings, setSettings] = useState<{
-    hide_resource_settings?: boolean;
-  }>({});
+  const [settings, setSettings] = useState<SessionSettings>({});
   const [consumer, setConsumer] = useState();
 
   const onCloseModal = () => {

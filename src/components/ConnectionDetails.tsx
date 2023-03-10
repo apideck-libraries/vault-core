@@ -1,6 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
+import { Alert } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
+import { SessionSettings } from '../types/SessionSettings';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
 import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
@@ -16,7 +18,7 @@ import TopBar from './TopBar';
 
 interface Props {
   onClose: () => void;
-  settings?: { hide_resource_settings?: boolean };
+  settings: SessionSettings;
 }
 
 const ConnectionDetails = ({ onClose, settings }: Props) => {
@@ -40,6 +42,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
     tag_line,
     form_fields,
     unified_api,
+    service_id,
   } = selectedConnection;
 
   const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
@@ -153,13 +156,39 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
           </a>
 
           <p className="text-sm text-gray-500 mt-2 mb-4">{tag_line}</p>
-          <div className="mx-auto">
-            <StatusBadge
-              connection={selectedConnection}
-              isLoading={isUpdating}
-              size="large"
+
+          {selectedConnection.integration_state === 'needs_configuration' && (
+            <Alert
+              className="text-left my-2"
+              description={
+                <span>
+                  Configure the {name} integration in the{' '}
+                  <a
+                    href={`https://platform.apideck.com/configuration/${unified_api}/${service_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:opacity-80"
+                  >
+                    Apideck admin dashboard
+                  </a>{' '}
+                  before linking your account. This integration will not be
+                  visible to your users until configured.
+                </span>
+              }
+              title="Admin configuration required"
+              variant="warning"
             />
-          </div>
+          )}
+
+          {selectedConnection.integration_state !== 'needs_configuration' && (
+            <div className="mx-auto">
+              <StatusBadge
+                connection={selectedConnection}
+                isLoading={isUpdating}
+                size="large"
+              />
+            </div>
+          )}
 
           {shouldShowAuthorizeButton ? (
             <div className="mt-4">
@@ -188,6 +217,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
               <ConnectionForm
                 connection={selectedConnection}
                 setShowSettings={setShowSettings}
+                settings={settings}
               />
             </Fragment>
           ) : null}

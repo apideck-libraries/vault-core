@@ -4,14 +4,14 @@ import 'whatwg-fetch';
 
 import * as React from 'react';
 
-import { fetchMock, setupIntersectionObserverMock } from './mock';
 import { fireEvent, render } from '@testing-library/react';
+import { fetchMock, setupIntersectionObserverMock } from './mock';
 
-import { ADDED_CONNECTIONS_RESPONSE } from './responses/with-added-connections';
-import { Connection } from '../src/types/Connection';
-import ConnectionForm from '../src/components/ConnectionForm';
-import { INVALID_SESSION_RESPONSE } from './responses/invalid-session';
 import { act } from 'react-dom/test-utils';
+import ConnectionForm from '../src/components/ConnectionForm';
+import { Connection } from '../src/types/Connection';
+import { INVALID_SESSION_RESPONSE } from './responses/invalid-session';
+import { ADDED_CONNECTIONS_RESPONSE } from './responses/with-added-connections';
 
 const mockFunction = jest.fn();
 
@@ -39,6 +39,7 @@ describe('Connection form - Invalid session', () => {
         <ConnectionForm
           connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
           setShowSettings={() => {}}
+          settings={{}}
         />
       );
     });
@@ -56,6 +57,7 @@ describe('Connection form - Invalid session', () => {
         <ConnectionForm
           connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
           setShowSettings={() => {}}
+          settings={{}}
         />
       );
 
