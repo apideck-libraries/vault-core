@@ -7,6 +7,10 @@
   line-height: 1.25rem !important;
 }
 
+.markdown a {
+  @apply text-gray-600 underline
+}
+
 /* Animations */
 .fade-in {
   animation: fadeIn 0.2s;
