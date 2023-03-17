@@ -207,7 +207,7 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                   />
                 )}
                 {description && (
-                  <p className="my-1 text-sm text-gray-500">
+                  <p className="markdown my-1 text-sm text-gray-500">
                     <Markdown>{description}</Markdown>
                   </p>
                 )}
