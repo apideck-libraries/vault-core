@@ -1,28 +1,2 @@
 @import './base.css';
 @import './tailwind.css';
-/* Overwrite react-select input */
-.react-select input {
-  box-shadow: none !important;
-  font-size: 0.875rem !important;
-  line-height: 1.25rem !important;
-}
-
-.markdown a {
-  @apply text-gray-600 underline
-}
-
-/* Animations */
-.fade-in {
-  animation: fadeIn 0.2s;
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(2px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0px);
-  }
-}

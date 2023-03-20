@@ -459,3 +459,31 @@ body {
 .apideck [type='file']:focus {
   outline: 1px auto -webkit-focus-ring-color;
 }
+
+
+/* Overwrite react-select input */
+.apideck .react-select input {
+  box-shadow: none !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+.apideck .markdown a {
+  @apply text-gray-600 underline
+}
+
+/* Animations */
+.apideck .fade-in {
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0px);
+  }
+}
