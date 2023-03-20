@@ -2,7 +2,7 @@ import { Button, TextInput } from '@apideck/components';
 import React, { Dispatch, Fragment, SetStateAction } from 'react';
 
 import { useFormik } from 'formik';
-import Markdown from 'markdown-to-jsx';
+import { Markdown } from './Markdown';
 import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';

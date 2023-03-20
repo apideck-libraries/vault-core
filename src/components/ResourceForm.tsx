@@ -9,7 +9,7 @@ import React, { ChangeEvent } from 'react';
 
 import FilteredSelect from './FilteredSelect';
 import { FormField } from '../types/FormField';
-import Markdown from 'markdown-to-jsx';
+import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
 import { useConnections } from '../utils/useConnections';
 import { useFormik } from 'formik';
