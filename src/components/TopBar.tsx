@@ -6,10 +6,20 @@ import classNames from 'classnames';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { FormField } from '../types/FormField';
-import { SessionSettings } from '../types/SessionSettings';
+import { SessionSettings, VaultAction } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import ConfirmModal from './ConfirmModal';
 import { Connection } from '../types/Connection';
+
+const isActionAllowed =
+  (settings?: SessionSettings) =>
+  (action: VaultAction): boolean => {
+    if (!settings?.allow_actions) {
+      return false;
+    }
+
+    return settings.allow_actions.includes(action);
+  };
 
 interface Props {
   onClose: () => void;
@@ -45,6 +55,7 @@ const TopBar = ({
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const isActionAllowedForSettings = isActionAllowed(settings);
 
   const handleRedirect = (url: string) => {
     setIsReAuthorizing(true);
@@ -156,7 +167,8 @@ const TopBar = ({
 
     if (
       (state === 'authorized' || state === 'callable') &&
-      auth_type === 'oauth2'
+      auth_type === 'oauth2' &&
+      isActionAllowedForSettings('reauthorize')
     ) {
       options.push({
         label: (
@@ -184,7 +196,7 @@ const TopBar = ({
       });
     }
 
-    if (enabled) {
+    if (enabled && isActionAllowedForSettings('disable')) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -218,7 +230,7 @@ const TopBar = ({
       });
     }
 
-    if (!enabled) {
+    if (!enabled && isActionAllowedForSettings('disable')) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -260,7 +272,11 @@ const TopBar = ({
       });
     }
 
-    if (revoke_url && (state === 'authorized' || state === 'callable')) {
+    if (
+      revoke_url &&
+      (state === 'authorized' || state === 'callable') &&
+      isActionAllowedForSettings('disconnect')
+    ) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -285,7 +301,7 @@ const TopBar = ({
       });
     }
 
-    if (state !== 'available') {
+    if (state !== 'available' && isActionAllowedForSettings('delete')) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -322,6 +338,8 @@ const TopBar = ({
 
   if (!showLogo && !selectedConnection?.name) return null;
 
+  const options = getOptions();
+
   return (
     <div className="grid grid-cols-3 px-6 relative" id="react-vault-top-bar">
       <ConfirmModal
@@ -351,7 +369,7 @@ const TopBar = ({
             />
           </svg>
         </button>
-      ) : singleConnectionMode && !hideBackButton ? (
+      ) : singleConnectionMode && !hideBackButton && options.length > 0 ? (
         <div className="flex flex-col items-start mt-3">
           <Dropdown
             trigger={
@@ -377,7 +395,7 @@ const TopBar = ({
                 </svg>
               </div>
             }
-            options={getOptions()}
+            options={options}
             minWidth={0}
             align="left"
             className="font-medium"
@@ -403,7 +421,10 @@ const TopBar = ({
         <div className="-mt-8" />
       )}
       <div className="flex flex-col items-end mt-3">
-        {selectedConnection && !hideOptions && !singleConnectionMode ? (
+        {selectedConnection &&
+        !hideOptions &&
+        !singleConnectionMode &&
+        options.length > 0 ? (
           <Dropdown
             trigger={
               <div
@@ -428,7 +449,7 @@ const TopBar = ({
                 </svg>
               </div>
             }
-            options={getOptions()}
+            options={options}
             minWidth={0}
             className="font-medium"
           />
