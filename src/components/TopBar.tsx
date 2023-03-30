@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
-import { Dropdown } from '@apideck/components';
+import { Dropdown, useToast } from '@apideck/components';
 import { Option } from '@apideck/components/dist/components/Dropdown';
 import classNames from 'classnames';
 import { useSWRConfig } from 'swr';
@@ -15,7 +15,7 @@ const isActionAllowed =
   (settings?: SessionSettings) =>
   (action: VaultAction): boolean => {
     if (!settings?.allow_actions) {
-      return false;
+      return true;
     }
 
     return settings.allow_actions.includes(action);
@@ -51,30 +51,74 @@ const TopBar = ({
     updateConnection,
     deleteConnection,
     connectionsUrl,
+    headers,
   } = useConnections();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { addToast } = useToast();
   const isActionAllowedForSettings = isActionAllowed(settings);
 
-  const handleRedirect = (url: string) => {
+  const handleRedirect = async (url: string) => {
     setIsReAuthorizing(true);
-    const child = window.open(
-      url,
-      '_blank',
-      'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-    );
-    const timer = setInterval(checkChild, 500);
-    function checkChild() {
-      if (child?.closed) {
-        clearInterval(timer);
+    if (
+      selectedConnection?.oauth_grant_type === 'client_credentials' ||
+      selectedConnection?.oauth_grant_type === 'password'
+    ) {
+      try {
+        const response: any = await fetch(
+          `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}/token`,
+          { method: 'POST', headers }
+        );
+        const data = await response.json();
+        if (data.error) {
+          addToast({
+            title: `Something went wrong`,
+            description: data.message,
+            type: 'error',
+            autoClose: true,
+          });
+          return;
+        }
+        addToast({
+          title: `Authorized ${selectedConnection?.name}`,
+          type: 'success',
+          autoClose: true,
+        });
         mutate(
           `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
         ).then((result) => {
           onConnectionChange?.(result.data);
         });
+        mutate('/vault/connections');
+      } catch (error) {
+        addToast({
+          title: `Something went wrong`,
+          description: `The integration could not be authorized. Please make sure your settings are correct and try again.`,
+          type: 'error',
+          autoClose: true,
+        });
+      } finally {
         setIsReAuthorizing(false);
       }
+    } else {
+      const child = window.open(
+        url,
+        '_blank',
+        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+      );
+      const checkChild = () => {
+        if (child?.closed) {
+          clearInterval(timer);
+          mutate(
+            `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
+          ).then((result) => {
+            onConnectionChange?.(result.data);
+          });
+          setIsReAuthorizing(false);
+        }
+      };
+      const timer = setInterval(checkChild, 500);
     }
   };
 
