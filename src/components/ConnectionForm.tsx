@@ -45,8 +45,6 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
           quiet: true,
         });
 
-        console.log(updatedConnection);
-
         const valid =
           updatedConnection && updatedConnection.state !== 'invalid';
 
