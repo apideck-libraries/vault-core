@@ -9,7 +9,12 @@ export interface Settings extends RawJSON {
   base_url?: string;
 }
 
-export type ConnectionState = 'available' | 'added' | 'authorized' | 'callable';
+export type ConnectionState =
+  | 'available'
+  | 'added'
+  | 'authorized'
+  | 'callable'
+  | 'invalid';
 export type IntegrationState =
   | 'needs_configuration'
   | 'disabled'
@@ -46,4 +51,5 @@ export interface Connection {
   resources?: { id: string; config: any }[];
   oauth_grant_type?: OauthGrantType;
   has_guide?: boolean;
+  validation_support?: boolean;
 }

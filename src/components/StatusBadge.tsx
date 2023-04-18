@@ -18,6 +18,7 @@ const StatusBadge = ({
   const statusText = () => {
     if (integration_state === 'needs_configuration')
       return 'Needs configuration';
+    if (state === 'invalid') return 'Invalid configuration';
     if (state === 'available') return 'Not connected';
     if (!enabled) return 'Disabled';
     if (state === 'added') return 'Unauthorized';
@@ -36,7 +37,10 @@ const StatusBadge = ({
           'px-2 py-1 text-xs': size === 'small',
           'bg-gray-100 text-gray-800': !enabled,
           'bg-yellow-100 text-yellow-800':
-            enabled && (state === 'added' || state === 'authorized'),
+            enabled &&
+            (state === 'added' ||
+              state === 'authorized' ||
+              state === 'invalid'),
           'bg-green-100 text-green-800': enabled && state === 'callable',
           'bg-red-100 text-red-800': state === 'available',
         }

@@ -31,6 +31,8 @@ export interface FormField {
   filter?: Record<string, string>;
   allow_custom_values?: boolean;
   sensitive?: boolean;
+  prefix?: string;
+  suffix?: string;
 }
 
 export interface FormFieldOption {
