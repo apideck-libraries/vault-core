@@ -1,5 +1,5 @@
 import { Alert, Button, TextInput, useToast } from '@apideck/components';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
 import { Markdown } from './Markdown';
