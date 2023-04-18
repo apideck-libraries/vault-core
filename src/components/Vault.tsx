@@ -84,16 +84,18 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
 
   const onCloseModal = () => {
     setIsOpen(false);
-    if (onClose) {
-      onClose();
-    }
+    if (onClose) onClose();
   };
 
   useEffect(() => {
-    if (open && token) {
-      setIsOpen(true);
-    } else if (open && !token) {
+    if (open && !token) {
       console.error(NO_TOKEN_MESSAGE);
+      return;
+    }
+    if (open) {
+      setIsOpen(open);
+    } else {
+      onCloseModal();
     }
   }, [open, token]);
 
