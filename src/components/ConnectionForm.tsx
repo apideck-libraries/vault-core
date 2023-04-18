@@ -2,7 +2,7 @@ import { Button, TextInput } from '@apideck/components';
 import React, { Dispatch, Fragment, SetStateAction } from 'react';
 
 import { useFormik } from 'formik';
-import Markdown from 'markdown-to-jsx';
+import { Markdown } from './Markdown';
 import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
@@ -31,12 +31,12 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
     initialValues,
     onSubmit: async (values) => {
       setShowSettings(false);
-      const result = await updateConnection(
-        connection.unified_api,
-        connection.service_id,
-        { settings: { ...values } }
-      );
-      if (result?.error) {
+      const updatedConnection = await updateConnection({
+        unifiedApi: connection.unified_api,
+        serviceId: connection.service_id,
+        values: { settings: { ...values } },
+      });
+      if (!updatedConnection) {
         setShowSettings(true);
       }
     },
@@ -103,7 +103,7 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
                   />
                 )}
                 {description && (
-                  <small className="inline-block mt-2 text-gray-600 overflow-x-auto w-full">
+                  <small className="markdown inline-block mt-2 text-gray-500 overflow-x-auto w-full">
                     <Markdown>{description}</Markdown>
                   </small>
                 )}

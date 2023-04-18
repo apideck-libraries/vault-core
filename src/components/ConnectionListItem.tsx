@@ -17,16 +17,15 @@ const ConnectionListItem = ({ connection }: Props) => {
   const handleClick = async () => {
     if (connection.state === 'available') {
       setIsLoading(true);
-      const result = await updateConnection(
-        connection.unified_api,
-        connection.service_id,
-        { enabled: true },
-        null,
-        false
-      );
+      const updatedConnection = await updateConnection({
+        unifiedApi: connection.unified_api,
+        serviceId: connection.service_id,
+        values: { enabled: true },
+        quiet: true,
+      });
       setIsLoading(false);
-      if (result?.data) {
-        setSelectedConnection(result.data);
+      if (updatedConnection) {
+        setSelectedConnection(updatedConnection);
       }
     } else {
       setSelectedConnection(connection);

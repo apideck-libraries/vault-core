@@ -122,13 +122,15 @@ If you want to provide a custom logo on top of the modal, you can set the `logo`
 
 ### Properties
 
-| Property        | Type    | Required | Default | Description                                                                                                                                       |
-| --------------- | ------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| token           | string  | true     | -       | The JSON Web Token returned from the Create Session call                                                                                          |
-| trigger         | element | false    | -       | The component that should trigger the Vault modal on click                                                                                        |
-| showAttribution | boolean | false    | true    | Show "Powered by Apideck" in the backdrop of the modal backdrop                                                                                   |
-| open            | boolean | false    | false   | Opens the Vault modal if set to true                                                                                                              |
-| onClose         | event   | false    | -       | Function that gets called when the modal is closed                                                                                                |
-| unifiedApi      | string  | false    | -       | When unifiedApi is provided it will scope the connection results to that API. If also a serviceId is provided Vault opens for a single connection |
-| serviceId       | string  | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection                                                                        |
-| showConsumer    | boolean | false    | false   | Show the consumer metadata provided when creating a session                                                                                       |
+| Property           | Type                             | Required | Default | Description                                                                                                                                       |
+| ------------------ | -------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| token              | string                           | true     | -       | The JSON Web Token returned from the Create Session call                                                                                          |
+| trigger            | element                          | false    | -       | The component that should trigger the Vault modal on click                                                                                        |
+| showAttribution    | boolean                          | false    | true    | Show "Powered by Apideck" in the backdrop of the modal backdrop                                                                                   |
+| open               | boolean                          | false    | false   | Opens the Vault modal if set to true                                                                                                              |
+| onClose            | () => void                       | false    | -       | Function that gets called when the modal is closed                                                                                                |
+| onConnectionChange | (connection: Connection) => void | false    | -       | Function that gets called when the user updates a connection. This can be linking their account, filling out settings or adding a new connection  |
+| onConnectionDelete | (connection: Connection) => void | false    | -       | Function that gets called when the user deletes a connection                                                                                      |
+| unifiedApi         | string                           | false    | -       | When unifiedApi is provided it will scope the connection results to that API. If also a serviceId is provided Vault opens for a single connection |
+| serviceId          | string                           | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection                                                                        |
+| showConsumer       | boolean                          | false    | false   | Show the consumer metadata provided when creating a session                                                                                       |

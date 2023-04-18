@@ -75,10 +75,14 @@ describe('Connection form - Invalid session', () => {
       fireEvent.click(submit);
     });
 
-    expect(mockFunction).toHaveBeenCalledWith('crm', 'activecampaign', {
-      settings: {
-        api_key: apiKey,
-        base_url: baseUrl,
+    expect(mockFunction).toHaveBeenCalledWith({
+      serviceId: 'activecampaign',
+      unifiedApi: 'crm',
+      values: {
+        settings: {
+          api_key: 'abcdefg',
+          base_url: 'https://apideck1600217394.justtesting.com',
+        },
       },
     });
   });

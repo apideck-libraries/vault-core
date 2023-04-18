@@ -9,7 +9,7 @@ import React, { ChangeEvent } from 'react';
 
 import FilteredSelect from './FilteredSelect';
 import { FormField } from '../types/FormField';
-import Markdown from 'markdown-to-jsx';
+import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
 import { useConnections } from '../utils/useConnections';
 import { useFormik } from 'formik';
@@ -91,13 +91,13 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
         .filter(Boolean);
 
       const body = { configuration: [{ resource, defaults }] };
-      const result = await updateConnection(
+      const updatedConnection = await updateConnection({
         unifiedApi,
         serviceId,
-        body,
-        resource
-      );
-      if (result?.data) {
+        values: body,
+        resource,
+      });
+      if (updatedConnection) {
         closeForm && closeForm();
       }
     },
@@ -207,7 +207,7 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                   />
                 )}
                 {description && (
-                  <p className="my-1 text-sm text-gray-500">
+                  <p className="markdown my-1 text-sm text-gray-500">
                     <Markdown>{description}</Markdown>
                   </p>
                 )}

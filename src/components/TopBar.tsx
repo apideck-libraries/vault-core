@@ -1,17 +1,29 @@
 import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
-import { Dropdown } from '@apideck/components';
+import { Dropdown, useToast } from '@apideck/components';
 import { Option } from '@apideck/components/dist/components/Dropdown';
 import classNames from 'classnames';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { FormField } from '../types/FormField';
-import { SessionSettings } from '../types/SessionSettings';
+import { SessionSettings, VaultAction } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import ConfirmModal from './ConfirmModal';
+import { Connection } from '../types/Connection';
+
+const isActionAllowed =
+  (settings?: SessionSettings) =>
+  (action: VaultAction): boolean => {
+    if (!settings?.allow_actions) {
+      return true;
+    }
+
+    return settings.allow_actions.includes(action);
+  };
 
 interface Props {
   onClose: () => void;
+  onConnectionChange?: (connection: Connection) => any;
   onBack?: () => void;
   setShowSettings?: Dispatch<SetStateAction<boolean>>;
   setShowResources?: Dispatch<SetStateAction<boolean>>;
@@ -24,6 +36,7 @@ interface Props {
 
 const TopBar = ({
   onClose,
+  onConnectionChange,
   onBack,
   setShowSettings,
   setShowResources,
@@ -38,27 +51,74 @@ const TopBar = ({
     updateConnection,
     deleteConnection,
     connectionsUrl,
+    headers,
   } = useConnections();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { addToast } = useToast();
+  const isActionAllowedForSettings = isActionAllowed(settings);
 
-  const handleRedirect = (url: string) => {
+  const handleRedirect = async (url: string) => {
     setIsReAuthorizing(true);
-    const child = window.open(
-      url,
-      '_blank',
-      'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-    );
-    const timer = setInterval(checkChild, 500);
-    function checkChild() {
-      if (child?.closed) {
-        clearInterval(timer);
+    if (
+      selectedConnection?.oauth_grant_type === 'client_credentials' ||
+      selectedConnection?.oauth_grant_type === 'password'
+    ) {
+      try {
+        const response: any = await fetch(
+          `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}/token`,
+          { method: 'POST', headers }
+        );
+        const data = await response.json();
+        if (data.error) {
+          addToast({
+            title: `Something went wrong`,
+            description: data.message,
+            type: 'error',
+            autoClose: true,
+          });
+          return;
+        }
+        addToast({
+          title: `Authorized ${selectedConnection?.name}`,
+          type: 'success',
+          autoClose: true,
+        });
         mutate(
           `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
-        );
+        ).then((result) => {
+          onConnectionChange?.(result.data);
+        });
+        mutate('/vault/connections');
+      } catch (error) {
+        addToast({
+          title: `Something went wrong`,
+          description: `The integration could not be authorized. Please make sure your settings are correct and try again.`,
+          type: 'error',
+          autoClose: true,
+        });
+      } finally {
         setIsReAuthorizing(false);
       }
+    } else {
+      const child = window.open(
+        url,
+        '_blank',
+        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+      );
+      const checkChild = () => {
+        if (child?.closed) {
+          clearInterval(timer);
+          mutate(
+            `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
+          ).then((result) => {
+            onConnectionChange?.(result.data);
+          });
+          setIsReAuthorizing(false);
+        }
+      };
+      const timer = setInterval(checkChild, 500);
     }
   };
 
@@ -151,7 +211,8 @@ const TopBar = ({
 
     if (
       (state === 'authorized' || state === 'callable') &&
-      auth_type === 'oauth2'
+      auth_type === 'oauth2' &&
+      isActionAllowedForSettings('reauthorize')
     ) {
       options.push({
         label: (
@@ -179,7 +240,7 @@ const TopBar = ({
       });
     }
 
-    if (enabled) {
+    if (enabled && isActionAllowedForSettings('disable')) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -202,14 +263,18 @@ const TopBar = ({
         ),
         onClick: async () => {
           if (setShowSettings) setShowSettings(false);
-          updateConnection(unified_api, service_id, {
-            enabled: false,
+          updateConnection({
+            unifiedApi: unified_api,
+            serviceId: service_id,
+            values: {
+              enabled: false,
+            },
           });
         },
       });
     }
 
-    if (!enabled) {
+    if (!enabled && isActionAllowedForSettings('disable')) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -231,11 +296,15 @@ const TopBar = ({
           </button>
         ),
         onClick: async () => {
-          const result = await updateConnection(unified_api, service_id, {
-            enabled: true,
+          const updatedConnection = await updateConnection({
+            unifiedApi: unified_api,
+            serviceId: service_id,
+            values: {
+              enabled: true,
+            },
           });
-          if (result?.data) {
-            const { state, form_fields } = result.data;
+          if (updatedConnection) {
+            const { state, form_fields } = updatedConnection;
             const hasFormFields = form_fields?.filter(
               (field: FormField) => !field.hidden
             )?.length;
@@ -247,7 +316,11 @@ const TopBar = ({
       });
     }
 
-    if (revoke_url && (state === 'authorized' || state === 'callable')) {
+    if (
+      revoke_url &&
+      (state === 'authorized' || state === 'callable') &&
+      isActionAllowedForSettings('disconnect')
+    ) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -272,7 +345,7 @@ const TopBar = ({
       });
     }
 
-    if (state !== 'available') {
+    if (state !== 'available' && isActionAllowedForSettings('delete')) {
       options.push({
         label: (
           <button className="px-1 flex font-medium items-center">
@@ -309,6 +382,8 @@ const TopBar = ({
 
   if (!showLogo && !selectedConnection?.name) return null;
 
+  const options = getOptions();
+
   return (
     <div className="grid grid-cols-3 px-6 relative" id="react-vault-top-bar">
       <ConfirmModal
@@ -338,7 +413,7 @@ const TopBar = ({
             />
           </svg>
         </button>
-      ) : singleConnectionMode && !hideBackButton ? (
+      ) : singleConnectionMode && !hideBackButton && options.length > 0 ? (
         <div className="flex flex-col items-start mt-3">
           <Dropdown
             trigger={
@@ -364,7 +439,7 @@ const TopBar = ({
                 </svg>
               </div>
             }
-            options={getOptions()}
+            options={options}
             minWidth={0}
             align="left"
             className="font-medium"
@@ -390,7 +465,10 @@ const TopBar = ({
         <div className="-mt-8" />
       )}
       <div className="flex flex-col items-end mt-3">
-        {selectedConnection && !hideOptions && !singleConnectionMode ? (
+        {selectedConnection &&
+        !hideOptions &&
+        !singleConnectionMode &&
+        options.length > 0 ? (
           <Dropdown
             trigger={
               <div
@@ -415,7 +493,7 @@ const TopBar = ({
                 </svg>
               </div>
             }
-            options={getOptions()}
+            options={options}
             minWidth={0}
             className="font-medium"
           />

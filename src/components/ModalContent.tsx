@@ -11,14 +11,16 @@ import TopBar from './TopBar';
 
 export const ModalContent = ({
   onClose,
+  onConnectionChange,
   settings,
   consumer,
   theme,
 }: {
-  onClose: () => any;
   settings: SessionSettings;
   consumer?: { image?: string; user_name?: string; account_name?: string };
   theme?: { logo: string };
+  onClose: () => any;
+  onConnectionChange?: (connection: Connection) => any;
 }) => {
   const {
     connections,
@@ -38,6 +40,7 @@ export const ModalContent = ({
       >
         <TopBar
           onClose={onClose}
+          onConnectionChange={onConnectionChange}
           onBack={onClose}
           theme={theme}
           hideOptions
@@ -75,6 +78,7 @@ export const ModalContent = ({
       >
         <ConnectionDetails
           onClose={onClose}
+          onConnectionChange={onConnectionChange}
           settings={settings}
           data-testid={`details-${selectedConnection.id}`}
         />
@@ -89,7 +93,12 @@ export const ModalContent = ({
       className="relative -m-6 sm:rounded-lg h-full"
       id="react-vault-content"
     >
-      <TopBar onClose={onClose} settings={settings} theme={theme} />
+      <TopBar
+        onConnectionChange={onConnectionChange}
+        onClose={onClose}
+        settings={settings}
+        theme={theme}
+      />
       <div
         className={`h-full overflow-hidden min-h-[469px] ${
           showConsumer ? '' : 'rounded-b-lg'

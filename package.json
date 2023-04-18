@@ -1,5 +1,5 @@
 {
-  "version": "0.2.35",
+  "version": "0.3.6",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -20,8 +20,8 @@
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/tailwind.css --minify && yarn copy-css-base",
-    "copy-css-base": "cp ./src/styles/base.css ./dist/styles.css",
+    "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/tailwind.css --minify && yarn copy-css",
+    "copy-css": "cp ./src/styles/base.css ./dist/styles.css && cp ./src/styles/custom.css ./dist/custom.css",
     "trigger-sync-workflow": "node ./scripts/triggerSyncWorkflow.js",
     "deploy": "np",
     "postdeploy": "yarn trigger-sync-workflow"

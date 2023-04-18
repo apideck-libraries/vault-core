@@ -27,13 +27,13 @@ interface ContextProps {
   sessionExpired: boolean;
   connectionsUrl: string;
   headers: any;
-  updateConnection: (
-    api: string,
-    serviceId: string,
-    values: any,
-    resource?: string | null,
-    showToast?: boolean
-  ) => any;
+  updateConnection: (options: {
+    unifiedApi: string;
+    serviceId: string;
+    values: any;
+    resource?: string;
+    quiet?: boolean;
+  }) => Promise<Connection | null>;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -47,6 +47,9 @@ interface Props {
   serviceId?: string;
   connectionsUrl: string;
   children: ReactNode;
+  onClose: () => any;
+  onConnectionChange?: (connection: Connection) => any;
+  onConnectionDelete?: (connection: Connection) => any;
 }
 
 export const ConnectionsProvider = ({
@@ -58,6 +61,9 @@ export const ConnectionsProvider = ({
   serviceId,
   connectionsUrl,
   children,
+  onConnectionChange,
+  onConnectionDelete,
+  onClose,
 }: Props) => {
   const [selectedConnection, setSelectedConnection] =
     useState<Connection | null>(null);
@@ -126,7 +132,12 @@ export const ConnectionsProvider = ({
       connection?.hasOwnProperty('enabled') &&
       !connection.enabled
     ) {
-      updateConnection(unifiedApi, serviceId, { enabled: true }, null, false);
+      updateConnection({
+        unifiedApi,
+        serviceId,
+        values: { enabled: true },
+        quiet: true,
+      });
     }
   }, [connection]);
 
@@ -146,16 +157,22 @@ export const ConnectionsProvider = ({
     }
   }, [connection]);
 
-  const updateConnection = async (
-    api: string,
-    serviceId: string,
-    values: any,
-    resource?: string | null,
-    showToast = true
-  ) => {
+  const updateConnection = async ({
+    unifiedApi,
+    serviceId,
+    values,
+    resource,
+    quiet,
+  }: {
+    unifiedApi: string;
+    serviceId: string;
+    values: any;
+    resource?: string;
+    quiet?: boolean;
+  }): Promise<Connection | null> => {
     try {
       setIsUpdating(true);
-      let updateUrl = `${connectionsUrl}/${api}/${serviceId}`;
+      let updateUrl = `${connectionsUrl}/${unifiedApi}/${serviceId}`;
       if (resource) updateUrl = `${updateUrl}/${resource}/config`;
 
       const response = await fetch(updateUrl, {
@@ -191,11 +208,13 @@ export const ConnectionsProvider = ({
 
         if (resource) await getResourceConfig();
 
-        const message = values.hasOwnProperty('enabled')
-          ? `${result.data?.name} is ${values.enabled ? 'enabled' : 'disabled'}`
-          : `${result.data?.name} settings are updated`;
+        if (!quiet) {
+          const message = values.hasOwnProperty('enabled')
+            ? `${result.data?.name} is ${
+                values.enabled ? 'enabled' : 'disabled'
+              }`
+            : `${result.data?.name} settings are updated`;
 
-        if (showToast) {
           addToast({
             title: message,
             description: '',
@@ -204,7 +223,9 @@ export const ConnectionsProvider = ({
           });
         }
 
-        return result;
+        onConnectionChange?.(result.data);
+
+        return result.data;
       } else {
         addToast({
           title: 'Updating failed',
@@ -212,14 +233,14 @@ export const ConnectionsProvider = ({
           type: 'error',
         });
       }
-      return result;
+      return null;
     } catch (error) {
       addToast({
         title: 'Updating failed',
         description: (error as any)?.message,
         type: 'error',
       });
-      return error;
+      return null;
     } finally {
       setIsUpdating(false);
     }
@@ -234,7 +255,7 @@ export const ConnectionsProvider = ({
           headers,
         }
       );
-      const updatedConnection = {
+      const updatedConnection: Connection = {
         ...connection,
         enabled: false,
         state: 'available',
@@ -246,16 +267,22 @@ export const ConnectionsProvider = ({
           ...data.data?.filter((con: Connection) => con.id !== connection.id),
         ],
       };
-      mutate(connectionsUrl, updatedData, false);
-      setSelectedConnection(null);
-      addToast({
-        title: `${connection.name} has been deleted`,
-        type: 'success',
-        autoClose: true,
-      });
+      mutate(listUrl, updatedData, false);
+      onConnectionDelete?.(updatedConnection);
+
+      if (singleConnectionMode) {
+        onClose();
+      } else {
+        setSelectedConnection(null);
+        addToast({
+          title: `${connection.name} has been deleted`,
+          type: 'success',
+          autoClose: true,
+        });
+      }
     } catch (error) {
       addToast({
-        title: 'Updating failed',
+        title: `Deleting ${connection.name} connection failed`,
         description: (error as any)?.message,
         type: 'error',
       });

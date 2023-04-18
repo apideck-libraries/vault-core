@@ -15,13 +15,19 @@ import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
 import TopBar from './TopBar';
+import { Connection } from '../types/Connection';
 
 interface Props {
   onClose: () => void;
+  onConnectionChange?: (connection: Connection) => any;
   settings: SessionSettings;
 }
 
-const ConnectionDetails = ({ onClose, settings }: Props) => {
+const ConnectionDetails = ({
+  onClose,
+  onConnectionChange,
+  settings,
+}: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
 
   const {
@@ -93,6 +99,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
       <>
         <TopBar
           onClose={onClose}
+          onConnectionChange={onConnectionChange}
           onBack={() => setSelectedResource(null)}
           setShowSettings={setShowSettings}
           setShowResources={setShowResources}
@@ -126,6 +133,7 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
     <>
       <TopBar
         onClose={onClose}
+        onConnectionChange={onConnectionChange}
         onBack={() => {
           if (singleConnectionMode) {
             onClose();
@@ -192,7 +200,10 @@ const ConnectionDetails = ({ onClose, settings }: Props) => {
 
           {shouldShowAuthorizeButton ? (
             <div className="mt-4">
-              <AuthorizeButton connection={selectedConnection} />
+              <AuthorizeButton
+                connection={selectedConnection}
+                onConnectionChange={onConnectionChange}
+              />
             </div>
           ) : null}
 
