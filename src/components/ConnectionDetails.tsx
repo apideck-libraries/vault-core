@@ -192,7 +192,7 @@ const ConnectionDetails = ({
             <div className="mx-auto">
               <StatusBadge
                 connection={selectedConnection}
-                isLoading={isUpdating}
+                isLoading={isUpdating && !showSettings}
                 size="large"
               />
             </div>

@@ -1,5 +1,5 @@
-import { Button, TextInput } from '@apideck/components';
-import React, { Dispatch, Fragment, SetStateAction } from 'react';
+import { Alert, Button, TextInput, useToast } from '@apideck/components';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
 import { Markdown } from './Markdown';
@@ -14,10 +14,16 @@ interface Props {
   settings: SessionSettings;
 }
 
+type ValidationState = 'idle' | 'invalid' | 'valid' | 'validating';
+
 const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
-  const { updateConnection, isUpdating } = useConnections();
+  const { updateConnection } = useConnections();
+  const { addToast } = useToast();
+  const [validationState, setValidationState] =
+    useState<ValidationState>('idle');
 
   const formFields = connection.form_fields;
+  const showGuide = connection.has_guide && !settings?.hide_guides;
   const initialValues = formFields.reduce((acc: any, formField) => {
     const { id, value } = formField;
     acc[id] = value;
@@ -30,20 +36,71 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
   const formik = useFormik({
     initialValues,
     onSubmit: async (values) => {
-      setShowSettings(false);
-      const updatedConnection = await updateConnection({
-        unifiedApi: connection.unified_api,
-        serviceId: connection.service_id,
-        values: { settings: { ...values } },
-      });
-      if (!updatedConnection) {
-        setShowSettings(true);
+      if (connection.validation_support) {
+        setValidationState('validating');
+        const updatedConnection = await updateConnection({
+          unifiedApi: connection.unified_api,
+          serviceId: connection.service_id,
+          values: { settings: { ...values } },
+          quiet: true,
+        });
+
+        const valid =
+          updatedConnection && updatedConnection.state !== 'invalid';
+
+        if (valid) {
+          addToast({
+            type: 'success',
+            title: `Successfully connected to ${connection.name}`,
+          });
+        }
+
+        setValidationState(valid ? 'valid' : 'invalid');
+      } else {
+        setShowSettings(false);
+        const updatedConnection = await updateConnection({
+          unifiedApi: connection.unified_api,
+          serviceId: connection.service_id,
+          values: { settings: { ...values } },
+        });
+
+        if (!updatedConnection) {
+          setShowSettings(true);
+        }
       }
     },
   });
 
   return (
-    <Fragment>
+    <>
+      {validationState === 'invalid' && (
+        <Alert
+          className="text-left mb-2"
+          description={
+            <span>
+              {showGuide ? (
+                <>
+                  Could not connect to {connection.name}. View our{' '}
+                  <a
+                    className="inline-flex items-center text-main hover:text-main underline font-semibold"
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`https://developers.apideck.com/connectors/${connection.service_id}/docs/consumer+connection`}
+                  >
+                    Connection Guide
+                  </a>{' '}
+                  for help
+                </>
+              ) : (
+                `Could not connect to ${connection.name}. Please check your credentials`
+              )}
+            </span>
+          }
+          title={`Connection failed`}
+          variant="danger"
+        />
+      )}
+
       <form
         className="space-y-4 text-left"
         onSubmit={formik.handleSubmit}
@@ -61,6 +118,8 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
             type,
             options,
             sensitive,
+            prefix,
+            suffix,
             allow_custom_values: allowCustomValues,
           } = field;
           return (
@@ -77,11 +136,14 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
                   <TextInput
                     name={id}
                     type="text"
+                    valid={validationState === 'invalid' ? false : undefined}
                     required={required}
                     placeholder={placeholder}
                     onChange={formik.handleChange}
                     disabled={disabled}
                     value={formik.values[id] as any}
+                    prepend={prefix}
+                    append={suffix}
                     data-testid={id}
                     sensitive={type === 'password' || sensitive}
                     canBeCopied={type === 'password' || sensitive}
@@ -114,13 +176,15 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
 
         <Button
           type="submit"
-          text="Save"
-          isLoading={isUpdating}
+          text={
+            validationState === 'validating' ? 'Trying to connect...' : 'Save'
+          }
+          isLoading={validationState === 'validating'}
           size="large"
           className="w-full"
         />
       </form>
-      {connection.has_guide && !settings?.hide_guides && (
+      {showGuide && (
         <div className="flex text-sm items-center text-gray-600 rounded-b-xl py-3 px-5 md:px-6 bg-gray-100 -mx-5 md:-mx-6 -mb-5 md:-mb-6 mt-4 border-t border-gray-200">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -164,7 +228,7 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
           </span>
         </div>
       )}
-    </Fragment>
+    </>
   );
 };
 
