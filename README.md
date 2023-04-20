@@ -123,11 +123,11 @@ If you want to provide a custom logo on top of the modal, you can set the `logo`
 ### Properties
 
 | Property           | Type                             | Required | Default | Description                                                                                                                                       |
-| ------------------ | -------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------|----------------------------------|----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | token              | string                           | true     | -       | The JSON Web Token returned from the Create Session call                                                                                          |
 | trigger            | element                          | false    | -       | The component that should trigger the Vault modal on click                                                                                        |
 | showAttribution    | boolean                          | false    | true    | Show "Powered by Apideck" in the backdrop of the modal backdrop                                                                                   |
-| open               | boolean                          | false    | false   | Opens the Vault modal if set to true                                                                                                              |
+| open               | boolean                          | false    | false   | Set the toggle to `true` to open the Vault modal, and set it to `false` to close the Vault modal                                                  |
 | onClose            | () => void                       | false    | -       | Function that gets called when the modal is closed                                                                                                |
 | onConnectionChange | (connection: Connection) => void | false    | -       | Function that gets called when the user updates a connection. This can be linking their account, filling out settings or adding a new connection  |
 | onConnectionDelete | (connection: Connection) => void | false    | -       | Function that gets called when the user deletes a connection                                                                                      |
