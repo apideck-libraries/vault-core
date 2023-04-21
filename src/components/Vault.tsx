@@ -3,11 +3,11 @@ import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
 import { BASE_URL } from '../constants/urls';
+import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/SessionSettings';
 import { ConnectionsProvider } from '../utils/useConnections';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
-import { Connection } from '../types/Connection';
 
 export interface Props {
   /**
@@ -94,8 +94,10 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const [consumer, setConsumer] = useState();
 
   const onCloseModal = () => {
-    setIsOpen(false);
-    if (onClose) onClose();
+    if (isOpen) {
+      setIsOpen(false);
+      if (onClose) onClose();
+    }
   };
 
   useEffect(() => {
@@ -103,9 +105,11 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
       console.error(NO_TOKEN_MESSAGE);
       return;
     }
-    if (open) {
+    if (open && token && !isOpen) {
       setIsOpen(open);
-    } else {
+      return;
+    }
+    if (!open && isOpen) {
       onCloseModal();
     }
   }, [open, token]);
