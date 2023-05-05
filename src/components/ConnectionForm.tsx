@@ -2,10 +2,10 @@ import { Alert, Button, TextInput, useToast } from '@apideck/components';
 import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
-import { Markdown } from './Markdown';
 import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
+import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
 
 interface Props {
@@ -146,7 +146,6 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
                     append={suffix}
                     data-testid={id}
                     sensitive={type === 'password' || sensitive}
-                    canBeCopied={type === 'password' || sensitive}
                   />
                 )}
                 {type === 'select' && (

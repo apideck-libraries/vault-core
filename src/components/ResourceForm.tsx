@@ -7,12 +7,12 @@ import {
 } from '@apideck/components';
 import React, { ChangeEvent } from 'react';
 
-import FilteredSelect from './FilteredSelect';
+import { useFormik } from 'formik';
 import { FormField } from '../types/FormField';
+import { useConnections } from '../utils/useConnections';
+import FilteredSelect from './FilteredSelect';
 import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
-import { useConnections } from '../utils/useConnections';
-import { useFormik } from 'formik';
 
 interface Props {
   resource: string;
@@ -146,7 +146,6 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     sensitive={type === 'password' || sensitive}
-                    canBeCopied={type === 'password' || sensitive}
                     className="max-w-sm"
                     data-testid={id}
                   />
