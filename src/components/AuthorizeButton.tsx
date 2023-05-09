@@ -1,10 +1,10 @@
 import { Button, useToast } from '@apideck/components';
 import React, { useState } from 'react';
 
-import { Connection } from '../types/Connection';
-import { REDIRECT_URL } from '../constants/urls';
-import { useConnections } from '../utils/useConnections';
 import { useSWRConfig } from 'swr';
+import { REDIRECT_URL } from '../constants/urls';
+import { Connection } from '../types/Connection';
+import { useConnections } from '../utils/useConnections';
 
 interface Props {
   connection: Connection;
@@ -94,7 +94,7 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
         connection.integration_state === 'needs_configuration' || isLoading
       }
       size="large"
-      className="w-full"
+      className="w-full !truncate"
       onClick={authorizeConnection}
     />
   );

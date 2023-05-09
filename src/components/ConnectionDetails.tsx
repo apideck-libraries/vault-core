@@ -101,7 +101,7 @@ const ConnectionDetails = ({
   const description = useMemo(() => {
     return showFullDescription
       ? tag_line
-      : tag_line && tag_line?.length > charMax
+      : tag_line && tag_line?.length > charMax + 10
       ? `${tag_line?.substring(0, charMax)}...`
       : tag_line;
   }, [tag_line, showFullDescription]);
@@ -177,7 +177,7 @@ const ConnectionDetails = ({
 
           <p className="text-sm text-gray-500 mt-2 mb-4">
             {description}{' '}
-            {description && description?.length > charMax ? (
+            {tag_line && tag_line?.length > charMax + 10 ? (
               <button
                 className="text-sm underline hover:text-primary-500"
                 onClick={() => setShowFullDescription(!showFullDescription)}

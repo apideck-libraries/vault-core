@@ -27,6 +27,7 @@ interface ContextProps {
   sessionExpired: boolean;
   connectionsUrl: string;
   headers: any;
+  token?: string;
   updateConnection: (options: {
     unifiedApi: string;
     serviceId: string;
@@ -349,7 +350,7 @@ export const ConnectionsProvider = ({
       sessionExpired:
         data?.status_code === 401 || connectionDetails?.status_code === 401,
       detailsError: connectionDetails?.message || detailsError,
-      error: data?.message || error,
+      error: data?.message || error?.message,
       isLoading: !error && !data,
       isLoadingDetails: connection && !connection.id,
       isUpdating,
@@ -360,6 +361,7 @@ export const ConnectionsProvider = ({
       updateConnection,
       connectionsUrl,
       headers,
+      token,
     }),
     [
       isUpdating,
@@ -370,6 +372,8 @@ export const ConnectionsProvider = ({
       resources,
       token,
       connectionsUrl,
+      error,
+      detailsError,
     ]
   );
 
