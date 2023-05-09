@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 
 import { Alert } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
+import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/SessionSettings';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
@@ -15,7 +16,6 @@ import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
 import StatusBadge from './StatusBadge';
 import TopBar from './TopBar';
-import { Connection } from '../types/Connection';
 
 interface Props {
   onClose: () => void;
@@ -23,12 +23,15 @@ interface Props {
   settings: SessionSettings;
 }
 
+const charMax = 150;
+
 const ConnectionDetails = ({
   onClose,
   onConnectionChange,
   settings,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const {
     selectedConnection,
@@ -68,13 +71,14 @@ const ConnectionDetails = ({
 
   useEffect(() => {
     // Open / close settings form bases on state
-    if (
+    const needsInput =
       !showSettings &&
       enabled &&
       state !== 'callable' &&
       hasFormFields &&
-      (!shouldShowAuthorizeButton || state === 'authorized')
-    ) {
+      (!shouldShowAuthorizeButton || state === 'authorized');
+
+    if (needsInput || singleConnectionMode) {
       setShowSettings(true);
     }
   }, [enabled, state, hasFormFields]);
@@ -93,6 +97,14 @@ const ConnectionDetails = ({
       setShowResources(false);
     }
   }, [selectedConnection, resources, showSettings]);
+
+  const description = useMemo(() => {
+    return showFullDescription
+      ? tag_line
+      : tag_line && tag_line?.length > charMax
+      ? `${tag_line?.substring(0, charMax)}...`
+      : tag_line;
+  }, [tag_line, showFullDescription]);
 
   if (selectedResource) {
     return (
@@ -163,7 +175,17 @@ const ConnectionDetails = ({
             {getApiName(selectedConnection)}
           </a>
 
-          <p className="text-sm text-gray-500 mt-2 mb-4">{tag_line}</p>
+          <p className="text-sm text-gray-500 mt-2 mb-4">
+            {description}{' '}
+            {description && description?.length > charMax ? (
+              <button
+                className="text-sm underline hover:text-primary-500"
+                onClick={() => setShowFullDescription(!showFullDescription)}
+              >
+                read {showFullDescription ? 'less' : 'more'}
+              </button>
+            ) : null}
+          </p>
 
           {selectedConnection.integration_state === 'needs_configuration' && (
             <Alert
