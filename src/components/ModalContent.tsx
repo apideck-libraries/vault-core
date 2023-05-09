@@ -29,6 +29,7 @@ export const ModalContent = ({
     isLoading,
     selectedConnection,
     sessionExpired,
+    token,
   } = useConnections();
 
   if ((error && !selectedConnection) || (detailsError && selectedConnection)) {
@@ -47,7 +48,9 @@ export const ModalContent = ({
           hideBackButton
         />
         <div className="flex items-center text-center text-red-700 flex-col justify-center h-full p-4 m-5 rounded bg-red-100">
-          <h3 className="font-medium">{error || detailsError}</h3>
+          <h3 className="font-medium">
+            {!token ? 'No valid session.' : detailsError || error}
+          </h3>
           {sessionExpired ? (
             <p className="text-sm font-base mt-1">
               Your session is invalid or has been expired
