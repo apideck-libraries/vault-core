@@ -66,8 +66,7 @@ const ConnectionDetails = ({
     enabled &&
     state !== 'callable' &&
     auth_type === 'oauth2' &&
-    !requiredAuthVariables &&
-    !showSettings;
+    !requiredAuthVariables;
 
   useEffect(() => {
     // Open / close settings form bases on state
@@ -81,7 +80,7 @@ const ConnectionDetails = ({
     if (needsInput || singleConnectionMode) {
       setShowSettings(true);
     }
-  }, [enabled, state, hasFormFields]);
+  }, []);
 
   useEffect(() => {
     // Open / close resource form bases on missing fields
