@@ -56,7 +56,7 @@ const Modal: any = ({
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-8 h-8 absolute right-6 top-6 cursor-pointer text-gray-100 hover:text-white"
+            className="w-8 h-8 absolute right-6 top-6 lg:w-10 lg:h-10 xl:top-8 xl:right-8 cursor-pointer text-gray-100 hover:text-white"
           >
             <path
               strokeLinecap="round"
