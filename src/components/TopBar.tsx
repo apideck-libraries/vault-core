@@ -5,11 +5,11 @@ import { Option } from '@apideck/components/dist/components/Dropdown';
 import classNames from 'classnames';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
+import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
 import { SessionSettings, VaultAction } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import ConfirmModal from './ConfirmModal';
-import { Connection } from '../types/Connection';
 
 const isActionAllowed =
   (settings?: SessionSettings) =>
@@ -145,7 +145,7 @@ const TopBar = ({
     if (hasFormFields) {
       options.push({
         label: (
-          <button className="px-1 flex font-medium items-center">
+          <button className="flex font-medium items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 mr-2"
@@ -183,7 +183,7 @@ const TopBar = ({
     ) {
       options.push({
         label: (
-          <button className="px-1 flex font-medium items-center">
+          <button className="flex font-medium items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 mr-2"
@@ -216,7 +216,7 @@ const TopBar = ({
     ) {
       options.push({
         label: (
-          <button className="px-1 flex font-medium items-center">
+          <button className="flex font-medium items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className={classNames('h-4 w-4 mr-2', {
@@ -243,7 +243,7 @@ const TopBar = ({
     if (enabled && isActionAllowedForSettings('disable')) {
       options.push({
         label: (
-          <button className="px-1 flex font-medium items-center">
+          <button className="flex font-medium items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 mr-2"
@@ -277,7 +277,7 @@ const TopBar = ({
     if (!enabled && isActionAllowedForSettings('disable')) {
       options.push({
         label: (
-          <button className="px-1 flex font-medium items-center">
+          <button className="flex font-medium items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 mr-2"
@@ -323,7 +323,7 @@ const TopBar = ({
     ) {
       options.push({
         label: (
-          <button className="px-1 flex font-medium items-center">
+          <button className="flex font-medium items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 mr-2"
@@ -348,7 +348,7 @@ const TopBar = ({
     if (state !== 'available' && isActionAllowedForSettings('delete')) {
       options.push({
         label: (
-          <button className="px-1 flex font-medium items-center">
+          <button className="flex font-medium items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 mr-2"
@@ -371,6 +371,29 @@ const TopBar = ({
         },
       });
     }
+
+    options.push({
+      label: (
+        <button className="flex font-medium items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="h-4 w-4 mr-2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          Close Vault
+        </button>
+      ),
+      onClick: () => onClose(),
+    });
 
     return options;
   };
@@ -496,6 +519,7 @@ const TopBar = ({
             options={options}
             minWidth={0}
             className="font-medium"
+            itemsClassName="!mt-0"
           />
         ) : (
           <button
