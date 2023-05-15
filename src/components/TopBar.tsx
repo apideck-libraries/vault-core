@@ -389,7 +389,7 @@ const TopBar = ({
               d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-          Close Vault
+          Close
         </button>
       ),
       onClick: () => onClose(),
