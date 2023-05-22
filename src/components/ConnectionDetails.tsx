@@ -54,7 +54,8 @@ const ConnectionDetails = ({
     service_id,
   } = selectedConnection;
 
-  const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
+  const hasFormFields =
+    form_fields?.filter((field) => !field.hidden)?.length > 0;
 
   const [showSettings, setShowSettings] = useState(false);
   const [showResources, setShowResources] = useState(false);
@@ -75,12 +76,14 @@ const ConnectionDetails = ({
       enabled &&
       state !== 'callable' &&
       hasFormFields &&
-      (!shouldShowAuthorizeButton || state === 'authorized');
+      (!shouldShowAuthorizeButton ||
+        state === 'authorized' ||
+        state === 'invalid');
 
     if (needsInput || singleConnectionMode) {
       setShowSettings(true);
     }
-  }, []);
+  }, [state, hasFormFields]);
 
   useEffect(() => {
     // Open / close resource form bases on missing fields
