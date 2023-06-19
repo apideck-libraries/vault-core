@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 import { ThemeSettings } from '../types/ThemeSettings';
 
 interface ContextProps {
@@ -9,7 +9,7 @@ const ThemeContext = createContext<Partial<ContextProps>>({});
 
 interface Props {
   theme: ThemeSettings;
-  children: any;
+  children: React.ReactNode;
 }
 
 export const ThemeProvider = ({ theme, children }: Props) => {
