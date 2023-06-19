@@ -471,22 +471,28 @@ const TopBar = ({
       ) : (
         <div className="w-10 m-3" />
       )}
-      {showLogo ? (
-        <div
-          className={classNames(
-            'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto overflow-hidden',
-            { 'animate-pulse': isReAuthorizing }
-          )}
-        >
-          <img
-            src={selectedConnection?.icon ?? theme?.logo}
-            id="react-vault-icon"
-            className="object-fit w-full h-full"
-          />
-        </div>
-      ) : (
-        <div className="-mt-8" />
-      )}
+      <div className="flex items-center justify-center flex-col">
+        {showLogo ? (
+          <div
+            className={classNames(
+              'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto overflow-hidden',
+              { 'animate-pulse': isReAuthorizing }
+            )}
+          >
+            <img
+              src={selectedConnection?.icon ?? theme?.logo}
+              id="react-vault-icon"
+              className="object-fit w-full h-full"
+            />
+          </div>
+        ) : null}
+        {!selectedConnection && theme?.vault_name && (
+          <div className="w-full mt-3 text-center text-sm font-medium text-gray-900">
+            {theme?.vault_name}
+          </div>
+        )}
+      </div>
+
       <div className="flex flex-col items-end mt-3">
         {selectedConnection &&
         !hideOptions &&
