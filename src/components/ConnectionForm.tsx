@@ -1,4 +1,10 @@
-import { Alert, Button, TextInput, useToast } from '@apideck/components';
+import {
+  Alert,
+  Button,
+  TextArea,
+  TextInput,
+  useToast,
+} from '@apideck/components';
 import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
@@ -148,6 +154,15 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
                     append={suffix}
                     data-testid={id}
                     sensitive={type === 'password' || sensitive}
+                  />
+                )}
+                {type === 'textarea' && (
+                  <TextArea
+                    name={id}
+                    value={(formik.values[id] as any) || ''}
+                    required={required}
+                    placeholder={placeholder}
+                    onChange={formik.handleChange}
                   />
                 )}
                 {type === 'select' && (
