@@ -9,6 +9,7 @@ import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
 import { SessionSettings, VaultAction } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
+import { useTheme } from '../utils/useTheme';
 import ConfirmModal from './ConfirmModal';
 
 const isActionAllowed =
@@ -31,7 +32,6 @@ interface Props {
   hideBackButton?: boolean;
   singleConnectionMode?: boolean;
   settings?: SessionSettings;
-  theme?: { logo: string };
 }
 
 const TopBar = ({
@@ -44,7 +44,6 @@ const TopBar = ({
   hideBackButton,
   singleConnectionMode,
   settings,
-  theme,
 }: Props) => {
   const {
     selectedConnection,
@@ -53,6 +52,7 @@ const TopBar = ({
     connectionsUrl,
     headers,
   } = useConnections();
+  const { theme } = useTheme();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -518,7 +518,7 @@ const TopBar = ({
             }
             options={options}
             minWidth={0}
-            className="font-medium"
+            className="font-medium z-20"
             itemsClassName="!mt-0"
           />
         ) : (

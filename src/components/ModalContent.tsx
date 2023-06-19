@@ -14,11 +14,9 @@ export const ModalContent = ({
   onConnectionChange,
   settings,
   consumer,
-  theme,
 }: {
   settings: SessionSettings;
   consumer?: { image?: string; user_name?: string; account_name?: string };
-  theme?: { logo: string };
   onClose: () => any;
   onConnectionChange?: (connection: Connection) => any;
 }) => {
@@ -43,7 +41,6 @@ export const ModalContent = ({
           onClose={onClose}
           onConnectionChange={onConnectionChange}
           onBack={onClose}
-          theme={theme}
           hideOptions
           hideBackButton
         />
@@ -100,7 +97,6 @@ export const ModalContent = ({
         onConnectionChange={onConnectionChange}
         onClose={onClose}
         settings={settings}
-        theme={theme}
       />
       <div
         className={`h-full overflow-hidden min-h-[469px] ${

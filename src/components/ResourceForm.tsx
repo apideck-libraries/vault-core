@@ -10,6 +10,7 @@ import React, { ChangeEvent } from 'react';
 import { useFormik } from 'formik';
 import { FormField } from '../types/FormField';
 import { useConnections } from '../utils/useConnections';
+import { useTheme } from '../utils/useTheme';
 import FilteredSelect from './FilteredSelect';
 import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
@@ -22,6 +23,7 @@ interface Props {
 const ResourceForm = ({ resource, closeForm }: Props) => {
   const { resources, selectedConnection, updateConnection, isUpdating } =
     useConnections();
+  const { theme } = useTheme();
   if (!selectedConnection) return null;
   const { unified_api: unifiedApi, service_id: serviceId } = selectedConnection;
 
@@ -221,6 +223,9 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
         isLoading={isUpdating}
         size="large"
         className="w-full mt-5 md:mt-6 "
+        style={
+          theme?.primary_color ? { backgroundColor: theme.primary_color } : {}
+        }
       />
     </form>
   );

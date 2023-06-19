@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Select, { CSSObjectWithLabel } from 'react-select';
 
-import CreatableSelect from 'react-select/creatable';
 import classNames from 'classnames';
+import CreatableSelect from 'react-select/creatable';
 import theme from '../utils/theme';
+import { useTheme } from '../utils/useTheme';
 
 export interface OptionType {
   value: string;
@@ -21,58 +22,6 @@ interface SelectProps {
   isMulti?: any;
   isCreatable?: boolean;
 }
-
-const customStyles = {
-  control: (provided: CSSObjectWithLabel, state: { isFocused: boolean }) => ({
-    ...provided,
-    border: state.isFocused
-      ? `1px solid transparent`
-      : `1px solid ${theme?.colors?.gray[300]}`,
-    borderRadius: theme?.borderRadius.md,
-    boxShadow: state.isFocused
-      ? `0 0 0 2px ${theme?.colors.primary[500]}`
-      : 'none',
-    '&:hover': {
-      border: state.isFocused
-        ? `1px solid transparent`
-        : `1px solid ${theme?.colors.gray[300]}`,
-    },
-    fontSize: theme?.fontSize.sm,
-  }),
-  placeholder: (provided: CSSObjectWithLabel) => ({
-    ...provided,
-    fontSize: theme?.fontSize.sm,
-    color: theme?.colors.gray[400],
-  }),
-  menu: (provided: CSSObjectWithLabel) => ({
-    ...provided,
-    marginTop: '5px',
-    border: `1px solid ${theme?.colors.gray[300]}`,
-    borderRadius: theme?.borderRadius.md,
-    boxShadow: theme?.boxShadow.lg,
-  }),
-  option: (
-    provided: CSSObjectWithLabel,
-    state: { isSelected: boolean; isFocused: boolean }
-  ) => ({
-    ...provided,
-    backgroundColor:
-      state.isSelected || state.isFocused
-        ? `${theme?.colors.primary[500]}`
-        : 'none',
-    color:
-      state.isSelected || state.isFocused
-        ? `${theme?.colors.white}`
-        : `${theme?.colors.gray[900]}`,
-    fontWeight: `${theme?.fontWeight.normal}`,
-    fontSize: `${theme?.fontSize.sm}`,
-    '&:Active': { backgroundColor: `${theme?.colors.primary[400]}` },
-  }),
-  noOptionsMessage: (provided: CSSObjectWithLabel) => ({
-    ...provided,
-    fontSize: theme?.fontSize.sm,
-  }),
-};
 
 const DropdownIndicator = () => {
   return (
@@ -109,6 +58,8 @@ const SearchSelect = ({
     OptionType | OptionType[]
   >();
 
+  const { theme: vaultTheme } = useTheme();
+
   useEffect(() => {
     if (!value) return;
 
@@ -131,6 +82,70 @@ const SearchSelect = ({
       : options.value;
     handleChange({ currentTarget: { value, name: field } });
     setSelectedOption(options);
+  };
+
+  const customStyles = {
+    control: (provided: CSSObjectWithLabel, state: { isFocused: boolean }) => ({
+      ...provided,
+      border: state.isFocused
+        ? `1px solid transparent`
+        : `1px solid ${theme?.colors?.gray[300]}`,
+      borderRadius: theme?.borderRadius.md,
+      boxShadow: state.isFocused
+        ? `0 0 0 2px ${
+            vaultTheme?.primary_color
+              ? vaultTheme.primary_color
+              : theme?.colors.primary[500]
+          }`
+        : 'none',
+      '&:hover': {
+        border: state.isFocused
+          ? `1px solid transparent`
+          : `1px solid ${theme?.colors.gray[300]}`,
+      },
+      fontSize: theme?.fontSize.sm,
+    }),
+    placeholder: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      fontSize: theme?.fontSize.sm,
+      color: theme?.colors.gray[400],
+    }),
+    menu: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      marginTop: '5px',
+      border: `1px solid ${theme?.colors.gray[300]}`,
+      borderRadius: theme?.borderRadius.md,
+      boxShadow: theme?.boxShadow.lg,
+    }),
+    option: (
+      provided: CSSObjectWithLabel,
+      state: { isSelected: boolean; isFocused: boolean }
+    ) => ({
+      ...provided,
+      backgroundColor:
+        state.isSelected || state.isFocused
+          ? vaultTheme?.primary_color
+            ? vaultTheme.primary_color
+            : `${theme?.colors.primary[500]}`
+          : 'none',
+      color:
+        state.isSelected || state.isFocused
+          ? `${theme?.colors.white}`
+          : `${theme?.colors.gray[900]}`,
+      fontWeight: `${theme?.fontWeight.normal}`,
+      fontSize: `${theme?.fontSize.sm}`,
+      '&:Active': {
+        backgroundColor: `${
+          vaultTheme?.primary_color
+            ? vaultTheme.primary_color
+            : theme?.colors.primary[400]
+        }`,
+      },
+    }),
+    noOptionsMessage: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      fontSize: theme?.fontSize.sm,
+    }),
   };
 
   const selectProps = {

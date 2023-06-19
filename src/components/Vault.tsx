@@ -6,6 +6,7 @@ import { BASE_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/SessionSettings';
 import { ConnectionsProvider } from '../utils/useConnections';
+import { ThemeProvider } from '../utils/useTheme';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
 
@@ -168,13 +169,14 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               connectionsUrl={`${unifyBaseUrl}/vault/connections`}
             >
-              <ModalContent
-                onClose={onCloseModal}
-                onConnectionChange={onConnectionChange}
-                settings={settings}
-                consumer={showConsumer ? consumer : undefined}
-                theme={theme}
-              />
+              <ThemeProvider theme={theme}>
+                <ModalContent
+                  onClose={onCloseModal}
+                  onConnectionChange={onConnectionChange}
+                  settings={settings}
+                  consumer={showConsumer ? consumer : undefined}
+                />
+              </ThemeProvider>
             </ConnectionsProvider>
           </ToastProvider>
         </Modal>

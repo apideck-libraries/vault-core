@@ -5,6 +5,7 @@ import { useFormik } from 'formik';
 import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
+import { useTheme } from '../utils/useTheme';
 import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
 
@@ -19,6 +20,7 @@ type ValidationState = 'idle' | 'invalid' | 'valid' | 'validating';
 const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
   const { updateConnection } = useConnections();
   const { addToast } = useToast();
+  const { theme } = useTheme();
   const [validationState, setValidationState] =
     useState<ValidationState>('idle');
 
@@ -181,6 +183,9 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
           isLoading={validationState === 'validating'}
           size="large"
           className="w-full"
+          style={
+            theme?.primary_color ? { backgroundColor: theme.primary_color } : {}
+          }
         />
       </form>
       {showGuide && (

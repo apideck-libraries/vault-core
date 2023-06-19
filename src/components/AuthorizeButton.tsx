@@ -5,6 +5,7 @@ import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { useConnections } from '../utils/useConnections';
+import { useTheme } from '../utils/useTheme';
 
 interface Props {
   connection: Connection;
@@ -15,7 +16,7 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { connectionsUrl, headers } = useConnections();
   const { addToast } = useToast();
-
+  const { theme } = useTheme();
   const { mutate } = useSWRConfig();
 
   const authorizeUrl = `${connection.authorize_url}&redirect_uri=${REDIRECT_URL}`;
@@ -96,6 +97,9 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
       size="large"
       className="w-full !truncate"
       onClick={authorizeConnection}
+      style={
+        theme?.primary_color ? { backgroundColor: theme.primary_color } : {}
+      }
     />
   );
 };
