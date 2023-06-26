@@ -11,6 +11,7 @@ import { useConnections } from '../utils/useConnections';
 import AuthorizeButton from './AuthorizeButton';
 import ConnectionForm from './ConnectionForm';
 import Divider from './Divider';
+import FieldMapping from './FieldMapping';
 import LoadingDetails from './LoadingDetails';
 import ResourceForm from './ResourceForm';
 import ResourceList from './ResourceList';
@@ -31,6 +32,7 @@ const ConnectionDetails = ({
   settings,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
+  const [showFieldMapping, setShowFieldMapping] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
   const {
@@ -108,15 +110,31 @@ const ConnectionDetails = ({
       : tag_line;
   }, [tag_line, showFullDescription]);
 
+  const TopBarComponent = (props) => (
+    <TopBar
+      onClose={onClose}
+      onConnectionChange={onConnectionChange}
+      onBack={() => {
+        if (singleConnectionMode) {
+          onClose();
+        } else if (setSelectedConnection) {
+          setSelectedConnection(null);
+        }
+      }}
+      setShowSettings={setShowSettings}
+      setShowResources={setShowResources}
+      singleConnectionMode={singleConnectionMode}
+      setShowFieldMapping={setShowFieldMapping}
+      settings={settings}
+      {...props}
+    />
+  );
+
   if (selectedResource) {
     return (
       <>
-        <TopBar
-          onClose={onClose}
-          onConnectionChange={onConnectionChange}
+        <TopBarComponent
           onBack={() => setSelectedResource(null)}
-          setShowSettings={setShowSettings}
-          setShowResources={setShowResources}
           hideOptions={true}
         />
         <div className="h-full rounded-b-xl">
@@ -141,25 +159,23 @@ const ConnectionDetails = ({
     );
   }
 
+  if (showFieldMapping) {
+    return (
+      <>
+        <TopBarComponent
+          onBack={() => setShowFieldMapping(null)}
+          hideOptions={true}
+        />
+        <FieldMapping resources={resources} />
+      </>
+    );
+  }
+
   if (isLoadingDetails) return <LoadingDetails />;
 
   return (
     <>
-      <TopBar
-        onClose={onClose}
-        onConnectionChange={onConnectionChange}
-        onBack={() => {
-          if (singleConnectionMode) {
-            onClose();
-          } else if (setSelectedConnection) {
-            setSelectedConnection(null);
-          }
-        }}
-        setShowSettings={setShowSettings}
-        setShowResources={setShowResources}
-        singleConnectionMode={singleConnectionMode}
-        settings={settings}
-      />
+      <TopBarComponent />
       <div className="h-full rounded-b-xl">
         <div className="text-center p-5 md:p-6">
           <Dialog.Title
