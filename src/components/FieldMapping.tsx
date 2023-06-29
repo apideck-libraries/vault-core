@@ -137,7 +137,7 @@ const FieldMapping = ({ resources }) => {
                             <code>{originField?.name}</code>
                           </h3>
                           <span className="text-xs text-gray-500 font-normal">
-                            {selectedConnection?.name}
+                            <code>{targetField?.resourceId}</code>
                           </span>
                         </div>
                       </div>
