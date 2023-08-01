@@ -4,7 +4,7 @@ import Select, { CSSObjectWithLabel } from 'react-select';
 import classNames from 'classnames';
 import CreatableSelect from 'react-select/creatable';
 import theme from '../utils/theme';
-import { useTheme } from '../utils/useTheme';
+import { useSession } from '../utils/useSession';
 
 export interface OptionType {
   value: string;
@@ -58,7 +58,9 @@ const SearchSelect = ({
     OptionType | OptionType[]
   >();
 
-  const { theme: vaultTheme } = useTheme();
+  const {
+    session: { theme: vaultTheme },
+  } = useSession();
 
   useEffect(() => {
     if (!value) return;

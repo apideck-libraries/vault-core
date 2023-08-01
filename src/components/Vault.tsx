@@ -4,11 +4,11 @@ import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
 import { BASE_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
-import { SessionSettings } from '../types/SessionSettings';
+import { Session } from '../types/Session';
 import { ConnectionsProvider } from '../utils/useConnections';
-import { ThemeProvider } from '../utils/useTheme';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
+import { SessionProvider } from '../utils/useSession';
 
 export interface Props {
   /**
@@ -88,11 +88,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
 ) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
-  const [consumerId, setConsumerId] = useState<string | null>(null);
-  const [theme, setTheme] = useState<any>({});
-  const [appId, setAppId] = useState<string | null>(null);
-  const [settings, setSettings] = useState<SessionSettings>({});
-  const [consumer, setConsumer] = useState();
+  const [session, setSession] = useState<Session>({});
 
   const onCloseModal = () => {
     if (isOpen) {
@@ -117,28 +113,18 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
 
   useEffect(() => {
     if (token?.length) {
-      let decoded;
-
       try {
-        decoded =
-          jwtDecode<{ application_id: string; consumer_id: string }>(token);
+        const decoded = jwtDecode<Session>(token);
 
         setJwt(token);
-        setConsumerId(decoded.consumer_id);
-        setAppId(decoded.application_id);
-        setSettings(decoded.settings);
-        setConsumer(decoded.consumer_metadata);
-        setTheme(decoded.theme);
+        setSession(decoded);
       } catch (e) {
         if (process.env.NODE_ENV !== 'test') {
           console.error(e);
           console.error(INVALID_TOKEN_MESSAGE);
         }
         setJwt(null);
-        setConsumerId(null);
-        setAppId(null);
-        setSettings({});
-        setTheme({});
+        setSession({} as unknown as Session);
       }
     }
   }, [token]);
@@ -158,8 +144,8 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         >
           <ToastProvider>
             <ConnectionsProvider
-              appId={appId as string}
-              consumerId={consumerId as string}
+              appId={session?.application_id as string}
+              consumerId={session?.consumer_id as string}
               token={jwt as string}
               isOpen={isOpen}
               onClose={onCloseModal}
@@ -169,14 +155,15 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               connectionsUrl={`${unifyBaseUrl}/vault/connections`}
             >
-              <ThemeProvider theme={theme}>
+              <SessionProvider session={session}>
                 <ModalContent
                   onClose={onCloseModal}
                   onConnectionChange={onConnectionChange}
-                  settings={settings}
-                  consumer={showConsumer ? consumer : undefined}
+                  consumer={
+                    showConsumer ? session?.consumer_metadata : undefined
+                  }
                 />
-              </ThemeProvider>
+              </SessionProvider>
             </ConnectionsProvider>
           </ToastProvider>
         </Modal>
