@@ -23,9 +23,7 @@ interface Props {
 const ResourceForm = ({ resource, closeForm }: Props) => {
   const { resources, selectedConnection, updateConnection, isUpdating } =
     useConnections();
-  const {
-    session: { theme },
-  } = useSession();
+  const { session } = useSession();
   if (!selectedConnection) return null;
   const { unified_api: unifiedApi, service_id: serviceId } = selectedConnection;
 
@@ -226,7 +224,9 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
         size="large"
         className="w-full mt-5 md:mt-6 "
         style={
-          theme?.primary_color ? { backgroundColor: theme.primary_color } : {}
+          session?.theme?.primary_color
+            ? { backgroundColor: session?.theme.primary_color }
+            : {}
         }
       />
     </form>

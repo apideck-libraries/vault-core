@@ -144,8 +144,8 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
         >
           <ToastProvider>
             <ConnectionsProvider
-              appId={session.application_id as string}
-              consumerId={session.consumer_id as string}
+              appId={session?.application_id as string}
+              consumerId={session?.consumer_id as string}
               token={jwt as string}
               isOpen={isOpen}
               onClose={onCloseModal}
@@ -160,7 +160,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
                   onClose={onCloseModal}
                   onConnectionChange={onConnectionChange}
                   consumer={
-                    showConsumer ? session.consumer_metadata : undefined
+                    showConsumer ? session?.consumer_metadata : undefined
                   }
                 />
               </SessionProvider>

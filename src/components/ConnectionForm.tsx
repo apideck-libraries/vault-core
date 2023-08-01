@@ -26,9 +26,7 @@ type ValidationState = 'idle' | 'invalid' | 'valid' | 'validating';
 const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
   const { updateConnection } = useConnections();
   const { addToast } = useToast();
-  const {
-    session: { theme },
-  } = useSession();
+  const { session } = useSession();
   const [validationState, setValidationState] =
     useState<ValidationState>('idle');
 
@@ -201,7 +199,9 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
           size="large"
           className="w-full"
           style={
-            theme?.primary_color ? { backgroundColor: theme.primary_color } : {}
+            session?.theme?.primary_color
+              ? { backgroundColor: session?.theme.primary_color }
+              : {}
           }
         />
       </form>

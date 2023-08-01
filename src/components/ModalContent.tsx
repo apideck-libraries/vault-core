@@ -69,7 +69,7 @@ export const ModalContent = ({
     !addedConnections?.length && !availableConnections?.length;
   const hasConsumerMetadata = consumer && Object.keys(consumer).length > 0;
   const showConsumer =
-    hasConsumerMetadata && !session.settings?.hide_consumer_card;
+    hasConsumerMetadata && !session?.settings?.hide_consumer_card;
 
   if (selectedConnection)
     return (
@@ -80,7 +80,7 @@ export const ModalContent = ({
         <ConnectionDetails
           onClose={onClose}
           onConnectionChange={onConnectionChange}
-          settings={session.settings as SessionSettings}
+          settings={session?.settings as SessionSettings}
           data-testid={`details-${selectedConnection.id}`}
         />
         {showConsumer && <ConsumerSection consumer={consumer} />}
@@ -97,7 +97,7 @@ export const ModalContent = ({
       <TopBar
         onConnectionChange={onConnectionChange}
         onClose={onClose}
-        settings={session.settings as SessionSettings}
+        settings={session?.settings as SessionSettings}
       />
       <div
         className={`h-full overflow-hidden min-h-[469px] ${

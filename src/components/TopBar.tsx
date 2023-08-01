@@ -137,10 +137,10 @@ const TopBar = ({
       revoke_url,
     } = selectedConnection;
     const authorizeUrl = `${authorize_url}&redirect_uri=${
-      session.redirect_uri ?? REDIRECT_URL
+      session?.redirect_uri ?? REDIRECT_URL
     }`;
     const revokeUrl = `${revoke_url}&redirect_uri=${
-      session.redirect_uri ?? REDIRECT_URL
+      session?.redirect_uri ?? REDIRECT_URL
     }`;
     const options: Option[] = [];
 
@@ -403,8 +403,8 @@ const TopBar = ({
   };
 
   const showLogo = useMemo(
-    () => selectedConnection?.icon || session.theme?.logo,
-    [selectedConnection?.icon, session.theme?.logo]
+    () => selectedConnection?.icon || session?.theme?.logo,
+    [selectedConnection?.icon, session?.theme?.logo]
   );
 
   if (!showLogo && !selectedConnection?.name) return null;
@@ -484,15 +484,15 @@ const TopBar = ({
             )}
           >
             <img
-              src={selectedConnection?.icon ?? session.theme?.logo}
+              src={selectedConnection?.icon ?? session?.theme?.logo}
               id="react-vault-icon"
               className="object-fit w-full h-full"
             />
           </div>
         ) : null}
-        {!selectedConnection && session.theme?.vault_name && (
+        {!selectedConnection && session?.theme?.vault_name && (
           <div className="w-full mt-3 text-center text-sm font-medium text-gray-900">
-            {session.theme?.vault_name}
+            {session?.theme?.vault_name}
           </div>
         )}
       </div>
