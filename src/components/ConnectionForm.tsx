@@ -9,9 +9,9 @@ import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
 import { Connection } from '../types/Connection';
-import { SessionSettings } from '../types/SessionSettings';
+import { SessionSettings } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
-import { useTheme } from '../utils/useTheme';
+import { useSession } from '../utils/useSession';
 import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
 
@@ -26,7 +26,9 @@ type ValidationState = 'idle' | 'invalid' | 'valid' | 'validating';
 const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
   const { updateConnection } = useConnections();
   const { addToast } = useToast();
-  const { theme } = useTheme();
+  const {
+    session: { theme },
+  } = useSession();
   const [validationState, setValidationState] =
     useState<ValidationState>('idle');
 

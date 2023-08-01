@@ -1,6 +1,5 @@
 import React from 'react';
 import { Connection } from '../types/Connection';
-import { SessionSettings } from '../types/SessionSettings';
 import { useConnections } from '../utils/useConnections';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
@@ -8,14 +7,14 @@ import ConsumerSection from './ConsumerSection';
 import LoadingDetails from './LoadingDetails';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
+import { useSession } from '../utils/useSession';
+import { SessionSettings } from '../types/Session';
 
 export const ModalContent = ({
   onClose,
   onConnectionChange,
-  settings,
   consumer,
 }: {
-  settings: SessionSettings;
   consumer?: { image?: string; user_name?: string; account_name?: string };
   onClose: () => any;
   onConnectionChange?: (connection: Connection) => any;
@@ -29,6 +28,7 @@ export const ModalContent = ({
     sessionExpired,
     token,
   } = useConnections();
+  const { session } = useSession();
 
   if ((error && !selectedConnection) || (detailsError && selectedConnection)) {
     return (
@@ -68,7 +68,8 @@ export const ModalContent = ({
   const noConnections =
     !addedConnections?.length && !availableConnections?.length;
   const hasConsumerMetadata = consumer && Object.keys(consumer).length > 0;
-  const showConsumer = hasConsumerMetadata && !settings?.hide_consumer_card;
+  const showConsumer =
+    hasConsumerMetadata && !session.settings?.hide_consumer_card;
 
   if (selectedConnection)
     return (
@@ -79,7 +80,7 @@ export const ModalContent = ({
         <ConnectionDetails
           onClose={onClose}
           onConnectionChange={onConnectionChange}
-          settings={settings}
+          settings={session.settings as SessionSettings}
           data-testid={`details-${selectedConnection.id}`}
         />
         {showConsumer && <ConsumerSection consumer={consumer} />}
@@ -96,7 +97,7 @@ export const ModalContent = ({
       <TopBar
         onConnectionChange={onConnectionChange}
         onClose={onClose}
-        settings={settings}
+        settings={session.settings as SessionSettings}
       />
       <div
         className={`h-full overflow-hidden min-h-[469px] ${

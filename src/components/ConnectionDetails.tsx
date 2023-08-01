@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Alert } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { Connection } from '../types/Connection';
-import { SessionSettings } from '../types/SessionSettings';
+import { SessionSettings } from '../types/Session';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
 import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';

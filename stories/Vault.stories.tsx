@@ -30,7 +30,7 @@ const Template: Story<Props> = (args) => (
     {...args}
     showConsumer={true}
     unifyBaseUrl="http://localhost:3050"
-    token="TOKEN_HERE"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6IjIyMjIiLCJzY29wZXMiOltdLCJpYXQiOjE2OTA5MDIxMDQsImV4cCI6MTY5MDkwNTcwNH0.48bjIBCl_UgxZacXb7FrrmraEeqyFm6amQRdp_Frtus"
   />
 );
 

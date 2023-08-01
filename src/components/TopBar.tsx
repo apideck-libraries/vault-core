@@ -7,10 +7,10 @@ import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
-import { SessionSettings, VaultAction } from '../types/SessionSettings';
+import { SessionSettings, VaultAction } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
-import { useTheme } from '../utils/useTheme';
 import ConfirmModal from './ConfirmModal';
+import { useSession } from '../utils/useSession';
 
 const isActionAllowed =
   (settings?: SessionSettings) =>
@@ -52,7 +52,7 @@ const TopBar = ({
     connectionsUrl,
     headers,
   } = useConnections();
-  const { theme } = useTheme();
+  const { session } = useSession();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -136,8 +136,12 @@ const TopBar = ({
       authorize_url,
       revoke_url,
     } = selectedConnection;
-    const authorizeUrl = `${authorize_url}&redirect_uri=${REDIRECT_URL}`;
-    const revokeUrl = `${revoke_url}&redirect_uri=${REDIRECT_URL}`;
+    const authorizeUrl = `${authorize_url}&redirect_uri=${
+      session.redirect_uri ?? REDIRECT_URL
+    }`;
+    const revokeUrl = `${revoke_url}&redirect_uri=${
+      session.redirect_uri ?? REDIRECT_URL
+    }`;
     const options: Option[] = [];
 
     const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
@@ -399,8 +403,8 @@ const TopBar = ({
   };
 
   const showLogo = useMemo(
-    () => selectedConnection?.icon || theme?.logo,
-    [selectedConnection?.icon, theme?.logo]
+    () => selectedConnection?.icon || session.theme?.logo,
+    [selectedConnection?.icon, session.theme?.logo]
   );
 
   if (!showLogo && !selectedConnection?.name) return null;
@@ -480,15 +484,15 @@ const TopBar = ({
             )}
           >
             <img
-              src={selectedConnection?.icon ?? theme?.logo}
+              src={selectedConnection?.icon ?? session.theme?.logo}
               id="react-vault-icon"
               className="object-fit w-full h-full"
             />
           </div>
         ) : null}
-        {!selectedConnection && theme?.vault_name && (
+        {!selectedConnection && session.theme?.vault_name && (
           <div className="w-full mt-3 text-center text-sm font-medium text-gray-900">
-            {theme?.vault_name}
+            {session.theme?.vault_name}
           </div>
         )}
       </div>
