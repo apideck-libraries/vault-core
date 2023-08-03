@@ -9,8 +9,8 @@ import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
 import { SessionSettings, VaultAction } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
-import ConfirmModal from './ConfirmModal';
 import { useSession } from '../utils/useSession';
+import ConfirmModal from './ConfirmModal';
 
 const isActionAllowed =
   (settings?: SessionSettings) =>
@@ -469,7 +469,7 @@ const TopBar = ({
             options={options}
             minWidth={0}
             align="left"
-            className="font-medium"
+            className="font-medium z-20"
           />
         </div>
       ) : (
