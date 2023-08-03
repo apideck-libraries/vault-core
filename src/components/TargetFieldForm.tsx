@@ -90,6 +90,13 @@ const TargetFieldForm = ({ onCreate }) => {
                   alt="apideck"
                   className="w-8 h-8 rounded-full ring-2 ring-gray-100"
                 />
+                {/* {theme?.logo && (
+                  <img
+                    src={theme?.logo}
+                    alt="apideck"
+                    className="w-8 h-8 rounded-full ring-2 ring-gray-100"
+                  />
+                )} */}
 
                 <div className="flex-1 truncate hidden sm:block">
                   <h3 className="truncate" data-testid="connector-name">
