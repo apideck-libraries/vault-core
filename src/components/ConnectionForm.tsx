@@ -147,7 +147,16 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
                     valid={validationState === 'invalid' ? false : undefined}
                     required={required}
                     placeholder={placeholder}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      if (prefix && e.currentTarget.value?.startsWith(prefix)) {
+                        formik.setFieldValue(
+                          id,
+                          e.currentTarget.value.slice(prefix.length)
+                        );
+                      } else {
+                        formik.handleChange(e);
+                      }
+                    }}
                     disabled={disabled}
                     value={formik.values[id] as any}
                     prepend={prefix}
