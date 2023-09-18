@@ -1,9 +1,9 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 
 import { Alert } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { Connection } from '../types/Connection';
-import { SessionSettings } from '../types/SessionSettings';
+import { SessionSettings } from '../types/Session';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
 import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
@@ -24,16 +24,15 @@ interface Props {
   settings: SessionSettings;
 }
 
-const charMax = 150;
-
 const ConnectionDetails = ({
   onClose,
   onConnectionChange,
   settings,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
-  const [showFieldMapping, setShowFieldMapping] = useState(false);
-  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showFieldMapping, setShowFieldMapping] = useState<boolean | null>(
+    false
+  );
 
   const {
     selectedConnection,
@@ -50,7 +49,6 @@ const ConnectionDetails = ({
     state,
     auth_type,
     name,
-    tag_line,
     form_fields,
     unified_api,
     service_id,
@@ -101,14 +99,6 @@ const ConnectionDetails = ({
       setShowResources(false);
     }
   }, [selectedConnection, resources, showSettings]);
-
-  const description = useMemo(() => {
-    return showFullDescription
-      ? tag_line
-      : tag_line && tag_line?.length > charMax + 10
-      ? `${tag_line?.substring(0, charMax)}...`
-      : tag_line;
-  }, [tag_line, showFullDescription]);
 
   const TopBarComponent = (props) => (
     <TopBar
@@ -185,26 +175,13 @@ const ConnectionDetails = ({
             {name}
           </Dialog.Title>
           <a
-            className="text-sm text-gray-700 mb-2 font-medium hover:text-gray-900"
+            className="text-sm text-gray-700 mb-4 font-medium hover:text-gray-900"
             href={`https://developers.apideck.com/apis/${unified_api}/reference`}
             target="_blank"
             rel="noopener noreferrer"
           >
             {getApiName(selectedConnection)}
           </a>
-
-          <p className="text-sm text-gray-500 mt-2 mb-4">
-            {description}{' '}
-            {tag_line && tag_line?.length > charMax + 10 ? (
-              <button
-                className="text-sm underline hover:text-primary-500"
-                onClick={() => setShowFullDescription(!showFullDescription)}
-              >
-                read {showFullDescription ? 'less' : 'more'}
-              </button>
-            ) : null}
-          </p>
-
           {selectedConnection.integration_state === 'needs_configuration' && (
             <Alert
               className="text-left my-2"
@@ -229,7 +206,7 @@ const ConnectionDetails = ({
           )}
 
           {selectedConnection.integration_state !== 'needs_configuration' && (
-            <div className="mx-auto">
+            <div className="mx-auto mt-4">
               <StatusBadge
                 connection={selectedConnection}
                 isLoading={isUpdating && !showSettings}

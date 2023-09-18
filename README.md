@@ -1,4 +1,12 @@
-# React Vault
+# Vault Core
+
+<br />
+
+**🚨 We recommend using the new [@apideck/vault-react](https://www.npmjs.com/package/@apideck/vault-react) package.**
+
+<br />
+
+---
 
 A React component to embed [Apideck Vault](https://www.apideck.com/products/vault) in any React application.
 
@@ -123,7 +131,7 @@ If you want to provide a custom logo on top of the modal, you can set the `logo`
 ### Properties
 
 | Property           | Type                             | Required | Default | Description                                                                                                                                       |
-|--------------------|----------------------------------|----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------ | -------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | token              | string                           | true     | -       | The JSON Web Token returned from the Create Session call                                                                                          |
 | trigger            | element                          | false    | -       | The component that should trigger the Vault modal on click                                                                                        |
 | showAttribution    | boolean                          | false    | true    | Show "Powered by Apideck" in the backdrop of the modal backdrop                                                                                   |

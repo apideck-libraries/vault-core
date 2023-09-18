@@ -9,9 +9,9 @@ import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
 import { Connection } from '../types/Connection';
-import { SessionSettings } from '../types/SessionSettings';
+import { SessionSettings } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
-import { useTheme } from '../utils/useTheme';
+import { useSession } from '../utils/useSession';
 import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
 
@@ -26,7 +26,7 @@ type ValidationState = 'idle' | 'invalid' | 'valid' | 'validating';
 const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
   const { updateConnection } = useConnections();
   const { addToast } = useToast();
-  const { theme } = useTheme();
+  const { session } = useSession();
   const [validationState, setValidationState] =
     useState<ValidationState>('idle');
 
@@ -147,7 +147,16 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
                     valid={validationState === 'invalid' ? false : undefined}
                     required={required}
                     placeholder={placeholder}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      if (prefix && e.currentTarget.value?.startsWith(prefix)) {
+                        formik.setFieldValue(
+                          id,
+                          e.currentTarget.value.slice(prefix.length)
+                        );
+                      } else {
+                        formik.handleChange(e);
+                      }
+                    }}
                     disabled={disabled}
                     value={formik.values[id] as any}
                     prepend={prefix}
@@ -199,7 +208,9 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
           size="large"
           className="w-full"
           style={
-            theme?.primary_color ? { backgroundColor: theme.primary_color } : {}
+            session?.theme?.primary_color
+              ? { backgroundColor: session?.theme.primary_color }
+              : {}
           }
         />
       </form>

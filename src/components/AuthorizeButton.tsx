@@ -5,7 +5,7 @@ import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { useConnections } from '../utils/useConnections';
-import { useTheme } from '../utils/useTheme';
+import { useSession } from '../utils/useSession';
 
 interface Props {
   connection: Connection;
@@ -16,10 +16,14 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { connectionsUrl, headers } = useConnections();
   const { addToast } = useToast();
-  const { theme } = useTheme();
+  const {
+    session: { theme, redirect_uri },
+  } = useSession();
   const { mutate } = useSWRConfig();
 
-  const authorizeUrl = `${connection.authorize_url}&redirect_uri=${REDIRECT_URL}`;
+  const authorizeUrl = `${connection.authorize_url}&redirect_uri=${
+    redirect_uri ?? REDIRECT_URL
+  }`;
 
   const handleChildWindowClose = () => {
     mutate(
