@@ -151,13 +151,10 @@ const ConnectionDetails = ({
 
   if (showFieldMapping) {
     return (
-      <>
-        <TopBarComponent
-          onBack={() => setShowFieldMapping(null)}
-          hideOptions={true}
-        />
-        <FieldMapping resources={resources} />
-      </>
+      <FieldMapping
+        setShowFieldMapping={setShowFieldMapping}
+        TopBarComponent={TopBarComponent}
+      />
     );
   }
 

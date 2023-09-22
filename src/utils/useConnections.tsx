@@ -28,6 +28,7 @@ interface ContextProps {
   unifyBaseUrl: string;
   headers: any;
   token?: string;
+  connectionsUrl?: string;
   updateConnection: (options: {
     unifiedApi: string;
     serviceId: string;
@@ -35,6 +36,8 @@ interface ContextProps {
     resource?: string;
     quiet?: boolean;
   }) => Promise<Connection | null>;
+  fetchResourceSchema: (resource: string) => Promise<any>;
+  fetchCustomFields: (resource: string) => Promise<any>;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -307,7 +310,62 @@ export const ConnectionsProvider = ({
     return { resource, defaults: response?.data?.configuration };
   };
 
-  console.log('connection', connection);
+  const fetchCustomMapping = async (resource: string) => {
+    if (!selectedConnection) return;
+    const raw = await fetch(
+      `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom_mapping`,
+      { headers }
+    );
+    const response = await raw.json();
+
+    if (response.error) return response;
+
+    return { resource, defaults: response?.data?.configuration };
+  };
+
+  const fetchResourceSchema = async (resource?: string) => {
+    if (!selectedConnection || !resource) return;
+    try {
+      const raw = await fetch(
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/schema`,
+        { headers }
+      );
+
+      return await raw.json();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchCustomFields = async (resource?: string) => {
+    if (!selectedConnection || !resource) return;
+    try {
+      const raw = await fetch(
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom_fields`,
+        { headers }
+      );
+
+      return await raw.json();
+
+      // return [
+      //   {
+      //     id: '38610',
+      //     name: 'Likes Snacks',
+      //     value: 'Fuck yea',
+      //     finder: "$['data']['custom_fields'][?(@['custom_field_id']===38610)]",
+      //   },
+      //   {
+      //     id: '38607',
+      //     name: 'SSN',
+      //     value: '495172776',
+      //     finder: "$['data']['custom_fields'][?(@['custom_field_id']===38607)]",
+      //   },
+      // ];
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+  };
 
   const getResourceConfig = async () => {
     const requests: any = [];
@@ -367,6 +425,11 @@ export const ConnectionsProvider = ({
       updateConnection,
       headers,
       token,
+      fetchResourceSchema,
+      fetchCustomFields,
+      fetchCustomMapping,
+      fetcher,
+      unifyBaseUrl,
     }),
     [
       isUpdating,
@@ -378,6 +441,7 @@ export const ConnectionsProvider = ({
       token,
       error,
       detailsError,
+      fetchResourceSchema,
     ]
   );
 
