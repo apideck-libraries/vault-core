@@ -49,7 +49,6 @@ interface Props {
   isOpen: boolean;
   unifiedApi?: string;
   serviceId?: string;
-  connectionsUrl: string;
   children: ReactNode;
   onClose: () => any;
   onConnectionChange?: (connection: Connection) => any;

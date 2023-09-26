@@ -32,6 +32,7 @@ interface Props {
   hideBackButton?: boolean;
   singleConnectionMode?: boolean;
   settings?: SessionSettings;
+  setShowFieldMapping?: Dispatch<SetStateAction<boolean>>;
 }
 
 const TopBar = ({
@@ -237,7 +238,7 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          setShowFieldMapping(true);
+          setShowFieldMapping?.(true);
         },
       });
     }
