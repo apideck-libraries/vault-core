@@ -45,10 +45,10 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
         };
         mutate(detailUrl, { data: updatedConnection }, { revalidate: false });
       }
-    } catch (error: any) {
+    } catch (error) {
       addToast({
         title: 'Error',
-        description: error.message,
+        description: (error as Error).message,
         type: 'error',
       });
     } finally {

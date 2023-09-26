@@ -88,10 +88,10 @@ const FieldMappingForm = ({
         mutate(detailUrl, { data: updatedConnection }, { revalidate: false });
         setSelectedCustomMapping(null);
       }
-    } catch (error: any) {
+    } catch (error) {
       addToast({
         title: 'Error',
-        description: error.message,
+        description: (error as Error).message,
         type: 'error',
       });
     } finally {
