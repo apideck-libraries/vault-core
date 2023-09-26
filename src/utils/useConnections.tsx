@@ -312,7 +312,7 @@ export const ConnectionsProvider = ({
   const fetchCustomMapping = async (resource: string) => {
     if (!selectedConnection) return;
     const raw = await fetch(
-      `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom_mapping`,
+      `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom-mapping`,
       { headers }
     );
     const response = await raw.json();
