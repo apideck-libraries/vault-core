@@ -9,6 +9,7 @@ import React, {
   RefObject,
   cloneElement,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -21,18 +22,20 @@ interface Props {
   triggerComponentProps?: any;
   className?: string;
   buttonRef?: any;
-  customFields: any; // todo
+  customFields: any;
+  responseDataPath?: string;
 }
 
 const FieldSelector = ({
   onSelect,
-  properties,
+  properties: propertiesProps,
   isLoading,
   triggerComponent,
   triggerComponentProps,
   className = '',
   customFields,
   buttonRef,
+  responseDataPath,
 }: Props) => {
   const [selectedObjectProperty, setSelectedObjectProperty] =
     useState<any>(null);
@@ -44,6 +47,7 @@ const FieldSelector = ({
   const [list, setList] = useState<any>([]);
   const debouncedSearchTerm = useDebounce(searchTerm, 250);
   const [fieldMappingString, setFieldMappingString] = useState();
+  const [properties, setProperties] = useState<any>(propertiesProps);
   const searchInputRef: any = useRef();
 
   useEffect(() => {
@@ -76,6 +80,21 @@ const FieldSelector = ({
 
   const propsToShow = searchTerm.length ? list : properties;
 
+  useEffect(() => {
+    if (
+      responseDataPath &&
+      responseDataPath === propertiesProps?.[0]?.[0] &&
+      propertiesProps?.[0]?.[1]?.properties
+    ) {
+      // Skip the first data path
+      const nestedProperties = Object.entries(
+        propertiesProps?.[0]?.[1]?.properties
+      );
+      setProperties(nestedProperties);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const renderMenuItem = ({ title, type, properties, items, ...rest }: any) => {
     const isSelectable =
       (type === 'array' && !items?.properties) || // array of strings, numbers, etc.
@@ -88,17 +107,8 @@ const FieldSelector = ({
             type="button"
             className={`${
               active ? 'bg-primary-500 text-white' : 'text-gray-900'
-            } group flex w-full items-center rounded-md px-2 py-2 text-sm justify-between`}
+            } group flex w-full items-center px-4 py-3 justify-between`}
             onClick={(e) => {
-              // if (type === 'customField') {
-              //   onSelect({ type, ...rest });
-              //   onSelect({
-              //     title,
-              //     mode: 'manual',
-              //     description: rest?.['finder'],
-              //   });
-              //   return;
-              // }
               if (isSelectable) {
                 onSelect({ title, type, ...rest });
                 return;
@@ -112,16 +122,35 @@ const FieldSelector = ({
             }}
           >
             <div className="flex items-center space-x-2 truncate">
-              <span>{title}</span>
+              <span className="font-semibold text-sm">{title}</span>
               <span
-                className={`italic text-gray-400 text-xs ${
-                  active ? 'text-primary-200' : ''
+                className={`italic text-gray-500 text-xs ${
+                  active ? 'text-primary-100' : ''
                 }`}
               >
-                {type === 'null' ? 'unknown' : type}
+                {isCustomFieldMapping ? (
+                  <span>Value: {rest?.value}</span>
+                ) : (
+                  type
+                )}
               </span>
             </div>
-            {/* {!isSelectable && <HiOutlineChevronRight className="h-4 w-4" />} */}
+            {!isSelectable && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            )}
           </button>
         )}
       </Menu.Item>
@@ -129,9 +158,21 @@ const FieldSelector = ({
   };
 
   /* If selectedObjectProperty is present, we only want to render the items inside of that object */
-  const propertiesToRender = selectedObjectProperty
-    ? Object.entries(selectedObjectProperty.properties)
-    : propsToShow;
+  const propertiesToRender = useMemo(
+    () =>
+      selectedObjectProperty
+        ? Object.entries(selectedObjectProperty.properties)
+        : propsToShow,
+    [selectedObjectProperty, propsToShow]
+  );
+
+  const sortedProperties = useMemo(
+    () =>
+      propertiesToRender.sort((a: any, b: any) => {
+        return a[0].localeCompare(b[0]);
+      }),
+    [propertiesToRender]
+  );
 
   const noFieldsFound =
     mode !== 'advanced' && !isLoading && !propertiesToRender?.length;
@@ -141,14 +182,14 @@ const FieldSelector = ({
       ? [
           {
             id: 'custom',
-            name: 'Custom fields',
+            name: 'Select field',
             current: mode === 'custom',
           },
         ]
       : [
           {
             id: 'root',
-            name: 'Root fields',
+            name: 'Select field',
             current: mode === 'root',
           },
         ]),
@@ -174,10 +215,6 @@ const FieldSelector = ({
           ) : (
             <Menu.Button className="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
               Select field
-              {/* <HiOutlineChevronDown
-                className="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
-                aria-hidden="true"
-              /> */}
             </Menu.Button>
           )}
 
@@ -190,29 +227,69 @@ const FieldSelector = ({
             leaveTo="transform scale-95 opacity-0"
           >
             <Menu.Items
-              className="absolute z-40 mt-2 w-[calc(100%-0px)] left-[0px] origin-top-right divide-y divide-gray-100 overflow-hidden bg-white shadow-lg ring-1 ring-gray-200 rounded-b-2xl focus:outline-none"
-              style={{ top: -50 }}
+              className="absolute rounded-t-2xl z-40 mt-2 w-[calc(100%-0px)] left-[0px] origin-top-right overflow-hidden bg-white shadow-lg ring-1 ring-gray-200 rounded-b-2xl focus:outline-none"
+              style={{ top: -108 }}
             >
-              <div className="px-3 pb-2 max-h-[330px] 2xl:max-h-[380px] overflow-y-auto divide-y divide-gray-200">
+              <div className="max-h-[330px] 2xl:max-h-[380px] overflow-y-auto divide-y divide-gray-200">
                 <nav
-                  className="-mb-px flex space-x-6 -mx-3 border-b px-3"
+                  className="flex items-center justify-between"
                   aria-label="Tabs"
                 >
-                  {tabs.map((tab) => (
+                  <div className="-mb-px flex space-x-6 border-b px-4">
+                    {tabs.map((tab: any) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setMode(tab.id)}
+                        type="button"
+                        className={classNames(
+                          tab.current
+                            ? 'border-primary-500 text-primary-600 font-medium'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                          'group inline-flex items-center py-3 mt-1 border-b-2 text-sm'
+                        )}
+                      >
+                        <span>{tab.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <Menu.Item>
                     <button
-                      key={tab.id}
-                      onClick={() => setMode(tab.id)}
                       type="button"
-                      className={classNames(
-                        tab.current
-                          ? 'border-gray-700 text-gray-900 font-medium'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'group inline-flex items-center py-2 mt-1 border-b text-xs'
-                      )}
+                      className="flex items-center justify-center px-5 pl-8 group"
                     >
-                      <span>{tab.name}</span>
+                      {open ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4.5 15.75l7.5-7.5 7.5 7.5"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                          />
+                        </svg>
+                      )}
                     </button>
-                  ))}
+                  </Menu.Item>
                 </nav>
 
                 {mode === 'advanced' && (
@@ -255,7 +332,7 @@ const FieldSelector = ({
 
                 {/* If selectedObjectProperty is not null, render a back button */}
                 {mode === 'root' && selectedObjectProperty ? (
-                  <Menu.Item as="div">
+                  <Menu.Item as="div" className="px-4">
                     {({ active }) => (
                       <button
                         className={`${
@@ -268,7 +345,20 @@ const FieldSelector = ({
                           );
                         }}
                       >
-                        {/* <HiOutlineChevronLeft className="h-4 w-4 ml-2.5 mr-2.5" /> */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="h-4 w-4 mx-1 mr-2"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 19.5L8.25 12l7.5-7.5"
+                          />
+                        </svg>
                         {selectedObjectProperty?.title}
                       </button>
                     )}
@@ -276,7 +366,7 @@ const FieldSelector = ({
                 ) : (
                   mode !== 'advanced' &&
                   (!noFieldsFound || searchTerm?.length > 0) && (
-                    <div className="px-1.5 py-3">
+                    <div className="px-3 py-3">
                       <SearchInput
                         value={searchTerm}
                         onChange={(event: ChangeEvent<HTMLInputElement>) =>
@@ -294,7 +384,7 @@ const FieldSelector = ({
                   )
                 )}
                 {mode === 'root' &&
-                  propertiesToRender?.map(
+                  sortedProperties?.map(
                     (property: { [key: string]: any }, index: number) =>
                       renderMenuItem({
                         title: property[0],
@@ -306,13 +396,12 @@ const FieldSelector = ({
                   customFields.map((field) =>
                     renderMenuItem({
                       title: field?.name || field?.id,
-                      type: 'customField',
-                      description: field?.['finder'],
+                      description: field?.finder,
                       ...field,
                     })
                   )}
                 {isLoading && !properties?.length && (
-                  <div className="mx-1.5 mt-1.5">
+                  <div className="mx-3 mt-1.5">
                     {[...new Array(7).keys()]?.map((i: number) => {
                       return (
                         <div

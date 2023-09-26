@@ -29,26 +29,30 @@ const FieldMappingForm = ({
 
   const [selectedMapping, setSelectedMapping] = useState<{
     title: string;
-    description: string;
+    description?: string;
     example?: string;
     type?: string;
+    finder?: string;
   } | null>(null);
 
-  const { data: schema } = useSWR(
+  const { data: schemaData } = useSWR(
     selectedConnection &&
       !selectedCustomMapping.custom_field &&
-      setSelectedCustomMapping?.id,
-    () => fetchResourceSchema(setSelectedCustomMapping?.id?.split('+')[1])
+      selectedCustomMapping?.id,
+    () => fetchResourceSchema(selectedCustomMapping?.id?.split('+')[1])
   );
 
-  const { data: customFields } = useSWR(
+  const { data: customFieldsData } = useSWR(
     selectedConnection &&
       selectedCustomMapping.custom_field &&
-      setSelectedCustomMapping?.id,
-    () => fetchCustomFields(setSelectedCustomMapping?.id?.split('+')[1])
+      selectedCustomMapping?.id,
+    () => fetchCustomFields(selectedCustomMapping?.id?.split('+')[1])
   );
 
-  const properties = schema?.data?.properties;
+  const schema = schemaData?.data;
+  const customFields = customFieldsData?.data;
+  const properties = schema?.properties;
+  const responseDataPath = schema?.response_data_path;
 
   const createCustomMapping = async () => {
     if (!selectedConnection || !selectedMapping) return;
@@ -60,7 +64,9 @@ const FieldMappingForm = ({
       const response = await fetch(url, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ value: selectedMapping.description }),
+        body: JSON.stringify({
+          value: selectedMapping.finder || selectedMapping.description,
+        }),
       });
       const result = await response.json();
 
@@ -155,6 +161,7 @@ const FieldMappingForm = ({
           triggerComponentProps={{
             className: 'text-left w-full h-full',
           }}
+          responseDataPath={responseDataPath}
           properties={properties ? Object.entries(properties) : []}
         />
         <Button
@@ -249,9 +256,7 @@ const OriginFieldCard = ({
           <p className="mt-2 text-sm leading-6 text-gray-600">
             Type:{' '}
             <span className="font-medium text-gray-800">
-              {selectedMapping.type === 'null'
-                ? 'unknown'
-                : selectedMapping.type}
+              {selectedMapping.type}
             </span>
           </p>
 
@@ -266,7 +271,7 @@ const OriginFieldCard = ({
         <p className="mt-2 text-sm leading-6 text-gray-600">
           {`Select a ${
             selectedCustomMapping?.custom_field ? 'custom ' : ''
-          }field to map to ${selectedCustomMapping?.label}`}
+          }field to create a mapping.`}
         </p>
       )}
     </div>

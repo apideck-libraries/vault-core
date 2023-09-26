@@ -341,26 +341,11 @@ export const ConnectionsProvider = ({
     if (!selectedConnection || !resource) return;
     try {
       const raw = await fetch(
-        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom_fields`,
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom-fields`,
         { headers }
       );
 
       return await raw.json();
-
-      // return [
-      //   {
-      //     id: '38610',
-      //     name: 'Likes Snacks',
-      //     value: 'Fuck yea',
-      //     finder: "$['data']['custom_fields'][?(@['custom_field_id']===38610)]",
-      //   },
-      //   {
-      //     id: '38607',
-      //     name: 'SSN',
-      //     value: '495172776',
-      //     finder: "$['data']['custom_fields'][?(@['custom_field_id']===38607)]",
-      //   },
-      // ];
     } catch (error) {
       console.error(error);
       return;

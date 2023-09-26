@@ -4,12 +4,10 @@ import { mutate } from 'swr';
 import { CustomMapping } from '../types/TargetField';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
-import { useSession } from '../utils/useSession';
 import FieldMappingForm from './FieldMappingForm';
 
 const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
   const { unifyBaseUrl, selectedConnection, headers } = useConnections();
-  const { session } = useSession();
   const [selectedCustomMapping, setSelectedCustomMapping] =
     useState<null | CustomMapping>(null);
   const [deletingMappingId, setDeletingMappingId] = useState<string | null>(
@@ -18,14 +16,6 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
   const { addToast } = useToast();
 
   if (!selectedConnection) return null;
-
-  // const { data, error } = useSWR(
-  //   selectedConnection
-  //     ? `${unifyBaseUrl}/vault/custom-mappings/${selectedConnection.unified_api}/${selectedConnection.service_id}`
-  //     : null,
-  //   fetcher,
-  //   { shouldRetryOnError: false }
-  // );
 
   const deleteCustomMapping = async (id: string) => {
     if (!selectedConnection) return;
@@ -184,20 +174,6 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
                               size="small"
                               onClick={() => setSelectedCustomMapping(mapping)}
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="w-4 h-4 mr-1"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-                                />
-                              </svg>
                               Map field
                             </Button>
                           )}
