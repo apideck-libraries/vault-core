@@ -293,7 +293,7 @@ const FieldSelector = ({
                 </nav>
 
                 {mode === 'advanced' && (
-                  <div className="mb-3">
+                  <div className="mb-3 px-4">
                     <div className="mt-3">
                       <label
                         htmlFor="fieldMapping"
