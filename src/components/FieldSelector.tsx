@@ -121,7 +121,7 @@ const FieldSelector = ({
               });
             }}
           >
-            <div className="flex items-center space-x-2 truncate">
+            <div className="flex flex-col items-start truncate">
               <span className="font-semibold text-sm">{title}</span>
               <span
                 className={`italic text-gray-500 text-xs ${
@@ -129,7 +129,7 @@ const FieldSelector = ({
                 }`}
               >
                 {isCustomFieldMapping ? (
-                  <span>Value: {rest?.value}</span>
+                  <span>Example: {rest?.value}</span>
                 ) : (
                   type
                 )}
@@ -173,6 +173,13 @@ const FieldSelector = ({
       }),
     [propertiesToRender]
   );
+
+  const sortedCustomFields = useMemo(() => {
+    const fields = customFields ?? [];
+    return [...fields].sort((a, b) =>
+      (a.name || a.id).localeCompare(b.name || b.id)
+    );
+  }, [customFields]);
 
   const noFieldsFound =
     mode !== 'advanced' && !isLoading && !propertiesToRender?.length;
@@ -393,7 +400,7 @@ const FieldSelector = ({
                       })
                   )}
                 {mode === 'custom' &&
-                  customFields.map((field) =>
+                  sortedCustomFields.map((field) =>
                     renderMenuItem({
                       title: field?.name || field?.id,
                       description: field?.finder,
