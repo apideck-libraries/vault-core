@@ -251,14 +251,16 @@ const OriginFieldCard = ({
           <p className="mt-2 text-sm leading-6 text-gray-600">
             Type:{' '}
             <span className="font-medium text-gray-800">
-              {selectedMapping.type}
+              {selectedMapping?.finder ? 'Custom field' : selectedMapping.type}
             </span>
           </p>
 
           <p className="mt-1 text-sm leading-6 text-gray-600 truncate">
             Example:{' '}
             <span className="font-medium text-gray-800">
-              {selectedMapping.example?.toString() || '-'}
+              {selectedMapping.example?.toString() ||
+                selectedMapping?.value?.toString() ||
+                '-'}
             </span>
           </p>
         </div>
