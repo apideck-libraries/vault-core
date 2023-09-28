@@ -24,6 +24,7 @@ interface Props {
   buttonRef?: any;
   customFields: any;
   responseDataPath?: string;
+  selectedCustomMapping?: any;
 }
 
 const FieldSelector = ({
@@ -36,6 +37,7 @@ const FieldSelector = ({
   customFields,
   buttonRef,
   responseDataPath,
+  selectedCustomMapping,
 }: Props) => {
   const [selectedObjectProperty, setSelectedObjectProperty] =
     useState<any>(null);
@@ -269,7 +271,14 @@ const FieldSelector = ({
                     {tabs.map((tab: any) => (
                       <button
                         key={tab.id}
-                        onClick={() => setMode(tab.id)}
+                        onClick={() => {
+                          setMode(tab.id);
+                          if (tab.id === 'advanced' && selectedCustomMapping) {
+                            setFieldMappingString(selectedCustomMapping.value);
+                          } else {
+                            setFieldMappingString(undefined);
+                          }
+                        }}
                         type="button"
                         className={classNames(
                           tab.current
@@ -335,6 +344,7 @@ const FieldSelector = ({
                         placeholder="$['address']['example']"
                         className="mt-1"
                         name="fieldMapping"
+                        value={fieldMappingString}
                         onChange={(e: any) =>
                           setFieldMappingString(e.target.value)
                         }

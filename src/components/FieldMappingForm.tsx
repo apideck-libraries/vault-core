@@ -160,6 +160,7 @@ const FieldMappingForm = ({
           }}
           responseDataPath={responseDataPath}
           properties={properties ? Object.entries(properties) : []}
+          selectedCustomMapping={selectedCustomMapping}
         />
         <Button
           text={'Save field mapping'}
