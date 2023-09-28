@@ -216,7 +216,7 @@ const TopBar = ({
       });
     }
 
-    if (custom_mappings?.length > 0) {
+    if (custom_mappings?.length > 0 && state === 'callable') {
       options.push({
         label: (
           <button className="flex font-medium items-center">
