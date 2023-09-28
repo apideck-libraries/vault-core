@@ -23,10 +23,6 @@ const FieldMappingForm = ({
   } = useConnections();
   const buttonRef = useRef<any>(null);
 
-  console.log('selectedCustomMapping', selectedCustomMapping);
-
-  console.log('selectedConnection', selectedConnection);
-
   const [selectedMapping, setSelectedMapping] = useState<{
     title: string;
     description?: string;
@@ -84,7 +80,6 @@ const FieldMappingForm = ({
               f.id === result.data.id ? result.data : f
             ) || [],
         };
-
         mutate(detailUrl, { data: updatedConnection }, { revalidate: false });
         setSelectedCustomMapping(null);
       }

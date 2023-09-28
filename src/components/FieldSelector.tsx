@@ -95,7 +95,7 @@ const FieldSelector = ({
       setProperties(propertiesProps);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [propertiesProps]);
 
   const renderMenuItem = ({ title, type, properties, items, ...rest }: any) => {
     const isSelectable =
@@ -109,7 +109,7 @@ const FieldSelector = ({
             type="button"
             className={`${
               active ? 'bg-primary-500 text-white' : 'text-gray-900'
-            } group flex w-full items-center px-4 py-3 justify-between`}
+            } group flex w-full items-center px-4 py-2.5 justify-between`}
             onClick={(e) => {
               if (isSelectable) {
                 onSelect({ title, type, ...rest });

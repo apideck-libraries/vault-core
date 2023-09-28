@@ -25,7 +25,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
 
       const url = `${unifyBaseUrl}/vault/custom-mappings/${selectedConnection.unified_api}/${selectedConnection.service_id}/${id}`;
       const response = await fetch(url, {
-        method: 'POST',
+        method: 'DELETE',
         headers,
       });
       const result = await response.json();
