@@ -91,6 +91,8 @@ const FieldSelector = ({
         propertiesProps?.[0]?.[1]?.properties
       );
       setProperties(nestedProperties);
+    } else {
+      setProperties(propertiesProps);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -407,7 +409,7 @@ const FieldSelector = ({
                       ...field,
                     })
                   )}
-                {isLoading && !properties?.length && (
+                {isLoading && !properties?.length && mode !== 'advanced' && (
                   <div className="mx-3 mt-1.5">
                     {[...new Array(7).keys()]?.map((i: number) => {
                       return (
