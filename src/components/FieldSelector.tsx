@@ -97,10 +97,28 @@ const FieldSelector = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertiesProps]);
 
-  const renderMenuItem = ({ title, type, properties, items, ...rest }: any) => {
+  const renderMenuItem = ({
+    title,
+    type,
+    properties,
+    items,
+    description,
+    finder,
+    value,
+  }: any) => {
     const isSelectable =
       (type === 'array' && !items?.properties) || // array of strings, numbers, etc.
       (type !== 'array' && type !== 'object');
+
+    if (items?.anyOf) {
+      return items.anyOf?.map((option: any, i: number) => {
+        return renderMenuItem({
+          ...option,
+          items: option,
+          title: `${title}: type ${i + 1}`,
+        });
+      });
+    }
 
     return (
       <Menu.Item>
@@ -112,7 +130,14 @@ const FieldSelector = ({
             } group flex w-full items-center px-4 py-2.5 justify-between`}
             onClick={(e) => {
               if (isSelectable) {
-                onSelect({ title, type, ...rest });
+                onSelect({
+                  isCustomFieldMapping,
+                  description,
+                  finder,
+                  title,
+                  type,
+                  example: value,
+                });
                 return;
               }
               e.preventDefault();
@@ -130,11 +155,7 @@ const FieldSelector = ({
                   active ? 'text-primary-100' : ''
                 }`}
               >
-                {isCustomFieldMapping ? (
-                  <span>Example: {rest?.value}</span>
-                ) : (
-                  type
-                )}
+                {isCustomFieldMapping ? <span>Example: {value}</span> : type}
               </span>
             </div>
             {!isSelectable && (

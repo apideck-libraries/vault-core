@@ -58,7 +58,7 @@ const FieldMappingForm = ({
 
       const url = `${unifyBaseUrl}/vault/custom-mappings/${selectedConnection.unified_api}/${selectedConnection.service_id}/${selectedCustomMapping.id}`;
       const response = await fetch(url, {
-        method: 'POST',
+        method: selectedCustomMapping?.value ? 'PATCH' : 'POST',
         headers,
         body: JSON.stringify({
           value: selectedMapping.finder || selectedMapping.description,
@@ -68,7 +68,9 @@ const FieldMappingForm = ({
 
       if (result.data) {
         addToast({
-          title: 'Mapping created.',
+          title: `Mapping ${
+            selectedCustomMapping?.value ? 'updated' : 'created.'
+          }`,
           type: 'success',
         });
 
