@@ -311,15 +311,31 @@ export const ConnectionsProvider = ({
 
   const fetchCustomMapping = async (resource: string) => {
     if (!selectedConnection) return;
-    const raw = await fetch(
-      `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom-mapping`,
-      { headers }
-    );
-    const response = await raw.json();
 
-    if (response.error) return response;
+    try {
+      const raw = await fetch(
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom-mapping`,
+        { headers }
+      );
+      const response = await raw.json();
 
-    return { resource, defaults: response?.data?.configuration };
+      if (response.error) {
+        addToast({
+          title: 'Failed to fetch custom mappings',
+          description: response?.error?.message || response?.error,
+          type: 'error',
+        });
+        return response;
+      }
+      return { resource, defaults: response?.data?.configuration };
+    } catch (error: any) {
+      console.error(error);
+      addToast({
+        title: 'Failed to fetch custom mappings',
+        description: error?.message,
+        type: 'error',
+      });
+    }
   };
 
   const fetchResourceSchema = async (resource?: string) => {
