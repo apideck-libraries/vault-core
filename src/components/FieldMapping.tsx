@@ -1,7 +1,7 @@
 import { Button, useToast } from '@apideck/components';
 import React, { useState } from 'react';
 import { mutate } from 'swr';
-import { CustomMapping } from '../types/TargetField';
+import { CustomMapping } from '../types/CustomMapping';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
 import FieldMappingForm from './FieldMappingForm';
@@ -36,14 +36,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
           type: 'success',
         });
         const detailUrl = `${unifyBaseUrl}/vault/connections/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
-        const updatedConnection = {
-          ...selectedConnection,
-          custom_mappings:
-            selectedConnection.custom_mappings?.map((f) =>
-              f.id === result.data.id ? result.data : f
-            ) || [],
-        };
-        mutate(detailUrl, { data: updatedConnection }, { revalidate: false });
+        mutate(detailUrl);
       }
     } catch (error) {
       addToast({
@@ -78,7 +71,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
 
         {!selectedCustomMapping && (
           <div className="bg-gray-50 p-5 border-t border-b border-gray-200 max-h-[480px] overflow-y-auto">
-            <div className="flex flex-col space-y-3 mb-3">
+            <div className="flex flex-col space-y-3">
               {selectedConnection?.custom_mappings?.map(
                 (mapping: CustomMapping) => {
                   return (
@@ -91,7 +84,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
                         <div className="flex items-center space-x-1.5">
                           {mapping?.value && (
                             <button
-                              className="inline-flex items-center p-1.5 text-sm font-medium text-center text-gray-400 bg-gray-100 ring-1 ring-gray-200/70 rounded-lg hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-50"
+                              className="inline-flex items-center p-1.5 text-sm font-medium text-center text-gray-500 bg-gray-100 ring-1 ring-gray-300/60 rounded-lg hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-50"
                               onClick={() => setSelectedCustomMapping(mapping)}
                             >
                               <svg
@@ -110,9 +103,9 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
                               </svg>
                             </button>
                           )}
-                          {mapping?.value && (
+                          {mapping?.value && mapping.consumer_id && (
                             <button
-                              className="inline-flex items-center p-1.5 text-sm font-medium text-center text-gray-400 bg-gray-100 ring-1 ring-gray-200/70 rounded-lg hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-50"
+                              className="inline-flex items-center p-1.5 text-sm font-medium text-center text-gray-500 bg-gray-100 ring-1 ring-gray-300/60 rounded-lg hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-50"
                               onClick={() => deleteCustomMapping(mapping.id)}
                             >
                               {deletingMappingId === mapping.id ? (

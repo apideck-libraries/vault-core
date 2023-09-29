@@ -99,6 +99,10 @@ const FieldSelector = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertiesProps]);
 
+  useEffect(() => {
+    if (!mode) setMode(isCustomFieldMapping ? 'custom' : 'root');
+  }, [isCustomFieldMapping, mode]);
+
   const renderMenuItem = ({
     title,
     type,
@@ -110,16 +114,19 @@ const FieldSelector = ({
   }: any) => {
     const isSelectable =
       (type === 'array' && !items?.properties) || // array of strings, numbers, etc.
-      (type !== 'array' && type !== 'object');
+      (type !== 'array' && type !== 'object' && type !== 'anyOf');
 
     if (items?.anyOf) {
-      return items.anyOf?.map((option: any, i: number) => {
-        return renderMenuItem({
+      const anyOfItem = {
+        title,
+        type: 'anyOf',
+        properties: items.anyOf?.map((option: any, i: number) => ({
           ...option,
-          items: option,
           title: `${title}: type ${i + 1}`,
-        });
-      });
+        })),
+      };
+
+      return renderMenuItem(anyOfItem);
     }
 
     return (
@@ -153,8 +160,8 @@ const FieldSelector = ({
             <div className="flex flex-col items-start truncate">
               <span className="font-semibold text-sm">{title}</span>
               <span
-                className={`italic text-gray-500 text-xs ${
-                  active ? 'text-primary-100' : ''
+                className={`italic text-xs ${
+                  active ? 'text-primary-200' : 'text-gray-500'
                 }`}
               >
                 {isCustomFieldMapping ? <span>Example: {value}</span> : type}
