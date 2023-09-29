@@ -2,6 +2,7 @@ import { Button, useToast } from '@apideck/components';
 import React, { useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import { Connection, CustomMapping } from '../types/Connection';
+import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import FieldSelector from './FieldSelector';
@@ -208,7 +209,9 @@ const OriginFieldCard = ({
           <div className="flex-1 truncate hidden sm:flex items-center justify-between">
             <span className="truncate">
               <code className="font-bold">
-                {selectedMapping
+                {!selectedMapping && selectedCustomMapping?.value
+                  ? extractLastAttribute(selectedCustomMapping?.value)
+                  : selectedMapping
                   ? selectedMapping.title
                   : selectedCustomMapping?.custom_field
                   ? 'Select custom field'
