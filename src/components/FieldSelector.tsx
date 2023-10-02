@@ -100,8 +100,10 @@ const FieldSelector = ({
   }, [propertiesProps]);
 
   useEffect(() => {
-    if (!mode) setMode(isCustomFieldMapping ? 'custom' : 'root');
-  }, [isCustomFieldMapping, mode]);
+    if (isCustomFieldMapping && mode !== 'custom') setMode('custom');
+    if (!isCustomFieldMapping && mode !== 'root') setMode('root');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCustomFieldMapping]);
 
   const renderMenuItem = ({
     title,

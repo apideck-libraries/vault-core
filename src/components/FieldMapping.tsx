@@ -155,7 +155,10 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
                             <span className="text-xs text-gray-600 font-medium">
                               {mapping?.value ? (
                                 <code className="font-semibold">
-                                  {extractLastAttribute(mapping?.value)}
+                                  {extractLastAttribute(
+                                    mapping.value,
+                                    mapping.custom_field
+                                  )}
                                 </code>
                               ) : (
                                 <span className="text-red-600">Not mapped</span>

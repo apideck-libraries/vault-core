@@ -6,4 +6,5 @@ export interface CustomMapping {
   required: boolean;
   value: string;
   consumer_id?: string;
+  custom_field?: boolean;
 }

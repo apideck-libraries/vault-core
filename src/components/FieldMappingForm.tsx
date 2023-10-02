@@ -210,7 +210,10 @@ const OriginFieldCard = ({
             <span className="truncate">
               <code className="font-bold">
                 {!selectedMapping && selectedCustomMapping?.value
-                  ? extractLastAttribute(selectedCustomMapping?.value)
+                  ? extractLastAttribute(
+                      selectedCustomMapping.value,
+                      selectedCustomMapping.custom_field
+                    )
                   : selectedMapping
                   ? selectedMapping.title
                   : selectedCustomMapping?.custom_field
