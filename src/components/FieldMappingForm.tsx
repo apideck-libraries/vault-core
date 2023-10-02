@@ -35,14 +35,18 @@ const FieldMappingForm = ({
   const { data: schemaData } = useSWR(
     selectedConnection &&
       !selectedCustomMapping.custom_field &&
-      selectedCustomMapping?.id,
+      selectedCustomMapping?.id && ['schema', selectedCustomMapping?.id],
     () => fetchResourceSchema(selectedCustomMapping?.id?.split('+')[1])
   );
 
   const { data: customFieldsData } = useSWR(
     selectedConnection &&
       selectedCustomMapping.custom_field &&
-      selectedCustomMapping?.id,
+      selectedCustomMapping?.id && [
+        'custom-fields',
+        selectedConnection?.service_id,
+        selectedCustomMapping?.id,
+      ],
     () => fetchCustomFields(selectedCustomMapping?.id?.split('+')[1])
   );
 
@@ -211,7 +215,7 @@ const OriginFieldCard = ({
               <code className="font-bold">
                 {!selectedMapping && selectedCustomMapping?.value
                   ? extractLastAttribute(
-                      selectedCustomMapping.value,
+                      selectedCustomMapping.value?.toString(),
                       selectedCustomMapping.custom_field
                     )
                   : selectedMapping

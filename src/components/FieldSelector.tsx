@@ -147,7 +147,7 @@ const FieldSelector = ({
                   finder,
                   title,
                   type,
-                  example: value,
+                  example: typeof value === 'string' ? value : undefined,
                 });
                 return;
               }
@@ -451,10 +451,10 @@ const FieldSelector = ({
                   )}
                 {isLoading && !properties?.length && mode !== 'advanced' && (
                   <div className="mx-3 mt-1.5">
-                    {[...new Array(7).keys()]?.map((i: number) => {
+                    {[...new Array(6).keys()]?.map((i: number) => {
                       return (
                         <div
-                          className="bg-gray-300 h-5 group flex w-full items-center rounded-md mb-2 animate-pulse"
+                          className="bg-gray-300 h-6 group flex w-full items-center rounded my-2 animate-pulse"
                           key={i}
                         />
                       );
