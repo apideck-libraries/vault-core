@@ -28,16 +28,13 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
         method: 'DELETE',
         headers,
       });
-      const result = await response.json();
-
-      if (result.data) {
-        addToast({
-          title: 'Mapping removed.',
-          type: 'success',
-        });
-        const detailUrl = `${unifyBaseUrl}/vault/connections/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
-        mutate(detailUrl);
-      }
+      await response.json();
+      addToast({
+        title: 'Mapping removed.',
+        type: 'success',
+      });
+      const detailUrl = `${unifyBaseUrl}/vault/connections/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
+      mutate(detailUrl);
     } catch (error) {
       addToast({
         title: 'Error',
