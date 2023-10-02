@@ -347,8 +347,13 @@ export const ConnectionsProvider = ({
       );
 
       return await raw.json();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      addToast({
+        title: 'Failed to fetch schema',
+        description: error?.message,
+        type: 'error',
+      });
     }
   };
 
@@ -361,9 +366,13 @@ export const ConnectionsProvider = ({
       );
 
       return await raw.json();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      return;
+      addToast({
+        title: 'Failed to fetch custom fields',
+        description: error?.message,
+        type: 'error',
+      });
     }
   };
 

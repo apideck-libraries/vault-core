@@ -127,7 +127,7 @@ const FieldMappingForm = ({
             </div>
           </p>
         </div>
-        <div className="flex items-center justify-center py-2">
+        <div className="flex items-center justify-center py-2.5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
