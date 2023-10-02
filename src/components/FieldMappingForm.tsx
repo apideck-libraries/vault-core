@@ -117,11 +117,13 @@ const FieldMappingForm = ({
                   className="w-7 h-7 rounded-full ring-2 ring-gray-100"
                 />
               )}
-              <code>{selectedCustomMapping?.key}</code>
+              <code>
+                {selectedCustomMapping?.label || selectedCustomMapping?.key}
+              </code>
             </div>
           </h2>
           <p className="text-sm leading-6 text-gray-600">
-            {selectedCustomMapping?.label}
+            {selectedCustomMapping?.description || selectedCustomMapping?.key}
           </p>
           <p className="flex items-baseline gap-x-1">
             <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg">
