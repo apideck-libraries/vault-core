@@ -287,6 +287,25 @@ const FieldSelector = ({
                           } else {
                             setFieldMappingString(undefined);
                           }
+
+                          if (
+                            tab.id === 'advanced' &&
+                            !selectedCustomMapping?.value &&
+                            selectedObjectProperty?.properties
+                          ) {
+                            const firstProperty: any = Object.entries(
+                              selectedObjectProperty.properties
+                            )?.[0];
+                            const description = firstProperty?.[1]?.description;
+                            const fieldMappingStringWithoutLastPart =
+                              description?.split('[')?.slice(0, -1)?.join('[');
+
+                            if (fieldMappingStringWithoutLastPart) {
+                              setFieldMappingString(
+                                fieldMappingStringWithoutLastPart
+                              );
+                            }
+                          }
                         }}
                         type="button"
                         className={classNames(

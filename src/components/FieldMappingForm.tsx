@@ -117,12 +117,12 @@ const FieldMappingForm = ({
                   className="w-7 h-7 rounded-full ring-2 ring-gray-100"
                 />
               )}
-              <code>
+              <code className="truncate">
                 {selectedCustomMapping?.label || selectedCustomMapping?.key}
               </code>
             </div>
           </h2>
-          <p className="text-sm leading-6 text-gray-600">
+          <p className="text-sm leading-6 text-gray-600 truncate">
             {selectedCustomMapping?.description || selectedCustomMapping?.key}
           </p>
           <p className="flex items-baseline gap-x-1">
