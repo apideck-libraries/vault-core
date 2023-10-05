@@ -1,6 +1,6 @@
 import { Button, useToast } from '@apideck/components';
 import React, { useRef, useState } from 'react';
-import useSWR, { mutate } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { Connection, CustomMapping } from '../types/Connection';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
@@ -14,6 +14,7 @@ const FieldMappingForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const { addToast } = useToast();
   const { session } = useSession();
+  const { mutate } = useSWRConfig();
 
   const {
     selectedConnection,

@@ -1,6 +1,6 @@
 import { Button, useToast } from '@apideck/components';
 import React, { useState } from 'react';
-import { mutate } from 'swr';
+import { useSWRConfig } from 'swr';
 import { CustomMapping } from '../types/CustomMapping';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
@@ -14,6 +14,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
     null
   );
   const { addToast } = useToast();
+  const { mutate } = useSWRConfig();
 
   if (!selectedConnection) return null;
 
@@ -24,11 +25,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
       setDeletingMappingId(id);
 
       const url = `${unifyBaseUrl}/vault/custom-mappings/${selectedConnection.unified_api}/${selectedConnection.service_id}/${id}`;
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers,
-      });
-      await response.json();
+      await fetch(url, { method: 'DELETE', headers });
       addToast({
         title: 'Mapping removed.',
         type: 'success',

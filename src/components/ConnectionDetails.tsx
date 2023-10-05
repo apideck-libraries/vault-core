@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
-import { Alert } from '@apideck/components';
+import { Alert, Button } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { Connection } from '../types/Connection';
 import { SessionSettings } from '../types/Session';
@@ -59,6 +59,7 @@ const ConnectionDetails = ({
 
   const [showSettings, setShowSettings] = useState(false);
   const [showResources, setShowResources] = useState(false);
+  const [hasRequiredMappings, setHasRequiredMappings] = useState(false);
 
   const requiredAuthVariables =
     authorizationVariablesRequired(selectedConnection);
@@ -99,6 +100,16 @@ const ConnectionDetails = ({
       setShowResources(false);
     }
   }, [selectedConnection, resources, showSettings]);
+
+  useEffect(() => {
+    let hasRequiredMappings = false;
+    selectedConnection.custom_mappings?.forEach((mapping) => {
+      if (mapping.required && !mapping.value) {
+        hasRequiredMappings = true;
+      }
+    });
+    setHasRequiredMappings(hasRequiredMappings);
+  }, [selectedConnection]);
 
   const TopBarComponent = (props) => (
     <TopBar
@@ -209,6 +220,53 @@ const ConnectionDetails = ({
                 isLoading={isUpdating && !showSettings}
                 size="large"
               />
+            </div>
+          )}
+
+          {hasRequiredMappings && (
+            <div className="max-w-md w-full rounded-md p-4 bg-blue-50 text-center mt-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6 mx-auto text-blue-600"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+
+              <h3
+                data-testid="alert-title"
+                className="mt-2 text-sm font-medium text-blue-800 dark:text-white"
+              >
+                Required field mappings.
+              </h3>
+              <Button
+                size="small"
+                className="mt-2 flex items-center bg-blue-600 hover:bg-blue-700 w-full"
+                onClick={() => setShowFieldMapping(true)}
+              >
+                <span>Map required fields</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4 ml-2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </Button>
             </div>
           )}
 
