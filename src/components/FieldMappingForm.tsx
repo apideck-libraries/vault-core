@@ -1,11 +1,41 @@
 import { Button, useToast } from '@apideck/components';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { Connection, CustomMapping } from '../types/Connection';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import FieldSelector from './FieldSelector';
+
+const findByDescription = (obj: any, description: string): any => {
+  for (const key in obj) {
+    if (obj[key] instanceof Object) {
+      const result = findByDescription(obj[key], description);
+      if (result) {
+        return result;
+      }
+    } else if (key === 'description' && obj[key] === description) {
+      return obj;
+    }
+  }
+  return null;
+};
+
+const renderReadableJSONPath = (
+  jsonPath: string,
+  responseDataPath?: string
+): string => {
+  // Remove $ and [' from the beginning and '] from every part
+  let parts: any = jsonPath?.match(/[^[\]'$]+/g) || [];
+
+  // If the first part equals the responseDataPath, remove the first part
+  if (responseDataPath && parts[0] === responseDataPath) {
+    parts = parts.slice(1);
+  }
+
+  // Join the parts with a dot
+  return parts.length > 0 ? parts.join('.') : '';
+};
 
 const FieldMappingForm = ({
   selectedCustomMapping,
@@ -52,9 +82,48 @@ const FieldMappingForm = ({
   );
 
   const schema = schemaData?.data;
+  const schemaError = schemaData?.error && schemaData?.message;
   const customFields = customFieldsData?.data;
+  const customFieldsError =
+    customFieldsData?.error && customFieldsData?.message;
   const properties = schema?.properties;
   const responseDataPath = schema?.response_data_path;
+
+  useEffect(() => {
+    if (!selectedMapping) {
+      if (selectedCustomMapping?.value) {
+        const mappingObject = findByDescription(
+          properties,
+          selectedCustomMapping.value
+        );
+
+        const customField = customFields?.find(
+          (f) => f.finder === selectedCustomMapping.value
+        );
+
+        console.log('mappingObject', mappingObject);
+        console.log('customField', customField);
+
+        setSelectedMapping({
+          title: extractLastAttribute(
+            selectedCustomMapping.value,
+            selectedCustomMapping.custom_field
+          ),
+          description: selectedCustomMapping.custom_field
+            ? customField.description
+            : selectedCustomMapping.value,
+          type: selectedCustomMapping.custom_field
+            ? 'Custom field'
+            : mappingObject?.type,
+          example: selectedCustomMapping.custom_field
+            ? customField?.value
+            : mappingObject?.example,
+        });
+        return;
+      }
+      buttonRef?.current?.focus();
+    }
+  }, [selectedMapping, extractLastAttribute, properties]);
 
   const createCustomMapping = async () => {
     if (!selectedConnection || !selectedMapping) return;
@@ -105,11 +174,40 @@ const FieldMappingForm = ({
   return (
     <div>
       <div className="bg-gray-50 p-5 border-t border-b border-gray-200 fade-in">
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[18px]">
+            Source Field
+          </label>
+          <FieldSelector
+            className="col-span-5"
+            onSelect={(mappingField: any) => setSelectedMapping(mappingField)}
+            isLoading={
+              !schema && !customFields && !schemaError && !customFieldsError
+            }
+            error={schemaError || customFieldsError}
+            buttonRef={buttonRef}
+            customFields={customFields}
+            triggerComponent={
+              <OriginFieldCard
+                selectedCustomMapping={selectedCustomMapping}
+                selectedConnection={selectedConnection}
+                selectedMapping={selectedMapping}
+                responseDataPath={responseDataPath}
+              />
+            }
+            triggerComponentProps={{
+              className: 'text-left w-full h-full',
+            }}
+            responseDataPath={responseDataPath}
+            properties={properties ? Object.entries(properties) : []}
+            selectedCustomMapping={selectedCustomMapping}
+          />
+        </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
+          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[18px]">
             Target Field
           </label>
-          <div className="ring-1 ring-gray-200 rounded-2xl p-4 bg-white space-y-2.5">
+          <div className="ring-1 ring-gray-200 rounded-2xl p-5 bg-white flex flex-col justify-between h-[145px]">
             <h2 className="text-gray-900 font-semibold">
               <div
                 className="flex items-center justify-between space-x-2.5 truncate"
@@ -126,10 +224,10 @@ const FieldMappingForm = ({
                 {selectedCustomMapping?.label || selectedCustomMapping?.key}
               </div>
             </h2>
-            <p className="text-sm leading-6 text-gray-600 truncate">
+            <p className="text-sm text-gray-600 truncate">
               {selectedCustomMapping?.description || selectedCustomMapping?.key}
             </p>
-            <p className="flex items-baseline gap-x-1">
+            <p className="flex items-baseline">
               <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg">
                 {`${selectedCustomMapping.id.split('+')[0]} / ${
                   selectedCustomMapping.id.split('+')[1]
@@ -137,47 +235,6 @@ const FieldMappingForm = ({
               </div>
             </p>
           </div>
-        </div>
-        {/* <div className="flex items-center justify-center py-2.5">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5 rotate-90"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-            />
-          </svg>
-        </div> */}
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
-            Source Field
-          </label>
-          <FieldSelector
-            className="col-span-5"
-            onSelect={(mappingField: any) => setSelectedMapping(mappingField)}
-            isLoading={!schema && !customFields}
-            buttonRef={buttonRef}
-            customFields={customFields}
-            triggerComponent={
-              <OriginFieldCard
-                selectedCustomMapping={selectedCustomMapping}
-                selectedConnection={selectedConnection}
-                selectedMapping={selectedMapping}
-              />
-            }
-            triggerComponentProps={{
-              className: 'text-left w-full h-full',
-            }}
-            responseDataPath={responseDataPath}
-            properties={properties ? Object.entries(properties) : []}
-            selectedCustomMapping={selectedCustomMapping}
-          />
         </div>
         <Button
           text={'Save field mapping'}
@@ -201,6 +258,7 @@ type OriginFieldCardProps = {
   selectedMapping: any;
   selectedCustomMapping: CustomMapping;
   open?: boolean;
+  responseDataPath?: string;
 };
 
 const OriginFieldCard = ({
@@ -208,10 +266,14 @@ const OriginFieldCard = ({
   selectedCustomMapping,
   selectedMapping,
   open,
+  responseDataPath,
 }: OriginFieldCardProps) => {
   const { session } = useSession();
+
+  console.log('selectedMapping', selectedMapping);
+  console.log('selectedCustomMapping', selectedCustomMapping);
   return (
-    <div className="ring-1 ring-gray-200 rounded-2xl p-5 h-full group hover:shadow-md transition duration-100 bg-white">
+    <div className="ring-1 ring-gray-200 rounded-2xl p-5 group hover:shadow-md transition duration-100 bg-white flex flex-col justify-between h-[145px]">
       <h2 className="text-gray-900 font-semibold">
         <div
           className="flex items-center justify-between space-x-2.5 truncate"
@@ -272,8 +334,53 @@ const OriginFieldCard = ({
         </div>
       </h2>
       {selectedMapping ? (
+        <>
+          <div>
+            {(!!selectedMapping?.type ||
+              selectedCustomMapping?.custom_field) && (
+              <p className="text-sm text-gray-800 truncate">
+                Type:{' '}
+                <span className="italic text-gray-600">
+                  {selectedMapping?.type || 'Custom field'}
+                </span>
+              </p>
+            )}
+            {!!selectedMapping?.example && (
+              <p className="text-sm text-gray-800 truncate">
+                Example:{' '}
+                <span className="text-gray-600 italic">
+                  {selectedMapping?.example?.toString()}
+                </span>
+              </p>
+            )}
+          </div>
+
+          <p className="flex items-baseline">
+            <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg overflow-y-auto hide-scrollbar">
+              {renderReadableJSONPath(
+                selectedMapping?.description,
+                responseDataPath
+              )}
+            </div>
+          </p>
+        </>
+      ) : (
+        <>
+          <div className="text-sm text-gray-600">
+            {`Select a field to map to ${
+              selectedCustomMapping?.label || selectedCustomMapping?.key
+            }`}
+          </div>
+          <p className="flex items-baseline">
+            <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg">
+              Non selected
+            </div>
+          </p>
+        </>
+      )}
+      {/* {selectedMapping ? (
         <div>
-          <p className="mt-2 text-sm leading-6 text-gray-600">
+          <p className="mt-2 text-sm text-gray-600">
             Type:{' '}
             <span className="font-medium text-gray-800">
               {selectedMapping?.finder ? 'Custom field' : selectedMapping.type}
@@ -282,7 +389,7 @@ const OriginFieldCard = ({
 
           {selectedMapping.example?.toString() ||
             (selectedMapping?.value?.toString() && (
-              <p className="mt-1 text-sm leading-6 text-gray-600 truncate">
+              <p className="mt-1 text-sm text-gray-600 truncate">
                 Example:{' '}
                 <span className="font-medium text-gray-800">
                   {selectedMapping.example?.toString() ||
@@ -293,12 +400,12 @@ const OriginFieldCard = ({
             ))}
         </div>
       ) : (
-        <p className="mt-2 text-sm leading-6 text-gray-600">
+        <p className="mt-2 text-sm text-gray-600">
           {`Select a ${
             selectedCustomMapping?.custom_field ? 'custom ' : ''
           }field to create a mapping.`}
         </p>
-      )}
+      )} */}
     </div>
   );
 };

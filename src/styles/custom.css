@@ -6,7 +6,8 @@
 2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
 */
 *,
-  ::before, ::after {
+::before,
+::after {
   box-sizing: border-box;
   /* 1 */
   border-width: 0;
@@ -458,7 +459,6 @@ body {
   outline: 1px auto -webkit-focus-ring-color;
 }
 
-
 /* Overwrite react-select input */
 .apideck .react-select input {
   box-shadow: none !important;
@@ -467,7 +467,7 @@ body {
 }
 
 .apideck .markdown a {
-  @apply text-gray-600 underline
+  @apply text-gray-600 underline;
 }
 
 /* Animations */
@@ -484,4 +484,17 @@ body {
     opacity: 1;
     transform: translateX(0px);
   }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar > pre::-webkit-scrollbar {
+  display: none;
 }

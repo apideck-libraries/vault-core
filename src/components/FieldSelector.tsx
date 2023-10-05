@@ -25,6 +25,7 @@ interface Props {
   customFields: any;
   responseDataPath?: string;
   selectedCustomMapping?: any;
+  error?: string;
 }
 
 const FieldSelector = ({
@@ -38,6 +39,7 @@ const FieldSelector = ({
   buttonRef,
   responseDataPath,
   selectedCustomMapping,
+  error,
 }: Props) => {
   const [selectedObjectProperty, setSelectedObjectProperty] =
     useState<any>(null);
@@ -262,16 +264,16 @@ const FieldSelector = ({
           <Transition
             enter="transition duration-100 ease-out"
             enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100 top-8"
+            enterTo="transform scale-100 opacity-100"
             leave="transition duration-75 ease-out"
             leaveFrom="transform scale-100 opacity-100"
             leaveTo="transform scale-95 opacity-0"
           >
             <Menu.Items
               className="absolute rounded-t-2xl z-40 mt-2 w-[calc(100%-0px)] left-[0px] origin-top-right overflow-hidden bg-white shadow-lg ring-1 ring-gray-200 rounded-b-2xl focus:outline-none"
-              style={{ top: -104 }}
+              style={{ top: -153, minHeight: 150 }}
             >
-              <div className="max-h-[330px] 2xl:max-h-[380px] overflow-y-auto divide-y divide-gray-200">
+              <div className="max-h-[380px] 2xl:max-h-[440px] overflow-y-auto divide-y divide-gray-200">
                 <nav
                   className="flex items-center justify-between"
                   aria-label="Tabs"
@@ -468,6 +470,9 @@ const FieldSelector = ({
                       ...field,
                     })
                   )}
+                {error && mode !== 'advanced' && (
+                  <div className="p-3 py-5 text-sm text-red-500">{error}</div>
+                )}
                 {isLoading && !properties?.length && mode !== 'advanced' && (
                   <div className="mx-3 mt-1.5">
                     {[...new Array(6).keys()]?.map((i: number) => {
@@ -480,14 +485,12 @@ const FieldSelector = ({
                     })}
                   </div>
                 )}
-
-                {mode === 'root' && noFieldsFound && (
+                {mode === 'root' && noFieldsFound && !error && (
                   <div className="p-3 py-5 text-sm text-gray-500">
                     No fields found for mapping.
                   </div>
                 )}
-
-                {mode === 'custom' && customFields?.length === 0 && (
+                {mode === 'custom' && customFields?.length === 0 && !error && (
                   <div className="p-3 py-5 text-sm text-gray-500">
                     No custom fields found for mapping.
                   </div>
