@@ -269,7 +269,7 @@ const FieldSelector = ({
           >
             <Menu.Items
               className="absolute rounded-t-2xl z-40 mt-2 w-[calc(100%-0px)] left-[0px] origin-top-right overflow-hidden bg-white shadow-lg ring-1 ring-gray-200 rounded-b-2xl focus:outline-none"
-              style={{ top: -108 }}
+              style={{ top: -104 }}
             >
               <div className="max-h-[330px] 2xl:max-h-[380px] overflow-y-auto divide-y divide-gray-200">
                 <nav

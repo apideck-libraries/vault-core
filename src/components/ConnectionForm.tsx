@@ -61,6 +61,9 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
             type: 'success',
             title: `Successfully connected to ${connection.name}`,
           });
+          if (updatedConnection.state === 'callable') {
+            setShowSettings(false);
+          }
         }
 
         setValidationState(valid ? 'valid' : 'invalid');

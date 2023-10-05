@@ -8,6 +8,7 @@ import { authorizationVariablesRequired } from '../utils/authorizationVariablesR
 import { getApiName } from '../utils/getApiName';
 import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
 import { useConnections } from '../utils/useConnections';
+import { useSession } from '../utils/useSession';
 import AuthorizeButton from './AuthorizeButton';
 import ConnectionForm from './ConnectionForm';
 import Divider from './Divider';
@@ -42,6 +43,8 @@ const ConnectionDetails = ({
     resources,
     singleConnectionMode,
   } = useConnections();
+
+  const { session } = useSession();
   if (!selectedConnection) return null;
 
   const {
@@ -223,15 +226,15 @@ const ConnectionDetails = ({
             </div>
           )}
 
-          {hasRequiredMappings && (
-            <div className="max-w-md w-full rounded-md p-4 bg-blue-50 text-center mt-4">
+          {selectedConnection.state === 'callable' && hasRequiredMappings && (
+            <div className="max-w-md w-full rounded-md p-4 bg-gray-50 text-center mt-4 border border-gray-100">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6 mx-auto text-blue-600"
+                className="w-6 h-6 mx-auto text-gray-600"
               >
                 <path
                   strokeLinecap="round"
@@ -242,16 +245,21 @@ const ConnectionDetails = ({
 
               <h3
                 data-testid="alert-title"
-                className="mt-2 text-sm font-medium text-blue-800 dark:text-white"
+                className="mt-2 text-sm font-medium text-gray-800 dark:text-white"
               >
-                Required field mappings.
+                Missing required field mappings.
               </h3>
               <Button
-                size="small"
-                className="mt-2 flex items-center bg-blue-600 hover:bg-blue-700 w-full"
+                // size="small"
+                className="mt-3 flex items-center w-full"
                 onClick={() => setShowFieldMapping(true)}
+                style={
+                  session?.theme?.primary_color
+                    ? { backgroundColor: session?.theme.primary_color }
+                    : {}
+                }
               >
-                <span>Map required fields</span>
+                <span>Field Mapping</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

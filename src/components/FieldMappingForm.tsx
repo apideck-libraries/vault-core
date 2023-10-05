@@ -105,36 +105,40 @@ const FieldMappingForm = ({
   return (
     <div>
       <div className="bg-gray-50 p-5 border-t border-b border-gray-200 fade-in">
-        <div className="ring-1 ring-gray-200 rounded-2xl p-4 bg-white space-y-2.5">
-          <h2 className="text-gray-900 font-semibold">
-            <div
-              className="flex items-center justify-between space-x-2.5 truncate"
-              style={{ minWidth: 170 }}
-            >
-              {session?.theme?.logo && (
-                <img
-                  src={session?.theme?.logo}
-                  alt="logo"
-                  className="w-7 h-7 rounded-full ring-2 ring-gray-100"
-                />
-              )}
-              <code className="truncate">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
+            Target Field
+          </label>
+          <div className="ring-1 ring-gray-200 rounded-2xl p-4 bg-white space-y-2.5">
+            <h2 className="text-gray-900 font-semibold">
+              <div
+                className="flex items-center justify-between space-x-2.5 truncate"
+                style={{ minWidth: 170 }}
+              >
+                {session?.theme?.logo && (
+                  <img
+                    src={session?.theme?.logo}
+                    alt="logo"
+                    className="w-7 h-7 rounded-full ring-2 ring-gray-100"
+                  />
+                )}
+
                 {selectedCustomMapping?.label || selectedCustomMapping?.key}
-              </code>
-            </div>
-          </h2>
-          <p className="text-sm leading-6 text-gray-600 truncate">
-            {selectedCustomMapping?.description || selectedCustomMapping?.key}
-          </p>
-          <p className="flex items-baseline gap-x-1">
-            <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg">
-              <code>{`${selectedCustomMapping.id.split('+')[0]} / ${
-                selectedCustomMapping.id.split('+')[1]
-              }`}</code>
-            </div>
-          </p>
+              </div>
+            </h2>
+            <p className="text-sm leading-6 text-gray-600 truncate">
+              {selectedCustomMapping?.description || selectedCustomMapping?.key}
+            </p>
+            <p className="flex items-baseline gap-x-1">
+              <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg">
+                {`${selectedCustomMapping.id.split('+')[0]} / ${
+                  selectedCustomMapping.id.split('+')[1]
+                }`}
+              </div>
+            </p>
+          </div>
         </div>
-        <div className="flex items-center justify-center py-2.5">
+        {/* <div className="flex items-center justify-center py-2.5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -149,27 +153,32 @@ const FieldMappingForm = ({
               d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
             />
           </svg>
+        </div> */}
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
+            Source Field
+          </label>
+          <FieldSelector
+            className="col-span-5"
+            onSelect={(mappingField: any) => setSelectedMapping(mappingField)}
+            isLoading={!schema && !customFields}
+            buttonRef={buttonRef}
+            customFields={customFields}
+            triggerComponent={
+              <OriginFieldCard
+                selectedCustomMapping={selectedCustomMapping}
+                selectedConnection={selectedConnection}
+                selectedMapping={selectedMapping}
+              />
+            }
+            triggerComponentProps={{
+              className: 'text-left w-full h-full',
+            }}
+            responseDataPath={responseDataPath}
+            properties={properties ? Object.entries(properties) : []}
+            selectedCustomMapping={selectedCustomMapping}
+          />
         </div>
-        <FieldSelector
-          className="col-span-5"
-          onSelect={(mappingField: any) => setSelectedMapping(mappingField)}
-          isLoading={!schema && !customFields}
-          buttonRef={buttonRef}
-          customFields={customFields}
-          triggerComponent={
-            <OriginFieldCard
-              selectedCustomMapping={selectedCustomMapping}
-              selectedConnection={selectedConnection}
-              selectedMapping={selectedMapping}
-            />
-          }
-          triggerComponentProps={{
-            className: 'text-left w-full h-full',
-          }}
-          responseDataPath={responseDataPath}
-          properties={properties ? Object.entries(properties) : []}
-          selectedCustomMapping={selectedCustomMapping}
-        />
         <Button
           text={'Save field mapping'}
           onClick={createCustomMapping}
@@ -200,33 +209,33 @@ const OriginFieldCard = ({
   selectedMapping,
   open,
 }: OriginFieldCardProps) => {
+  const { session } = useSession();
   return (
-    <div className="ring-1 ring-gray-200 rounded-2xl p-5 h-full group hover:shadow transition duration-100 bg-white">
+    <div className="ring-1 ring-gray-200 rounded-2xl p-5 h-full group hover:shadow-md transition duration-100 bg-white">
       <h2 className="text-gray-900 font-semibold">
         <div
           className="flex items-center justify-between space-x-2.5 truncate"
           style={{ minWidth: 170 }}
         >
-          <img
-            src={selectedConnection?.icon || selectedConnection?.logo}
-            alt={selectedConnection?.id}
-            className="w-7 h-7 rounded-full ring-2 ring-gray-100"
-          />
-
+          {session?.theme?.logo && (
+            <img
+              src={selectedConnection?.icon || selectedConnection?.logo}
+              alt={selectedConnection?.id}
+              className="w-7 h-7 rounded-full ring-2 ring-gray-100"
+            />
+          )}
           <div className="flex-1 truncate hidden sm:flex items-center justify-between">
             <span className="truncate">
-              <code className="font-bold">
-                {!selectedMapping && selectedCustomMapping?.value
-                  ? extractLastAttribute(
-                      selectedCustomMapping.value?.toString(),
-                      selectedCustomMapping.custom_field
-                    )
-                  : selectedMapping
-                  ? selectedMapping.title
-                  : selectedCustomMapping?.custom_field
-                  ? 'Select custom field'
-                  : 'Select field'}
-              </code>
+              {!selectedMapping && selectedCustomMapping?.value
+                ? extractLastAttribute(
+                    selectedCustomMapping.value?.toString(),
+                    selectedCustomMapping.custom_field
+                  )
+                : selectedMapping
+                ? selectedMapping.title
+                : selectedCustomMapping?.custom_field
+                ? 'Select custom field'
+                : 'Select field'}
             </span>
             {open ? (
               <svg
@@ -235,7 +244,7 @@ const OriginFieldCard = ({
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
+                className="text-gray-500 group-hover:text-gray-900 transition duration-100 h-5 w-5"
               >
                 <path
                   strokeLinecap="round"
@@ -271,14 +280,17 @@ const OriginFieldCard = ({
             </span>
           </p>
 
-          <p className="mt-1 text-sm leading-6 text-gray-600 truncate">
-            Example:{' '}
-            <span className="font-medium text-gray-800">
-              {selectedMapping.example?.toString() ||
-                selectedMapping?.value?.toString() ||
-                '-'}
-            </span>
-          </p>
+          {selectedMapping.example?.toString() ||
+            (selectedMapping?.value?.toString() && (
+              <p className="mt-1 text-sm leading-6 text-gray-600 truncate">
+                Example:{' '}
+                <span className="font-medium text-gray-800">
+                  {selectedMapping.example?.toString() ||
+                    selectedMapping?.value?.toString() ||
+                    '-'}
+                </span>
+              </p>
+            ))}
         </div>
       ) : (
         <p className="mt-2 text-sm leading-6 text-gray-600">

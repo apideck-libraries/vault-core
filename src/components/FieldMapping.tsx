@@ -65,7 +65,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
 
         {!selectedCustomMapping && (
           <div className="bg-gray-50 p-5 border-t border-b border-gray-200 max-h-[480px] overflow-y-auto">
-            <div className="flex flex-col space-y-3">
+            <div className="flex flex-col space-y-4">
               {selectedConnection?.custom_mappings?.map(
                 (mapping: CustomMapping) => {
                   return (
