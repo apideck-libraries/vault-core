@@ -74,9 +74,14 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
                       className="ring-1 ring-gray-200 rounded-lg bg-white shadow-sm relative fade-in"
                     >
                       <div className="bg-gray-100 p-2 px-3 text-sm font-medium flex items-center justify-between">
-                        <code style={{ fontWeight: 600 }}>
-                          {mapping?.label || mapping?.key}
-                        </code>
+                        <div>
+                          <code style={{ fontWeight: 600 }}>
+                            {mapping?.label || mapping?.key}
+                          </code>
+                          {mapping?.required && (
+                            <span className="ml-1 text-red-600">*</span>
+                          )}
+                        </div>
                         <div className="flex items-center space-x-1.5">
                           {mapping?.value && (
                             <button
