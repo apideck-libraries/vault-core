@@ -318,8 +318,8 @@ const OriginFieldCard = ({
                 ? 'Select custom field'
                 : 'Select field'}
             </span>
-            <div className="inline-flex items-center py-1.5 px-2.5 text-sm font-medium text-center text-gray-500 bg-gray-50 border border-gray-300/50 rounded-lg group-hover:bg-gray-100">
-              <span className="text-gray-600 group-hover:text-gray-900 mr-1.5">
+            <div className="inline-flex items-center py-1 px-2.5 text-sm font-medium text-center text-gray-500 bg-gray-50 border border-gray-300/50 rounded-lg group-hover:bg-gray-100">
+              <span className="text-gray-600 group-hover:text-gray-900 mr-1">
                 Edit
               </span>
               {open ? (
@@ -381,10 +381,12 @@ const OriginFieldCard = ({
 
           <p className="flex items-baseline">
             <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg overflow-y-auto hide-scrollbar">
-              {renderReadableJSONPath(
-                selectedMapping?.description,
-                responseDataPath
-              )}
+              {selectedCustomMapping.custom_field
+                ? 'Custom Field'
+                : renderReadableJSONPath(
+                    selectedMapping?.description,
+                    responseDataPath
+                  )}
             </div>
           </p>
         </>
