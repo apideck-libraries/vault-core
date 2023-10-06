@@ -55,7 +55,28 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
         }}
         hideOptions={true}
       />
-      <div className="h-full rounded-b-xl mt-4">
+      <div className="h-full rounded-b-xl mt-3">
+        <div className="text-center px-10">
+          <p className="text-sm text-gray-700 mb-4">
+            {selectedCustomMapping ? (
+              <span>
+                Select a source property from your{' '}
+                <span className="font-medium">{selectedConnection.name}</span>{' '}
+                data to the{' '}
+                <span className="font-medium">
+                  {selectedCustomMapping?.label}
+                </span>{' '}
+                field.
+              </span>
+            ) : (
+              <span>
+                Map properties from your{' '}
+                <span className="font-medium">{selectedConnection.name}</span>{' '}
+                data to one of the fields below.
+              </span>
+            )}
+          </p>
+        </div>
         {selectedCustomMapping && (
           <FieldMappingForm
             selectedCustomMapping={selectedCustomMapping}

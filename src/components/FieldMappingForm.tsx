@@ -179,7 +179,7 @@ const FieldMappingForm = ({
     <div>
       <div className="bg-gray-50 p-5 border-t border-b border-gray-200 fade-in">
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[18px]">
+          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[20px]">
             Source Field
           </label>
           <FieldSelector
@@ -225,7 +225,7 @@ const FieldMappingForm = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[18px]">
+          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[20px]">
             Target Field
           </label>
           <div className="ring-1 ring-gray-200 rounded-2xl p-5 bg-white flex flex-col justify-between h-[145px]">
