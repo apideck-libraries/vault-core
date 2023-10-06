@@ -226,57 +226,59 @@ const ConnectionDetails = ({
             </div>
           )}
 
-          {selectedConnection.state === 'callable' && hasRequiredMappings && (
-            <div className="max-w-md w-full rounded-md p-4 bg-gray-50 text-center mt-4 border border-gray-100">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6 mx-auto text-gray-600"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                />
-              </svg>
-
-              <h3
-                data-testid="alert-title"
-                className="mt-2 text-sm font-medium text-gray-800 dark:text-white"
-              >
-                Missing required field mappings.
-              </h3>
-              <Button
-                // size="small"
-                className="mt-3 flex items-center w-full"
-                onClick={() => setShowFieldMapping(true)}
-                style={
-                  session?.theme?.primary_color
-                    ? { backgroundColor: session?.theme.primary_color }
-                    : {}
-                }
-              >
-                <span>Field Mapping</span>
+          {selectedConnection.state === 'callable' &&
+            hasRequiredMappings &&
+            !showSettings && (
+              <div className="max-w-md w-full rounded-md p-4 bg-gray-50 text-center mt-4 border border-gray-100">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4 ml-2"
+                  className="w-6 h-6 mx-auto text-gray-600"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
                   />
                 </svg>
-              </Button>
-            </div>
-          )}
+
+                <h3
+                  data-testid="alert-title"
+                  className="mt-2 text-sm font-medium text-gray-800 dark:text-white"
+                >
+                  Missing required field mappings.
+                </h3>
+                <Button
+                  // size="small"
+                  className="mt-3 flex items-center w-full"
+                  onClick={() => setShowFieldMapping(true)}
+                  style={
+                    session?.theme?.primary_color
+                      ? { backgroundColor: session?.theme.primary_color }
+                      : {}
+                  }
+                >
+                  <span>Field Mapping</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-4 h-4 ml-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                    />
+                  </svg>
+                </Button>
+              </div>
+            )}
 
           {shouldShowAuthorizeButton ? (
             <div className="mt-4">

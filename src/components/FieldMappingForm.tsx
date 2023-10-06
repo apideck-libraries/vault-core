@@ -207,6 +207,23 @@ const FieldMappingForm = ({
             selectedCustomMapping={selectedCustomMapping}
           />
         </div>
+        <div className="relative">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5 right-5 -top-1 absolute text-gray-700"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+            />
+          </svg>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[18px]">
             Target Field
@@ -274,8 +291,6 @@ const OriginFieldCard = ({
 }: OriginFieldCardProps) => {
   const { session } = useSession();
 
-  console.log('selectedMapping', selectedMapping);
-  console.log('selectedCustomMapping', selectedCustomMapping);
   return (
     <div className="ring-1 ring-gray-200 rounded-2xl p-5 group hover:shadow-md transition duration-100 bg-white flex flex-col justify-between h-[145px]">
       <h2 className="text-gray-900 font-semibold">
@@ -377,39 +392,11 @@ const OriginFieldCard = ({
           </div>
           <p className="flex items-baseline">
             <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg">
-              Non selected
+              None selected
             </div>
           </p>
         </>
       )}
-      {/* {selectedMapping ? (
-        <div>
-          <p className="mt-2 text-sm text-gray-600">
-            Type:{' '}
-            <span className="font-medium text-gray-800">
-              {selectedMapping?.finder ? 'Custom field' : selectedMapping.type}
-            </span>
-          </p>
-
-          {selectedMapping.example?.toString() ||
-            (selectedMapping?.value?.toString() && (
-              <p className="mt-1 text-sm text-gray-600 truncate">
-                Example:{' '}
-                <span className="font-medium text-gray-800">
-                  {selectedMapping.example?.toString() ||
-                    selectedMapping?.value?.toString() ||
-                    '-'}
-                </span>
-              </p>
-            ))}
-        </div>
-      ) : (
-        <p className="mt-2 text-sm text-gray-600">
-          {`Select a ${
-            selectedCustomMapping?.custom_field ? 'custom ' : ''
-          }field to create a mapping.`}
-        </p>
-      )} */}
     </div>
   );
 };
