@@ -101,8 +101,7 @@ const FieldMappingForm = ({
           (f) => f.finder === selectedCustomMapping.value
         );
 
-        console.log('mappingObject', mappingObject);
-        console.log('customField', customField);
+        if (!mappingObject && !customField) return;
 
         setSelectedMapping({
           title: extractLastAttribute(
@@ -123,7 +122,12 @@ const FieldMappingForm = ({
       }
       buttonRef?.current?.focus();
     }
-  }, [selectedMapping, extractLastAttribute, properties]);
+  }, [
+    selectedMapping,
+    extractLastAttribute,
+    properties,
+    selectedCustomMapping.value,
+  ]);
 
   const createCustomMapping = async () => {
     if (!selectedConnection || !selectedMapping) return;
