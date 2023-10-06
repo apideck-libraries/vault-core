@@ -98,7 +98,7 @@ const FieldMappingForm = ({
         );
 
         const customField = customFields?.find(
-          (f) => f.finder === selectedCustomMapping.value
+          (f: any) => f.finder === selectedCustomMapping.value
         );
 
         if (!mappingObject && !customField) return;
@@ -178,8 +178,8 @@ const FieldMappingForm = ({
   return (
     <div>
       <div className="bg-gray-50 p-5 border-t border-b border-gray-200 fade-in">
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[20px]">
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
             Source Field
           </label>
           <FieldSelector
@@ -214,7 +214,7 @@ const FieldMappingForm = ({
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-5 h-5 right-5 -top-1 absolute text-gray-700"
+            className="w-5 h-5 right-6 -top-2 absolute text-gray-700"
           >
             <path
               strokeLinecap="round"
@@ -225,7 +225,7 @@ const FieldMappingForm = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1.5 ml-[20px]">
+          <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
             Target Field
           </label>
           <div className="ring-1 ring-gray-200 rounded-2xl p-5 bg-white flex flex-col justify-between h-[145px]">
@@ -262,7 +262,7 @@ const FieldMappingForm = ({
           onClick={createCustomMapping}
           isLoading={isLoading}
           disabled={!selectedMapping}
-          className="w-full mt-4"
+          className="w-full mt-5"
           style={
             session?.theme?.primary_color
               ? { backgroundColor: session?.theme.primary_color }
@@ -292,7 +292,7 @@ const OriginFieldCard = ({
   const { session } = useSession();
 
   return (
-    <div className="ring-1 ring-gray-200 rounded-2xl p-5 group hover:shadow-md transition duration-100 bg-white flex flex-col justify-between h-[145px]">
+    <div className="ring-1 ring-gray-200 rounded-2xl p-5 group shadow-sm hover:shadow-md transition duration-100 bg-white flex flex-col justify-between h-[145px]">
       <h2 className="text-gray-900 font-semibold">
         <div
           className="flex items-center justify-between space-x-2.5 truncate"
@@ -318,37 +318,42 @@ const OriginFieldCard = ({
                 ? 'Select custom field'
                 : 'Select field'}
             </span>
-            {open ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="text-gray-500 group-hover:text-gray-900 transition duration-100 h-5 w-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4.5 15.75l7.5-7.5 7.5 7.5"
-                />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                />
-              </svg>
-            )}
+            <div className="inline-flex items-center py-1.5 px-2.5 text-sm font-medium text-center text-gray-500 bg-gray-50 border border-gray-300/50 rounded-lg group-hover:bg-gray-100">
+              <span className="text-gray-600 group-hover:text-gray-900 mr-1.5">
+                Edit
+              </span>
+              {open ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="text-gray-600 group-hover:text-gray-900 transition duration-100 h-5 w-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 15.75l7.5-7.5 7.5 7.5"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="text-gray-600 group-hover:text-gray-900 transition duration-100 h-5 w-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              )}
+            </div>
           </div>
         </div>
       </h2>
@@ -357,17 +362,17 @@ const OriginFieldCard = ({
           <div>
             {(!!selectedMapping?.type ||
               selectedCustomMapping?.custom_field) && (
-              <p className="text-sm text-gray-800 truncate">
+              <p className="text-sm text-gray-600 truncate">
                 Type:{' '}
-                <span className="italic text-gray-600">
+                <span className="text-gray-600">
                   {selectedMapping?.type || 'Custom field'}
                 </span>
               </p>
             )}
             {!!selectedMapping?.example && (
-              <p className="text-sm text-gray-800 truncate">
+              <p className="text-sm text-gray-600 truncate mb-1.5">
                 Example:{' '}
-                <span className="text-gray-600 italic">
+                <span className="text-gray-600">
                   {selectedMapping?.example?.toString()}
                 </span>
               </p>
@@ -386,7 +391,7 @@ const OriginFieldCard = ({
       ) : (
         <>
           <div className="text-sm text-gray-600">
-            {`Select a field to map to ${
+            {`Map a property to ${
               selectedCustomMapping?.label || selectedCustomMapping?.key
             }`}
           </div>
