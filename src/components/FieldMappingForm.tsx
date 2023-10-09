@@ -180,7 +180,7 @@ const FieldMappingForm = ({
       <div className="bg-gray-50 p-5 border-t border-b border-gray-200 fade-in">
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
-            Source Field
+            {`${selectedConnection?.name} property`}
           </label>
           <FieldSelector
             className="col-span-5"
@@ -226,7 +226,7 @@ const FieldMappingForm = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
-            Target Field
+            Response key
           </label>
           <div className="ring-1 ring-gray-200 rounded-2xl p-5 bg-white flex flex-col justify-between h-[145px]">
             <h2 className="text-gray-900 font-semibold">
@@ -245,7 +245,7 @@ const FieldMappingForm = ({
                 {selectedCustomMapping?.label || selectedCustomMapping?.key}
               </div>
             </h2>
-            <p className="text-sm text-gray-600 truncate">
+            <p className="text-sm text-gray-600 line-clamp-2">
               {selectedCustomMapping?.description || selectedCustomMapping?.key}
             </p>
             <p className="flex items-baseline">
