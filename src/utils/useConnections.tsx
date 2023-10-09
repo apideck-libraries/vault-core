@@ -328,11 +328,11 @@ export const ConnectionsProvider = ({
         return response;
       }
       return { resource, defaults: response?.data?.configuration };
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       addToast({
         title: 'Failed to fetch custom mappings',
-        description: error?.message,
+        description: (error as Error)?.message,
         type: 'error',
       });
     }
@@ -347,11 +347,11 @@ export const ConnectionsProvider = ({
       );
 
       return await raw.json();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       addToast({
         title: 'Failed to fetch schema',
-        description: error?.message,
+        description: (error as Error)?.message,
         type: 'error',
       });
     }
@@ -366,11 +366,11 @@ export const ConnectionsProvider = ({
       );
 
       return await raw.json();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       addToast({
         title: 'Failed to fetch custom fields',
-        description: error?.message,
+        description: (error as Error)?.message,
         type: 'error',
       });
     }
