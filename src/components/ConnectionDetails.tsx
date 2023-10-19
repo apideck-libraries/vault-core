@@ -228,7 +228,7 @@ const ConnectionDetails = ({
 
           {selectedConnection.state === 'callable' &&
             hasRequiredMappings &&
-            !showSettings && (
+            (!showSettings || !hasFormFields) && (
               <div className="max-w-md w-full rounded-md p-4 bg-gray-50 text-center mt-4 border border-gray-100">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
