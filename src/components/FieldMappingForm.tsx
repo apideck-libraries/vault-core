@@ -40,6 +40,7 @@ const renderReadableJSONPath = (
 const FieldMappingForm = ({
   selectedCustomMapping,
   setSelectedCustomMapping,
+  showConsumer,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { addToast } = useToast();
@@ -177,7 +178,11 @@ const FieldMappingForm = ({
 
   return (
     <div>
-      <div className="bg-gray-50 p-5 border-t border-b border-gray-200 fade-in">
+      <div
+        className={`bg-gray-50 p-5 border-t border-b border-gray-200 fade-in ${
+          showConsumer ? '' : 'rounded-b-lg'
+        }`}
+      >
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
             {`${selectedConnection?.name} property`}

@@ -23,12 +23,14 @@ interface Props {
   onClose: () => void;
   onConnectionChange?: (connection: Connection) => any;
   settings: SessionSettings;
+  showConsumer?: boolean;
 }
 
 const ConnectionDetails = ({
   onClose,
   onConnectionChange,
   settings,
+  showConsumer,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
   const [showFieldMapping, setShowFieldMapping] = useState<boolean | null>(
@@ -141,7 +143,7 @@ const ConnectionDetails = ({
           onBack={() => setSelectedResource(null)}
           hideOptions={true}
         />
-        <div className="h-full rounded-b-xl">
+        <div className={`h-full ${showConsumer ? '' : 'rounded-b-xl'}`}>
           <div className="text-center p-5 md:p-6">
             <Dialog.Title
               as="h3"
@@ -168,6 +170,7 @@ const ConnectionDetails = ({
       <FieldMapping
         setShowFieldMapping={setShowFieldMapping}
         TopBarComponent={TopBarComponent}
+        showConsumer={showConsumer}
       />
     );
   }

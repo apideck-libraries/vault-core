@@ -63,3 +63,8 @@ SingleUnifiedApi.args = {
   ),
   unifiedApi: 'file-storage',
 };
+
+export const WithConsumer = Template.bind({});
+WithConsumer.args = {
+  showConsumer: true,
+};

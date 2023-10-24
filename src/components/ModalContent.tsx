@@ -1,14 +1,14 @@
 import React from 'react';
 import { Connection } from '../types/Connection';
+import { SessionSettings } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
+import { useSession } from '../utils/useSession';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
 import ConsumerSection from './ConsumerSection';
 import LoadingDetails from './LoadingDetails';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
-import { useSession } from '../utils/useSession';
-import { SessionSettings } from '../types/Session';
 
 export const ModalContent = ({
   onClose,
@@ -81,6 +81,7 @@ export const ModalContent = ({
           onClose={onClose}
           onConnectionChange={onConnectionChange}
           settings={session?.settings as SessionSettings}
+          showConsumer={showConsumer}
           data-testid={`details-${selectedConnection.id}`}
         />
         {showConsumer && <ConsumerSection consumer={consumer} />}

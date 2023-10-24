@@ -6,7 +6,11 @@ import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
 import FieldMappingForm from './FieldMappingForm';
 
-const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
+const FieldMapping = ({
+  setShowFieldMapping,
+  TopBarComponent,
+  showConsumer,
+}) => {
   const { unifyBaseUrl, selectedConnection, headers } = useConnections();
   const [selectedCustomMapping, setSelectedCustomMapping] =
     useState<null | CustomMapping>(null);
@@ -55,7 +59,7 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
         }}
         hideOptions={true}
       />
-      <div className="h-full rounded-b-xl mt-3">
+      <div className={`h-full mt-3 ${showConsumer ? '' : 'rounded-b-lg'}`}>
         <div className="text-center px-10">
           <p className="text-sm text-gray-700 mb-4">
             {selectedCustomMapping ? (
@@ -81,11 +85,16 @@ const FieldMapping = ({ setShowFieldMapping, TopBarComponent }) => {
           <FieldMappingForm
             selectedCustomMapping={selectedCustomMapping}
             setSelectedCustomMapping={setSelectedCustomMapping}
+            showConsumer={showConsumer}
           />
         )}
 
         {!selectedCustomMapping && (
-          <div className="bg-gray-50 p-5 border-t border-b border-gray-200 max-h-[480px] overflow-y-auto">
+          <div
+            className={`bg-gray-50 p-5 border-t border-b border-gray-200 max-h-[480px] overflow-y-auto ${
+              showConsumer ? '' : 'rounded-b-lg'
+            }`}
+          >
             <div className="flex flex-col space-y-4">
               {selectedConnection?.custom_mappings?.map(
                 (mapping: CustomMapping) => {
