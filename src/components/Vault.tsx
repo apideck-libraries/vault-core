@@ -153,7 +153,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               onConnectionDelete={onConnectionDelete}
               unifiedApi={unifiedApi}
               serviceId={serviceId}
-              connectionsUrl={`${unifyBaseUrl}/vault/connections`}
+              unifyBaseUrl={unifyBaseUrl}
             >
               <SessionProvider session={session}>
                 <ModalContent

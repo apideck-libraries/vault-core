@@ -25,9 +25,10 @@ interface ContextProps {
   setSelectedConnection: (connection: Connection | null) => void;
   singleConnectionMode: boolean;
   sessionExpired: boolean;
-  connectionsUrl: string;
+  unifyBaseUrl: string;
   headers: any;
   token?: string;
+  connectionsUrl?: string;
   updateConnection: (options: {
     unifiedApi: string;
     serviceId: string;
@@ -35,6 +36,8 @@ interface ContextProps {
     resource?: string;
     quiet?: boolean;
   }) => Promise<Connection | null>;
+  fetchResourceSchema: (resource: string) => Promise<any>;
+  fetchCustomFields: (resource: string) => Promise<any>;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -46,11 +49,11 @@ interface Props {
   isOpen: boolean;
   unifiedApi?: string;
   serviceId?: string;
-  connectionsUrl: string;
   children: ReactNode;
   onClose: () => any;
   onConnectionChange?: (connection: Connection) => any;
   onConnectionDelete?: (connection: Connection) => any;
+  unifyBaseUrl: string;
 }
 
 export const ConnectionsProvider = ({
@@ -60,7 +63,7 @@ export const ConnectionsProvider = ({
   isOpen,
   unifiedApi,
   serviceId,
-  connectionsUrl,
+  unifyBaseUrl,
   children,
   onConnectionChange,
   onConnectionDelete,
@@ -94,11 +97,14 @@ export const ConnectionsProvider = ({
     return await response.json();
   };
 
-  const listUrl = `${connectionsUrl}${unifiedApi ? `?api=${unifiedApi}` : ''}`;
-  const detailsUrl = `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
+  const listUrl = `${unifyBaseUrl}/vault/connections${
+    unifiedApi ? `?api=${unifiedApi}` : ''
+  }`;
+  const detailsUrl = `${unifyBaseUrl}/vault/connections/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
 
   const { data, error } = useSWR(listUrl, fetcher, {
     shouldRetryOnError: false,
+    revalidateOnFocus: false,
   });
   const { data: connectionDetails, error: detailsError } = useSWR(
     selectedConnection ? detailsUrl : null,
@@ -173,7 +179,7 @@ export const ConnectionsProvider = ({
   }): Promise<Connection | null> => {
     try {
       setIsUpdating(true);
-      let updateUrl = `${connectionsUrl}/${unifiedApi}/${serviceId}`;
+      let updateUrl = `${unifyBaseUrl}/vault/connections/${unifiedApi}/${serviceId}`;
       if (resource) updateUrl = `${updateUrl}/${resource}/config`;
 
       const response = await fetch(updateUrl, {
@@ -195,7 +201,7 @@ export const ConnectionsProvider = ({
               ),
             ],
           };
-          mutate(connectionsUrl, updatedList, false);
+          mutate(`${unifyBaseUrl}/vault/connections`, updatedList, false);
         }
 
         // Update selected connection and mutate client cache
@@ -250,7 +256,7 @@ export const ConnectionsProvider = ({
   const deleteConnection = async (connection: Connection) => {
     try {
       await fetch(
-        `${connectionsUrl}/${connection.unified_api}/${connection.service_id}`,
+        `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}`,
         {
           method: 'DELETE',
           headers,
@@ -293,7 +299,7 @@ export const ConnectionsProvider = ({
   const fetchConfig = async (resource: string) => {
     if (!selectedConnection) return;
     const raw = await fetch(
-      `${connectionsUrl}/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
+      `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/config`,
       { headers }
     );
     const response = await raw.json();
@@ -301,6 +307,73 @@ export const ConnectionsProvider = ({
     if (response.error) return response;
 
     return { resource, defaults: response?.data?.configuration };
+  };
+
+  const fetchCustomMapping = async (resource: string) => {
+    if (!selectedConnection) return;
+
+    try {
+      const raw = await fetch(
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom-mapping`,
+        { headers }
+      );
+      const response = await raw.json();
+
+      if (response.error) {
+        addToast({
+          title: 'Failed to fetch custom mappings',
+          description: response?.error?.message || response?.error,
+          type: 'error',
+        });
+        return response;
+      }
+      return { resource, defaults: response?.data?.configuration };
+    } catch (error) {
+      console.error(error);
+      addToast({
+        title: 'Failed to fetch custom mappings',
+        description: (error as Error)?.message,
+        type: 'error',
+      });
+    }
+  };
+
+  const fetchResourceSchema = async (resource?: string) => {
+    if (!selectedConnection || !resource) return;
+    try {
+      const raw = await fetch(
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/schema`,
+        { headers }
+      );
+
+      return await raw.json();
+    } catch (error) {
+      console.error(error);
+      addToast({
+        title: 'Failed to fetch schema',
+        description: (error as Error)?.message,
+        type: 'error',
+      });
+    }
+  };
+
+  const fetchCustomFields = async (resource?: string) => {
+    if (!selectedConnection || !resource) return;
+    try {
+      const raw = await fetch(
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/custom-fields`,
+        { headers }
+      );
+
+      return await raw.json();
+    } catch (error) {
+      console.error(error);
+      addToast({
+        title: 'Failed to fetch custom fields',
+        description: (error as Error)?.message,
+        type: 'error',
+      });
+    }
   };
 
   const getResourceConfig = async () => {
@@ -359,9 +432,13 @@ export const ConnectionsProvider = ({
       setSelectedConnection,
       singleConnectionMode,
       updateConnection,
-      connectionsUrl,
       headers,
       token,
+      fetchResourceSchema,
+      fetchCustomFields,
+      fetchCustomMapping,
+      fetcher,
+      unifyBaseUrl,
     }),
     [
       isUpdating,
@@ -371,9 +448,9 @@ export const ConnectionsProvider = ({
       isOpen,
       resources,
       token,
-      connectionsUrl,
       error,
       detailsError,
+      fetchResourceSchema,
     ]
   );
 
@@ -387,5 +464,3 @@ export const ConnectionsProvider = ({
 export const useConnections = () => {
   return useContext(ConnectionsContext) as ContextProps;
 };
-
-// export default useConnections;

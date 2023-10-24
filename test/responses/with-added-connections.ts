@@ -13,6 +13,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'activecampaign',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'base_url',
@@ -114,6 +115,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'activecampaign',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'base_url',
@@ -172,6 +174,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'file-storage',
       service_id: 'box',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -195,6 +198,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'close',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'api_key',
@@ -236,6 +240,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'close',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'api_key',
@@ -273,6 +278,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'copper',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'email',
@@ -323,6 +329,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'copper',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'email',
@@ -373,6 +380,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'crisp',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'id',
@@ -408,6 +416,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'file-storage',
       service_id: 'dropbox',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -430,6 +439,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'accounting',
       service_id: 'exact-online',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -452,6 +462,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'freshsales',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'domain',
@@ -502,6 +513,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'google-analytics',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'id',
@@ -537,6 +549,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'file-storage',
       service_id: 'google-drive',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -560,6 +573,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'google-tag-manager',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'id',
@@ -596,6 +610,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'hubspot',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: ['opportunities'],
       resource_schema_support: [],
@@ -619,6 +634,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'hubspot',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'portal_id',
@@ -655,6 +671,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'intercom',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'app_id',
@@ -691,6 +708,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'iubenda',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'site_id',
@@ -753,6 +771,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'livechat',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'id',
@@ -789,6 +808,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'script',
       service_id: 'metomic-io',
       auth_type: 'none',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'project_id',
@@ -837,6 +857,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'microsoft-dynamics',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'organisation_url',
@@ -874,6 +895,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'microsoft-dynamics',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'organisation_url',
@@ -911,6 +933,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'accounting',
       service_id: 'myob',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'client_id',
@@ -977,6 +1000,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'file-storage',
       service_id: 'onedrive',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'drive_id',
@@ -1016,6 +1040,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'pipedrive',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -1041,6 +1066,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'pipedrive',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -1072,6 +1098,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'sms',
       service_id: 'plivo',
       auth_type: 'basic',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'auth_id',
@@ -1120,6 +1147,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'accounting',
       service_id: 'quickbooks',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'realm_id',
@@ -1156,6 +1184,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'ats',
       service_id: 'sage-hr',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'base_url',
@@ -1206,6 +1235,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'salesflare',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'api_key',
@@ -1243,6 +1273,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'salesflare',
       auth_type: 'apiKey',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'api_key',
@@ -1283,6 +1314,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'salesforce',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'instance_url',
@@ -1320,6 +1352,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'salesforce',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'instance_url',
@@ -1368,6 +1401,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'file-storage',
       service_id: 'sharepoint',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'site_id',
@@ -1406,6 +1440,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'ecommerce',
       service_id: 'shopify',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'shop',
@@ -1446,6 +1481,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'slack',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'channel',
@@ -1485,6 +1521,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'teamleader',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -1508,6 +1545,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'teamleader',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -1531,6 +1569,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'sms',
       service_id: 'twilio',
       auth_type: 'basic',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'account_sid',
@@ -1579,6 +1618,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'accounting',
       service_id: 'xero',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'tenant_id',
@@ -1617,6 +1657,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'crm',
       service_id: 'zendesk-sell',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: ['contacts'],
       resource_schema_support: [],
@@ -1639,6 +1680,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'zendesk-sell',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [],
       configurable_resources: [],
       resource_schema_support: [],
@@ -1661,6 +1703,7 @@ export const ADDED_CONNECTIONS_RESPONSE = {
       unified_api: 'lead',
       service_id: 'zoho-crm',
       auth_type: 'oauth2',
+      custom_mappings: [],
       form_fields: [
         {
           id: 'api_domain',

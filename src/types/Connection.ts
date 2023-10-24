@@ -25,6 +25,16 @@ export type OauthGrantType =
   | 'authorization_code'
   | 'password';
 
+export interface CustomMapping {
+  custom_field: boolean;
+  description: string;
+  id: string;
+  key: string;
+  label: string;
+  required: false;
+  value: string;
+}
+
 export interface Connection {
   id: string;
   service_id: string;
@@ -52,4 +62,5 @@ export interface Connection {
   oauth_grant_type?: OauthGrantType;
   has_guide?: boolean;
   validation_support?: boolean;
+  custom_mappings: CustomMapping[];
 }

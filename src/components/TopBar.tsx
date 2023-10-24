@@ -32,6 +32,7 @@ interface Props {
   hideBackButton?: boolean;
   singleConnectionMode?: boolean;
   settings?: SessionSettings;
+  setShowFieldMapping?: Dispatch<SetStateAction<boolean>>;
 }
 
 const TopBar = ({
@@ -44,6 +45,7 @@ const TopBar = ({
   hideBackButton,
   singleConnectionMode,
   settings,
+  setShowFieldMapping,
 }: Props) => {
   const {
     selectedConnection,
@@ -135,6 +137,7 @@ const TopBar = ({
       configurable_resources,
       authorize_url,
       revoke_url,
+      custom_mappings,
     } = selectedConnection;
     const authorizeUrl = `${authorize_url}&redirect_uri=${
       session?.redirect_uri ?? REDIRECT_URL
@@ -209,6 +212,33 @@ const TopBar = ({
           if (setShowResources && !settings?.hide_resource_settings)
             setShowResources(true);
           if (setShowSettings) setShowSettings(false);
+        },
+      });
+    }
+
+    if (custom_mappings?.length > 0 && state === 'callable') {
+      options.push({
+        label: (
+          <button className="flex font-medium items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-4 w-4 mr-2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+              />
+            </svg>
+            Field Mapping
+          </button>
+        ),
+        onClick: () => {
+          setShowFieldMapping?.(true);
         },
       });
     }
