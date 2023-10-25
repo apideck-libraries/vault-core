@@ -439,6 +439,7 @@ export const ConnectionsProvider = ({
       fetchCustomMapping,
       fetcher,
       unifyBaseUrl,
+      connectionsUrl: `${unifyBaseUrl}/vault/connections`,
     }),
     [
       isUpdating,
