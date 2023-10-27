@@ -1,2 +1,4 @@
 @import './base.css';
 @import './tailwind.css';
+
+@import '../../node_modules/@apideck/wayfinder/dist/styles.css';

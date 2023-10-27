@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@apideck/components": "^0.12.9",
+    "@apideck/wayfinder": "^0.1.9",
     "formik": "^2.2.9",
     "fuse.js": "^6.5.3",
     "jwt-decode": "^3.1.2",

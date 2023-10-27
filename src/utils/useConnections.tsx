@@ -37,6 +37,7 @@ interface ContextProps {
     quiet?: boolean;
   }) => Promise<Connection | null>;
   fetchResourceSchema: (resource: string) => Promise<any>;
+  fetchResourceExample: (resource: string) => Promise<any>;
   fetchCustomFields: (resource: string) => Promise<any>;
 }
 
@@ -357,6 +358,25 @@ export const ConnectionsProvider = ({
     }
   };
 
+  const fetchResourceExample = async (resource?: string) => {
+    if (!selectedConnection || !resource) return;
+    try {
+      const raw = await fetch(
+        `${unifyBaseUrl}/vault/connections/${selectedConnection.unified_api}/${selectedConnection.service_id}/${resource}/example`,
+        { headers }
+      );
+
+      return await raw.json();
+    } catch (error) {
+      console.error(error);
+      addToast({
+        title: 'Failed to fetch example',
+        description: (error as Error)?.message,
+        type: 'error',
+      });
+    }
+  };
+
   const fetchCustomFields = async (resource?: string) => {
     if (!selectedConnection || !resource) return;
     try {
@@ -435,6 +455,7 @@ export const ConnectionsProvider = ({
       headers,
       token,
       fetchResourceSchema,
+      fetchResourceExample,
       fetchCustomFields,
       fetchCustomMapping,
       fetcher,
