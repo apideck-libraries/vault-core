@@ -544,7 +544,7 @@ const FieldSelector = ({
         <Transition.Root appear show={showWayFinder} as={Fragment}>
           <Dialog
             as="div"
-            className="apideck-vault wayfinder-modal-container sticky inset-0"
+            className="apideck-vault wayfinder-modal-container sticky inset-0 z-40"
             onClose={() => setShowWayFinder(false)}
           >
             <div
