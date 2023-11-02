@@ -1,6 +1,6 @@
-import { Button, TextInput, useDebounce, useModal } from '@apideck/components';
+import { Button, TextInput, useDebounce } from '@apideck/components';
 import { WayFinder } from '@apideck/wayfinder';
-import { Menu, Transition } from '@headlessui/react';
+import { Dialog, Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 
 import Fuse from 'fuse.js';
@@ -49,6 +49,7 @@ const FieldSelector = ({
   const [selectedObjectProperty, setSelectedObjectProperty] =
     useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showWayFinder, setShowWayFinder] = useState(false);
   const isCustomFieldMapping = !!customFields?.length;
   const [mode, setMode] = useState<'custom' | 'root' | 'advanced'>(
     isCustomFieldMapping ? 'custom' : 'root'
@@ -58,7 +59,6 @@ const FieldSelector = ({
   const [fieldMappingString, setFieldMappingString] = useState<string>();
   const [properties, setProperties] = useState<any>(propertiesProps);
   const searchInputRef: any = useRef();
-  const { addModal, removeModal } = useModal();
 
   const { selectedConnection, fetchResourceExample } = useConnections();
 
@@ -262,303 +262,364 @@ const FieldSelector = ({
   ];
 
   return (
-    <Menu
-      as="div"
-      className={classNames('relative w-full text-left z-10', className)}
-      id="field-selector"
-    >
-      {({ open }) => (
-        <Fragment>
-          {triggerComponent ? (
-            <Menu.Button {...triggerComponentProps} ref={buttonRef}>
-              {cloneElement(triggerComponent, { open })}
-            </Menu.Button>
-          ) : (
-            <Menu.Button className="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-              Select field
-            </Menu.Button>
-          )}
+    <>
+      <Menu
+        as="div"
+        className={classNames('relative w-full text-left z-10', className)}
+        id="field-selector"
+      >
+        {({ open }) => (
+          <Fragment>
+            {triggerComponent ? (
+              <Menu.Button {...triggerComponentProps} ref={buttonRef}>
+                {cloneElement(triggerComponent, { open })}
+              </Menu.Button>
+            ) : (
+              <Menu.Button className="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                Select field
+              </Menu.Button>
+            )}
 
-          <Transition
-            enter="transition duration-100 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-75 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0"
-          >
-            <Menu.Items
-              className="absolute rounded-t-2xl z-40 mt-2 w-[calc(100%-0px)] left-[0px] origin-top-right overflow-hidden bg-white shadow-lg ring-1 ring-gray-200 rounded-b-2xl focus:outline-none"
-              style={{ top: -153, minHeight: 150 }}
+            <Transition
+              enter="transition duration-100 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-75 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0"
             >
-              <div className="max-h-[380px] 2xl:max-h-[440px] overflow-y-auto divide-y divide-gray-200">
-                <nav
-                  className="flex items-center justify-between"
-                  aria-label="Tabs"
-                >
-                  <div className="-mb-px flex space-x-6 border-b px-4">
-                    {tabs.map((tab: any) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          setMode(tab.id);
-                          if (tab.id === 'advanced' && selectedCustomMapping) {
-                            setFieldMappingString(selectedCustomMapping.value);
-                          } else {
-                            setFieldMappingString(undefined);
-                          }
-
-                          if (
-                            tab.id === 'advanced' &&
-                            !selectedCustomMapping?.value &&
-                            selectedObjectProperty?.properties
-                          ) {
-                            const firstProperty: any = Object.entries(
-                              selectedObjectProperty.properties
-                            )?.[0];
-                            const description = firstProperty?.[1]?.description;
-                            const fieldMappingStringWithoutLastPart =
-                              description?.split('[')?.slice(0, -1)?.join('[');
-
-                            if (fieldMappingStringWithoutLastPart) {
-                              setFieldMappingString(
-                                fieldMappingStringWithoutLastPart
-                              );
-                            }
-                          }
-                        }}
-                        type="button"
-                        className={classNames(
-                          tab.current
-                            ? 'border-primary-500 text-primary-600 font-medium'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                          'group inline-flex items-center py-3 mt-1 border-b-2 text-sm'
-                        )}
-                      >
-                        <span>{tab.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <Menu.Item>
-                    <button
-                      type="button"
-                      className="flex items-center justify-center px-5 pl-8 group"
-                    >
-                      {open ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4.5 15.75l7.5-7.5 7.5 7.5"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                          />
-                        </svg>
-                      )}
-                    </button>
-                  </Menu.Item>
-                </nav>
-
-                {mode === 'advanced' && (
-                  <div className="mb-3 px-4">
-                    <div className="mt-3">
-                      <label
-                        htmlFor="fieldMapping"
-                        className="block text-sm font-medium leading-5 text-gray-700"
-                      >
-                        Enter a field mapping.
-                      </label>
-                      <TextInput
-                        placeholder="$['address']['example']"
-                        className="mt-1"
-                        name="fieldMapping"
-                        value={fieldMappingString}
-                        onChange={(e: any) =>
-                          setFieldMappingString(e.target.value)
-                        }
-                      />
-                      <div className="flex justify-end space-x-2 items-center mt-2">
-                        <Button
-                          variant="outline"
-                          size="small"
-                          text="Open WayFinder"
-                          disabled={!exampleResponse}
-                          isLoading={!exampleError && !data}
+              <Menu.Items
+                className="absolute rounded-t-2xl z-40 mt-2 w-[calc(100%-0px)] left-[0px] origin-top-right overflow-hidden bg-white shadow-lg ring-1 ring-gray-200 rounded-b-2xl focus:outline-none"
+                style={{ top: -153, minHeight: 150 }}
+              >
+                <div className="max-h-[380px] 2xl:max-h-[440px] overflow-y-auto divide-y divide-gray-200">
+                  <nav
+                    className="flex items-center justify-between"
+                    aria-label="Tabs"
+                  >
+                    <div className="-mb-px flex space-x-6 border-b px-4">
+                      {tabs.map((tab: any) => (
+                        <button
+                          key={tab.id}
                           onClick={() => {
-                            addModal(
-                              <WayFinder
-                                onSelect={(jsonPath) => {
-                                  if (jsonPath) {
-                                    setFieldMappingString(jsonPath);
-                                    const mappingObject = findByDescription(
-                                      properties,
-                                      jsonPath
-                                    );
-                                    onSelect({
-                                      title: extractLastAttribute(jsonPath),
-                                      mode: 'manual',
-                                      type: mappingObject?.type || 'Advanced',
-                                      description: jsonPath,
-                                      example: mappingObject?.example,
-                                    });
-                                  }
-                                  removeModal();
-                                }}
-                                onClose={removeModal}
-                                defaultInput={JSON.stringify(
-                                  exampleResponse,
-                                  null,
-                                  2
-                                )}
-                                defaultJsonPath={fieldMappingString}
-                              />,
-                              {
-                                className: '!max-w-5xl !p-0',
-                                onClose: () => {},
+                            setMode(tab.id);
+                            if (
+                              tab.id === 'advanced' &&
+                              selectedCustomMapping
+                            ) {
+                              setFieldMappingString(
+                                selectedCustomMapping.value
+                              );
+                            } else {
+                              setFieldMappingString(undefined);
+                            }
+
+                            if (
+                              tab.id === 'advanced' &&
+                              !selectedCustomMapping?.value &&
+                              selectedObjectProperty?.properties
+                            ) {
+                              const firstProperty: any = Object.entries(
+                                selectedObjectProperty.properties
+                              )?.[0];
+                              const description =
+                                firstProperty?.[1]?.description;
+                              const fieldMappingStringWithoutLastPart =
+                                description
+                                  ?.split('[')
+                                  ?.slice(0, -1)
+                                  ?.join('[');
+
+                              if (fieldMappingStringWithoutLastPart) {
+                                setFieldMappingString(
+                                  fieldMappingStringWithoutLastPart
+                                );
                               }
-                            );
+                            }
                           }}
+                          type="button"
+                          className={classNames(
+                            tab.current
+                              ? 'border-primary-500 text-primary-600 font-medium'
+                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                            'group inline-flex items-center py-3 mt-1 border-b-2 text-sm'
+                          )}
+                        >
+                          <span>{tab.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <Menu.Item>
+                      <button
+                        type="button"
+                        className="flex items-center justify-center px-5 pl-8 group"
+                      >
+                        {open ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4.5 15.75l7.5-7.5 7.5 7.5"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="text-gray-400 group-hover:text-gray-900 transition duration-100 h-5 w-5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                    </Menu.Item>
+                  </nav>
+
+                  {mode === 'advanced' && (
+                    <div className="mb-3 px-4">
+                      <div className="mt-3">
+                        <label
+                          htmlFor="fieldMapping"
+                          className="block text-sm font-medium leading-5 text-gray-700"
+                        >
+                          Enter a field mapping.
+                        </label>
+                        <TextInput
+                          placeholder="$['address']['example']"
+                          className="mt-1"
+                          name="fieldMapping"
+                          value={fieldMappingString}
+                          onChange={(e: any) =>
+                            setFieldMappingString(e.target.value)
+                          }
                         />
-                        <Menu.Item>
+                        <div className="flex justify-end space-x-2 items-center mt-2">
                           <Button
-                            text="Confirm"
+                            variant="outline"
                             size="small"
-                            disabled={!fieldMappingString}
+                            text="Open WayFinder"
+                            disabled={!exampleResponse}
+                            isLoading={!exampleError && !data}
                             onClick={() => {
-                              onSelect({
-                                title: fieldMappingString,
-                                mode: 'manual',
-                                description: fieldMappingString,
-                              });
+                              setShowWayFinder(true);
                             }}
                           />
-                        </Menu.Item>
+                          <Menu.Item>
+                            <Button
+                              text="Confirm"
+                              size="small"
+                              disabled={!fieldMappingString}
+                              onClick={() => {
+                                onSelect({
+                                  title: fieldMappingString,
+                                  mode: 'manual',
+                                  description: fieldMappingString,
+                                });
+                              }}
+                            />
+                          </Menu.Item>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* If selectedObjectProperty is not null, render a back button */}
-                {mode === 'root' && selectedObjectProperty ? (
-                  <Menu.Item as="div" className="px-4">
-                    {({ active }) => (
-                      <button
-                        className={`${
-                          active ? '' : 'text-gray-900 rounded-lg'
-                        } group flex w-full fade-left items-center mt-2.5 px-2 hover:bg-gray-100 py-2 mb-2 text-sm font-semibold border-b text-gray-900 hover:text-gray-600 border bg-gray-50 rounded-md sm:text-sm focus:ring-transparent border-gray-200`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSelectedObjectProperty(
-                            selectedObjectProperty?.previousObjectProperty
-                          );
-                        }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="h-4 w-4 mx-1 mr-2"
+                  {/* If selectedObjectProperty is not null, render a back button */}
+                  {mode === 'root' && selectedObjectProperty ? (
+                    <Menu.Item as="div" className="px-4">
+                      {({ active }) => (
+                        <button
+                          className={`${
+                            active ? '' : 'text-gray-900 rounded-lg'
+                          } group flex w-full fade-left items-center mt-2.5 px-2 hover:bg-gray-100 py-2 mb-2 text-sm font-semibold border-b text-gray-900 hover:text-gray-600 border bg-gray-50 rounded-md sm:text-sm focus:ring-transparent border-gray-200`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedObjectProperty(
+                              selectedObjectProperty?.previousObjectProperty
+                            );
+                          }}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.75 19.5L8.25 12l7.5-7.5"
-                          />
-                        </svg>
-                        {selectedObjectProperty?.title}
-                      </button>
-                    )}
-                  </Menu.Item>
-                ) : (
-                  mode !== 'advanced' &&
-                  (!noFieldsFound || searchTerm?.length > 0) && (
-                    <div className="px-3 py-3">
-                      <SearchInput
-                        value={searchTerm}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                          setSearchTerm(event.target.value)
-                        }
-                        searchInputRef={searchInputRef}
-                        autoFocus={true}
-                        placeholder={
-                          mode === 'root'
-                            ? 'Search properties'
-                            : 'Search fields'
-                        }
-                      />
-                    </div>
-                  )
-                )}
-                {mode === 'root' &&
-                  sortedProperties?.map(
-                    (property: { [key: string]: any }, index: number) =>
-                      renderMenuItem({
-                        title: property[0],
-                        ...property[1],
-                        index,
-                      })
-                  )}
-                {mode === 'custom' &&
-                  sortedCustomFields.map((field) =>
-                    renderMenuItem({
-                      title: field?.name || field?.id,
-                      description: field?.finder,
-                      ...field,
-                    })
-                  )}
-                {error && mode !== 'advanced' && (
-                  <div className="p-3 py-5 text-sm text-red-500">{error}</div>
-                )}
-                {isLoading && !properties?.length && mode !== 'advanced' && (
-                  <div className="mx-3 mt-1.5">
-                    {[...new Array(6).keys()]?.map((i: number) => {
-                      return (
-                        <div
-                          className="bg-gray-300 h-6 group flex w-full items-center rounded my-2 animate-pulse"
-                          key={i}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="h-4 w-4 mx-1 mr-2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15.75 19.5L8.25 12l7.5-7.5"
+                            />
+                          </svg>
+                          {selectedObjectProperty?.title}
+                        </button>
+                      )}
+                    </Menu.Item>
+                  ) : (
+                    mode !== 'advanced' &&
+                    (!noFieldsFound || searchTerm?.length > 0) && (
+                      <div className="px-3 py-3">
+                        <SearchInput
+                          value={searchTerm}
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                            setSearchTerm(event.target.value)
+                          }
+                          searchInputRef={searchInputRef}
+                          autoFocus={true}
+                          placeholder={
+                            mode === 'root'
+                              ? 'Search properties'
+                              : 'Search fields'
+                          }
                         />
-                      );
-                    })}
+                      </div>
+                    )
+                  )}
+                  {mode === 'root' &&
+                    sortedProperties?.map(
+                      (property: { [key: string]: any }, index: number) =>
+                        renderMenuItem({
+                          title: property[0],
+                          ...property[1],
+                          index,
+                        })
+                    )}
+                  {mode === 'custom' &&
+                    sortedCustomFields.map((field) =>
+                      renderMenuItem({
+                        title: field?.name || field?.id,
+                        description: field?.finder,
+                        ...field,
+                      })
+                    )}
+                  {error && mode !== 'advanced' && (
+                    <div className="p-3 py-5 text-sm text-red-500">{error}</div>
+                  )}
+                  {isLoading && !properties?.length && mode !== 'advanced' && (
+                    <div className="mx-3 mt-1.5">
+                      {[...new Array(6).keys()]?.map((i: number) => {
+                        return (
+                          <div
+                            className="bg-gray-300 h-6 group flex w-full items-center rounded my-2 animate-pulse"
+                            key={i}
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+                  {mode === 'root' && noFieldsFound && !error && (
+                    <div className="p-3 py-5 text-sm text-gray-500">
+                      No fields found for mapping.
+                    </div>
+                  )}
+                  {mode === 'custom' &&
+                    customFields?.length === 0 &&
+                    !error && (
+                      <div className="p-3 py-5 text-sm text-gray-500">
+                        No custom fields found for mapping.
+                      </div>
+                    )}
+                </div>
+              </Menu.Items>
+            </Transition>
+          </Fragment>
+        )}
+      </Menu>
+      {showWayFinder && (
+        <Transition.Root appear show={showWayFinder} as={Fragment}>
+          <Dialog
+            as="div"
+            className="apideck-vault wayfinder-modal-container sticky inset-0"
+            onClose={() => setShowWayFinder(false)}
+          >
+            <div
+              data-testid="backdrop"
+              id="react-vault"
+              className={classNames(
+                'fixed inset-0 z-40 group overflow-y-auto bg-gray-400 bg-opacity-75',
+                className
+              )}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-8 h-8 absolute right-6 top-6 lg:w-10 lg:h-10 xl:top-8 xl:right-8 cursor-pointer text-gray-100 hover:text-white"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+
+              <div className="min-h-screen px-4 text-center">
+                <span
+                  className="inline-block h-screen align-middle"
+                  aria-hidden="true"
+                >
+                  &#8203;
+                </span>
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <div
+                    className="inline-block w-full text-left max-w-5xl my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-lg"
+                    id="react-wayfinder-modal"
+                  >
+                    <WayFinder
+                      onSelect={(jsonPath) => {
+                        if (jsonPath) {
+                          setFieldMappingString(jsonPath);
+                          const mappingObject = findByDescription(
+                            properties,
+                            jsonPath
+                          );
+                          onSelect({
+                            title: extractLastAttribute(jsonPath),
+                            mode: 'manual',
+                            type: mappingObject?.type || 'Advanced',
+                            description: jsonPath,
+                            example: mappingObject?.example,
+                          });
+                        }
+                        setShowWayFinder(false);
+                      }}
+                      onClose={() => setShowWayFinder(false)}
+                      defaultInput={JSON.stringify(exampleResponse, null, 2)}
+                      defaultJsonPath={fieldMappingString}
+                    />
                   </div>
-                )}
-                {mode === 'root' && noFieldsFound && !error && (
-                  <div className="p-3 py-5 text-sm text-gray-500">
-                    No fields found for mapping.
-                  </div>
-                )}
-                {mode === 'custom' && customFields?.length === 0 && !error && (
-                  <div className="p-3 py-5 text-sm text-gray-500">
-                    No custom fields found for mapping.
-                  </div>
-                )}
+                </Transition.Child>
               </div>
-            </Menu.Items>
-          </Transition>
-        </Fragment>
+            </div>
+          </Dialog>
+        </Transition.Root>
       )}
-    </Menu>
+    </>
   );
 };
 

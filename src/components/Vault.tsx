@@ -1,6 +1,6 @@
 import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 
-import { ModalProvider, ToastProvider } from '@apideck/components';
+import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
 import { BASE_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
@@ -132,44 +132,42 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
   return (
-    <ModalProvider>
-      <div id="react-vault" className="apideck">
-        {trigger
-          ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
-          : null}
-        {shouldRenderModal ? (
-          <Modal
-            isOpen={token && token?.length > 0 && isOpen}
-            onClose={() => onCloseModal()}
-            showAttribution={showAttribution}
-          >
-            <ToastProvider>
-              <ConnectionsProvider
-                appId={session?.application_id as string}
-                consumerId={session?.consumer_id as string}
-                token={jwt as string}
-                isOpen={isOpen}
-                onClose={onCloseModal}
-                onConnectionChange={onConnectionChange}
-                onConnectionDelete={onConnectionDelete}
-                unifiedApi={unifiedApi}
-                serviceId={serviceId}
-                unifyBaseUrl={unifyBaseUrl}
-              >
-                <SessionProvider session={session}>
-                  <ModalContent
-                    onClose={onCloseModal}
-                    onConnectionChange={onConnectionChange}
-                    consumer={
-                      showConsumer ? session?.consumer_metadata : undefined
-                    }
-                  />
-                </SessionProvider>
-              </ConnectionsProvider>
-            </ToastProvider>
-          </Modal>
-        ) : null}
-      </div>
-    </ModalProvider>
+    <div id="react-vault" className="apideck">
+      {trigger
+        ? React.cloneElement(trigger, { onClick: () => setIsOpen(true), ref })
+        : null}
+      {shouldRenderModal ? (
+        <Modal
+          isOpen={token && token?.length > 0 && isOpen}
+          onClose={() => onCloseModal()}
+          showAttribution={showAttribution}
+        >
+          <ToastProvider>
+            <ConnectionsProvider
+              appId={session?.application_id as string}
+              consumerId={session?.consumer_id as string}
+              token={jwt as string}
+              isOpen={isOpen}
+              onClose={onCloseModal}
+              onConnectionChange={onConnectionChange}
+              onConnectionDelete={onConnectionDelete}
+              unifiedApi={unifiedApi}
+              serviceId={serviceId}
+              unifyBaseUrl={unifyBaseUrl}
+            >
+              <SessionProvider session={session}>
+                <ModalContent
+                  onClose={onCloseModal}
+                  onConnectionChange={onConnectionChange}
+                  consumer={
+                    showConsumer ? session?.consumer_metadata : undefined
+                  }
+                />
+              </SessionProvider>
+            </ConnectionsProvider>
+          </ToastProvider>
+        </Modal>
+      ) : null}
+    </div>
   );
 });
