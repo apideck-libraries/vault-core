@@ -15,7 +15,9 @@ import React, {
   useState,
 } from 'react';
 import useSWR from 'swr';
+import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
+import { findByDescription } from './FieldMappingForm';
 
 interface Props {
   onSelect: (field: any) => void;
@@ -408,11 +410,16 @@ const FieldSelector = ({
                                 onSelect={(jsonPath) => {
                                   if (jsonPath) {
                                     setFieldMappingString(jsonPath);
+                                    const mappingObject = findByDescription(
+                                      properties,
+                                      jsonPath
+                                    );
                                     onSelect({
-                                      title: jsonPath,
+                                      title: extractLastAttribute(jsonPath),
                                       mode: 'manual',
-                                      type: 'Advanced',
+                                      type: mappingObject?.type || 'Advanced',
                                       description: jsonPath,
+                                      example: mappingObject?.example,
                                     });
                                   }
                                   removeModal();
@@ -423,6 +430,7 @@ const FieldSelector = ({
                                   null,
                                   2
                                 )}
+                                defaultJsonPath={fieldMappingString}
                               />,
                               {
                                 className: '!max-w-5xl !p-0',
