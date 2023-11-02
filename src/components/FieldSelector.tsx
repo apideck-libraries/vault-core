@@ -425,7 +425,9 @@ const FieldSelector = ({
                               disabled={!fieldMappingString}
                               onClick={() => {
                                 onSelect({
-                                  title: fieldMappingString,
+                                  title: fieldMappingString
+                                    ? extractLastAttribute(fieldMappingString)
+                                    : fieldMappingString,
                                   mode: 'manual',
                                   description: fieldMappingString,
                                 });
