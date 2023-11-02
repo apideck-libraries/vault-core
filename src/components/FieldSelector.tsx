@@ -1,4 +1,5 @@
-import { Button, TextInput, useDebounce } from '@apideck/components';
+import { Button, TextInput, useDebounce, useModal } from '@apideck/components';
+import { WayFinder } from '@apideck/wayfinder';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 
@@ -13,6 +14,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import useSWR from 'swr';
+import { extractLastAttribute } from '../utils/extractLastAttribute';
+import { useConnections } from '../utils/useConnections';
+import { findByDescription } from './FieldMappingForm';
 
 interface Props {
   onSelect: (field: any) => void;
@@ -50,9 +55,22 @@ const FieldSelector = ({
   );
   const [list, setList] = useState<any>([]);
   const debouncedSearchTerm = useDebounce(searchTerm, 250);
-  const [fieldMappingString, setFieldMappingString] = useState();
+  const [fieldMappingString, setFieldMappingString] = useState<string>();
   const [properties, setProperties] = useState<any>(propertiesProps);
   const searchInputRef: any = useRef();
+  const { addModal, removeModal } = useModal();
+
+  const { selectedConnection, fetchResourceExample } = useConnections();
+
+  const { data, error: exampleError } = useSWR(
+    selectedConnection &&
+      selectedCustomMapping?.id &&
+      mode === 'advanced' && ['example', selectedCustomMapping?.id],
+    () => fetchResourceExample(selectedCustomMapping?.id?.split('+')[1]),
+    { revalidateIfStale: false }
+  );
+
+  const exampleResponse = data?.data?.example_response;
 
   useEffect(() => {
     if (debouncedSearchTerm) {
@@ -379,12 +397,52 @@ const FieldSelector = ({
                           setFieldMappingString(e.target.value)
                         }
                       />
-                      <div className="flex justify-end">
+                      <div className="flex justify-end space-x-2 items-center mt-2">
+                        <Button
+                          variant="outline"
+                          size="small"
+                          text="Open WayFinder"
+                          disabled={!exampleResponse}
+                          isLoading={!exampleError && !data}
+                          onClick={() => {
+                            addModal(
+                              <WayFinder
+                                onSelect={(jsonPath) => {
+                                  if (jsonPath) {
+                                    setFieldMappingString(jsonPath);
+                                    const mappingObject = findByDescription(
+                                      properties,
+                                      jsonPath
+                                    );
+                                    onSelect({
+                                      title: extractLastAttribute(jsonPath),
+                                      mode: 'manual',
+                                      type: mappingObject?.type || 'Advanced',
+                                      description: jsonPath,
+                                      example: mappingObject?.example,
+                                    });
+                                  }
+                                  removeModal();
+                                }}
+                                onClose={removeModal}
+                                defaultInput={JSON.stringify(
+                                  exampleResponse,
+                                  null,
+                                  2
+                                )}
+                                defaultJsonPath={fieldMappingString}
+                              />,
+                              {
+                                className: '!max-w-5xl !p-0',
+                                onClose: () => {},
+                              }
+                            );
+                          }}
+                        />
                         <Menu.Item>
                           <Button
                             text="Confirm"
                             size="small"
-                            className="mt-2"
                             disabled={!fieldMappingString}
                             onClick={() => {
                               onSelect({

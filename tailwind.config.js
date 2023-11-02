@@ -1,6 +1,7 @@
 module.exports = {
   content: [
     './src/**/*.{html,js,jsx,ts,tsx}',
+    './node_modules/@apideck/wayfinder/**/*.js',
     './node_modules/@apideck/components/**/*.js',
     './stories/*',
   ],
