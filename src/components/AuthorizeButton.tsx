@@ -91,6 +91,40 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
     }
   };
 
+  if (connection?.service_id === 'google-drive') {
+    return (
+      <button
+        onClick={authorizeConnection}
+        disabled={
+          connection.integration_state === 'needs_configuration' || isLoading
+        }
+        className={`h-[58px] ${isLoading ? 'animate-pulse' : ''}`}
+      >
+        <img
+          src="https://vault.apideck.com/img/google-button.png"
+          className="h-full"
+        />
+      </button>
+    );
+  }
+
+  if (connection?.service_id === 'quickbooks') {
+    return (
+      <button
+        onClick={authorizeConnection}
+        disabled={
+          connection.integration_state === 'needs_configuration' || isLoading
+        }
+        className={`h-[40px] ${isLoading ? 'animate-pulse' : ''}`}
+      >
+        <img
+          src="https://vault.apideck.com/img/quickbooks-button.png"
+          className="h-full"
+        />
+      </button>
+    );
+  }
+
   return (
     <Button
       text={`Authorize ${connection.name}`}
