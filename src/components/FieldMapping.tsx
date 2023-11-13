@@ -6,11 +6,7 @@ import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
 import FieldMappingForm from './FieldMappingForm';
 
-const FieldMapping = ({
-  setShowFieldMapping,
-  TopBarComponent,
-  showConsumer,
-}) => {
+const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
   const { unifyBaseUrl, selectedConnection, headers } = useConnections();
   const [selectedCustomMapping, setSelectedCustomMapping] =
     useState<null | CustomMapping>(null);
@@ -54,7 +50,8 @@ const FieldMapping = ({
           if (selectedCustomMapping) {
             setSelectedCustomMapping(null);
           } else {
-            setShowFieldMapping(null);
+            setCurrentView(null);
+            setCurrentView;
           }
         }}
         hideOptions={true}

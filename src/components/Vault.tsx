@@ -4,6 +4,7 @@ import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
 import { BASE_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
+import { ConnectionViewType } from '../types/ConnectionViewType';
 import { Session } from '../types/Session';
 import { ConnectionsProvider } from '../utils/useConnections';
 import { SessionProvider } from '../utils/useSession';
@@ -61,6 +62,12 @@ export interface Props {
    * @default false
    * */
   showConsumer?: boolean;
+
+  /**
+   * Optionally you can directly open one of the following views: 'configurable-resources', 'custom-mapping', 'settings'
+   * @default false
+   * */
+  initialView?: ConnectionViewType;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -83,6 +90,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     serviceId,
     unifyBaseUrl = BASE_URL,
     showConsumer = false,
+    initialView = null,
   },
   ref
 ) {
@@ -162,6 +170,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
                   consumer={
                     showConsumer ? session?.consumer_metadata : undefined
                   }
+                  initialView={initialView}
                 />
               </SessionProvider>
             </ConnectionsProvider>

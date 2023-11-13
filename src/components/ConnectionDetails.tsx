@@ -1,8 +1,9 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 
 import { Alert, Button } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { Connection } from '../types/Connection';
+import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
@@ -24,6 +25,7 @@ interface Props {
   onConnectionChange?: (connection: Connection) => any;
   settings: SessionSettings;
   showConsumer?: boolean;
+  initialView?: ConnectionViewType;
 }
 
 const ConnectionDetails = ({
@@ -31,11 +33,9 @@ const ConnectionDetails = ({
   onConnectionChange,
   settings,
   showConsumer,
+  initialView,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
-  const [showFieldMapping, setShowFieldMapping] = useState<boolean | null>(
-    false
-  );
 
   const {
     selectedConnection,
@@ -62,9 +62,10 @@ const ConnectionDetails = ({
   const hasFormFields =
     form_fields?.filter((field) => !field.hidden)?.length > 0;
 
-  const [showSettings, setShowSettings] = useState(false);
-  const [showResources, setShowResources] = useState(false);
   const [hasRequiredMappings, setHasRequiredMappings] = useState(false);
+  const [currentView, setCurrentView] = useState<ConnectionViewType | null>(
+    null
+  );
 
   const requiredAuthVariables =
     authorizationVariablesRequired(selectedConnection);
@@ -75,36 +76,63 @@ const ConnectionDetails = ({
     auth_type === 'oauth2' &&
     !requiredAuthVariables;
 
-  useEffect(() => {
-    // Open / close settings form bases on state
-    const needsInput =
-      !showSettings &&
+  const needsInput = useMemo(() => {
+    return (
+      currentView !== ConnectionViewType.Settings &&
       enabled &&
       state !== 'callable' &&
       hasFormFields &&
       (!shouldShowAuthorizeButton ||
         state === 'authorized' ||
-        state === 'invalid');
+        state === 'invalid')
+    );
+  }, [currentView, enabled, state, hasFormFields, shouldShowAuthorizeButton]);
 
-    if (needsInput || singleConnectionMode) {
-      setShowSettings(true);
+  useEffect(() => {
+    // Open specific view when provided as prop
+    if (initialView && !currentView) {
+      setCurrentView(initialView);
+      return;
     }
-  }, [state, hasFormFields]);
+
+    // Open / close settings form bases on state
+    if (needsInput && currentView !== ConnectionViewType.Settings) {
+      setCurrentView(ConnectionViewType.Settings);
+      return;
+    }
+
+    // Open / close resource form bases on missing fields
+    if (
+      !currentView &&
+      hasMissingRequiredFields(resources) &&
+      !settings?.hide_resource_settings
+    ) {
+      setCurrentView(ConnectionViewType.ConfigurableResources);
+      return;
+    }
+
+    // On single connection mode, open settings by default
+    if (!currentView && singleConnectionMode) {
+      setCurrentView(ConnectionViewType.Settings);
+    }
+  }, [needsInput, currentView, initialView, resources, settings]);
 
   useEffect(() => {
     // Open / close resource form bases on missing fields
     if (
-      !showSettings &&
+      !currentView &&
       hasMissingRequiredFields(resources) &&
       !settings?.hide_resource_settings
     ) {
-      setShowResources(true);
+      setCurrentView(ConnectionViewType.ConfigurableResources);
     }
+  }, [selectedConnection, resources, currentView]);
 
-    if (showResources && !hasMissingRequiredFields(resources)) {
-      setShowResources(false);
+  useEffect(() => {
+    if (!currentView && initialView === ConnectionViewType.CustomMapping) {
+      setCurrentView(ConnectionViewType.CustomMapping);
     }
-  }, [selectedConnection, resources, showSettings]);
+  }, [initialView]);
 
   useEffect(() => {
     let hasRequiredMappings = false;
@@ -127,10 +155,8 @@ const ConnectionDetails = ({
           setSelectedConnection(null);
         }
       }}
-      setShowSettings={setShowSettings}
-      setShowResources={setShowResources}
+      setCurrentView={setCurrentView}
       singleConnectionMode={singleConnectionMode}
-      setShowFieldMapping={setShowFieldMapping}
       settings={settings}
       {...props}
     />
@@ -165,10 +191,10 @@ const ConnectionDetails = ({
     );
   }
 
-  if (showFieldMapping) {
+  if (currentView === ConnectionViewType.CustomMapping) {
     return (
       <FieldMapping
-        setShowFieldMapping={setShowFieldMapping}
+        setCurrentView={setCurrentView}
         TopBarComponent={TopBarComponent}
         showConsumer={showConsumer}
       />
@@ -223,7 +249,9 @@ const ConnectionDetails = ({
             <div className="mx-auto mt-4">
               <StatusBadge
                 connection={selectedConnection}
-                isLoading={isUpdating && !showSettings}
+                isLoading={
+                  isUpdating && currentView !== ConnectionViewType.Settings
+                }
                 size="large"
               />
             </div>
@@ -231,7 +259,7 @@ const ConnectionDetails = ({
 
           {selectedConnection.state === 'callable' &&
             hasRequiredMappings &&
-            (!showSettings || !hasFormFields) && (
+            (currentView !== ConnectionViewType.Settings || !hasFormFields) && (
               <div className="max-w-md w-full rounded-md p-4 bg-gray-50 text-center mt-4 border border-gray-100">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -255,9 +283,8 @@ const ConnectionDetails = ({
                   Missing required field mappings.
                 </h3>
                 <Button
-                  // size="small"
                   className="mt-3 flex items-center w-full"
-                  onClick={() => setShowFieldMapping(true)}
+                  onClick={() => setCurrentView(null)}
                   style={
                     session?.theme?.primary_color
                       ? { backgroundColor: session?.theme.primary_color }
@@ -292,7 +319,7 @@ const ConnectionDetails = ({
             </div>
           ) : null}
 
-          {showResources ? (
+          {currentView === ConnectionViewType.ConfigurableResources ? (
             <Fragment>
               <Divider text="Configurable resources" />
               <ResourceList
@@ -302,7 +329,7 @@ const ConnectionDetails = ({
             </Fragment>
           ) : null}
 
-          {hasFormFields && showSettings ? (
+          {hasFormFields && currentView === ConnectionViewType.Settings ? (
             <Fragment>
               {requiredAuthVariables ? (
                 <div className={'mt-4 text-xs sm:text-sm text-gray-700'}>
@@ -312,7 +339,7 @@ const ConnectionDetails = ({
               <Divider text="Settings" />
               <ConnectionForm
                 connection={selectedConnection}
-                setShowSettings={setShowSettings}
+                setCurrentView={setCurrentView}
                 settings={settings}
               />
             </Fragment>

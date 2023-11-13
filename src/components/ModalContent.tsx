@@ -1,5 +1,6 @@
 import React from 'react';
 import { Connection } from '../types/Connection';
+import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
@@ -14,10 +15,12 @@ export const ModalContent = ({
   onClose,
   onConnectionChange,
   consumer,
+  initialView,
 }: {
   consumer?: { image?: string; user_name?: string; account_name?: string };
   onClose: () => any;
   onConnectionChange?: (connection: Connection) => any;
+  initialView?: ConnectionViewType;
 }) => {
   const {
     connections,
@@ -83,6 +86,7 @@ export const ModalContent = ({
           settings={session?.settings as SessionSettings}
           showConsumer={showConsumer}
           data-testid={`details-${selectedConnection.id}`}
+          initialView={initialView}
         />
         {showConsumer && <ConsumerSection consumer={consumer} />}
       </div>

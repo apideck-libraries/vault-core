@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
+import { ConnectionViewType } from '../types/ConnectionViewType';
 import { FormField } from '../types/FormField';
 import { SessionSettings, VaultAction } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
@@ -33,19 +34,18 @@ interface Props {
   singleConnectionMode?: boolean;
   settings?: SessionSettings;
   setShowFieldMapping?: Dispatch<SetStateAction<boolean>>;
+  setCurrentView?: Dispatch<SetStateAction<ConnectionViewType | null>>;
 }
 
 const TopBar = ({
   onClose,
   onConnectionChange,
   onBack,
-  setShowSettings,
-  setShowResources,
   hideOptions,
   hideBackButton,
   singleConnectionMode,
   settings,
-  setShowFieldMapping,
+  setCurrentView,
 }: Props) => {
   const {
     selectedConnection,
@@ -177,8 +177,7 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          if (setShowSettings) setShowSettings(true);
-          if (setShowResources) setShowResources(false);
+          if (setCurrentView) setCurrentView(ConnectionViewType.Settings);
         },
       });
     }
@@ -209,9 +208,9 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          if (setShowResources && !settings?.hide_resource_settings)
-            setShowResources(true);
-          if (setShowSettings) setShowSettings(false);
+          if (setCurrentView && !settings?.hide_resource_settings) {
+            setCurrentView(ConnectionViewType.ConfigurableResources);
+          }
         },
       });
     }
@@ -238,7 +237,7 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          setShowFieldMapping?.(true);
+          if (setCurrentView) setCurrentView(ConnectionViewType.CustomMapping);
         },
       });
     }
@@ -296,7 +295,7 @@ const TopBar = ({
           </button>
         ),
         onClick: async () => {
-          if (setShowSettings) setShowSettings(false);
+          if (setCurrentView) setCurrentView(null);
           updateConnection({
             unifiedApi: unified_api,
             serviceId: service_id,
@@ -342,8 +341,8 @@ const TopBar = ({
             const hasFormFields = form_fields?.filter(
               (field: FormField) => !field.hidden
             )?.length;
-            if (state !== 'callable' && hasFormFields && setShowSettings) {
-              setShowSettings(true);
+            if (state !== 'callable' && hasFormFields && setCurrentView) {
+              setCurrentView(ConnectionViewType.Settings);
             }
           }
         },

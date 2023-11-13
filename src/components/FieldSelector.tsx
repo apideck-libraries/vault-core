@@ -158,7 +158,7 @@ const FieldSelector = ({
             type="button"
             className={`${
               active ? 'bg-primary-500 text-white' : 'text-gray-900'
-            } group flex w-full items-center px-4 py-2.5 justify-between`}
+            } group flex w-full items-center px-4 py-2 justify-between`}
             onClick={(e) => {
               if (isSelectable) {
                 onSelect({
@@ -290,9 +290,9 @@ const FieldSelector = ({
             >
               <Menu.Items
                 className="absolute rounded-t-2xl z-40 mt-2 w-[calc(100%-0px)] left-[0px] origin-top-right overflow-hidden bg-white shadow-lg ring-1 ring-gray-200 rounded-b-2xl focus:outline-none"
-                style={{ top: -153, minHeight: 150 }}
+                style={{ top: -362, minHeight: 354 }}
               >
-                <div className="max-h-[380px] 2xl:max-h-[440px] overflow-y-auto divide-y divide-gray-200">
+                <div className="max-h-[480px] xl:max-h-[520px] 2xl:max-h-[550px] 3xl:max-h-[570px] overflow-y-auto divide-y divide-gray-200">
                   <nav
                     className="flex items-center justify-between"
                     aria-label="Tabs"

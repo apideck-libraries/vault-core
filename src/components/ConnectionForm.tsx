@@ -9,6 +9,7 @@ import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
 import { Connection } from '../types/Connection';
+import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
@@ -17,13 +18,13 @@ import SearchSelect from './SearchSelect';
 
 interface Props {
   connection: Connection;
-  setShowSettings: Dispatch<SetStateAction<boolean>>;
+  setCurrentView: Dispatch<SetStateAction<ConnectionViewType | null>>;
   settings: SessionSettings;
 }
 
 type ValidationState = 'idle' | 'invalid' | 'valid' | 'validating';
 
-const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
+const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
   const { updateConnection } = useConnections();
   const { addToast } = useToast();
   const { session } = useSession();
@@ -62,13 +63,13 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
             title: `Successfully connected to ${connection.name}`,
           });
           if (updatedConnection?.state === 'callable') {
-            setShowSettings(false);
+            setCurrentView(null);
           }
         }
 
         setValidationState(valid ? 'valid' : 'invalid');
       } else {
-        setShowSettings(false);
+        setCurrentView(null);
         const updatedConnection = await updateConnection({
           unifiedApi: connection.unified_api,
           serviceId: connection.service_id,
@@ -76,7 +77,7 @@ const ConnectionForm = ({ connection, setShowSettings, settings }: Props) => {
         });
 
         if (!updatedConnection) {
-          setShowSettings(true);
+          setCurrentView(ConnectionViewType.Settings);
         }
       }
     },

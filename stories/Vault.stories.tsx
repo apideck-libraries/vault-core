@@ -54,6 +54,42 @@ SingleConnection.args = {
   serviceId: 'pipedrive',
 };
 
+export const SettingsView = Template.bind({});
+SettingsView.args = {
+  trigger: (
+    <button className="p-2 border rounded shadow">
+      Open hubSpot settings view
+    </button>
+  ),
+  unifiedApi: 'crm',
+  serviceId: 'hubspot',
+  initialView: 'settings',
+};
+
+export const ConfigurableResourcesView = Template.bind({});
+ConfigurableResourcesView.args = {
+  trigger: (
+    <button className="p-2 border rounded shadow">
+      Open hubSpot configuruable resources
+    </button>
+  ),
+  unifiedApi: 'crm',
+  serviceId: 'hubspot',
+  initialView: 'configurable-resources',
+};
+
+export const CusotmMappingView = Template.bind({});
+CusotmMappingView.args = {
+  trigger: (
+    <button className="p-2 border rounded shadow">
+      Open hubSpot custom mapping
+    </button>
+  ),
+  unifiedApi: 'crm',
+  serviceId: 'hubspot',
+  initialView: 'custom-mapping',
+};
+
 export const SingleUnifiedApi = Template.bind({});
 SingleUnifiedApi.args = {
   trigger: (
