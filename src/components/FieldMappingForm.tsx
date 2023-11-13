@@ -185,52 +185,6 @@ const FieldMappingForm = ({
       >
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
-            {`${selectedConnection?.name} property`}
-          </label>
-          <FieldSelector
-            className="col-span-5"
-            onSelect={(mappingField: any) => setSelectedMapping(mappingField)}
-            isLoading={
-              !schema && !customFields && !schemaError && !customFieldsError
-            }
-            error={schemaError || customFieldsError}
-            buttonRef={buttonRef}
-            customFields={customFields}
-            triggerComponent={
-              <OriginFieldCard
-                selectedCustomMapping={selectedCustomMapping}
-                selectedConnection={selectedConnection}
-                selectedMapping={selectedMapping}
-                responseDataPath={responseDataPath}
-              />
-            }
-            triggerComponentProps={{
-              className: 'text-left w-full h-full',
-            }}
-            responseDataPath={responseDataPath}
-            properties={properties ? Object.entries(properties) : []}
-            selectedCustomMapping={selectedCustomMapping}
-          />
-        </div>
-        <div className="relative">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5 right-6 -top-2 absolute text-gray-700"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-            />
-          </svg>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
             Response key
           </label>
           <div className="ring-1 ring-gray-200 rounded-2xl p-5 bg-white flex flex-col justify-between h-[145px]">
@@ -261,6 +215,52 @@ const FieldMappingForm = ({
               </div>
             </p>
           </div>
+        </div>
+        <div className="relative">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5 right-6 -top-2 absolute text-gray-700"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+            />
+          </svg>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1 ml-[19px]">
+            {`${selectedConnection?.name} property`}
+          </label>
+          <FieldSelector
+            className="col-span-5"
+            onSelect={(mappingField: any) => setSelectedMapping(mappingField)}
+            isLoading={
+              !schema && !customFields && !schemaError && !customFieldsError
+            }
+            error={schemaError || customFieldsError}
+            buttonRef={buttonRef}
+            customFields={customFields}
+            triggerComponent={
+              <OriginFieldCard
+                selectedCustomMapping={selectedCustomMapping}
+                selectedConnection={selectedConnection}
+                selectedMapping={selectedMapping}
+                responseDataPath={responseDataPath}
+              />
+            }
+            triggerComponentProps={{
+              className: 'text-left w-full h-full',
+            }}
+            responseDataPath={responseDataPath}
+            properties={properties ? Object.entries(properties) : []}
+            selectedCustomMapping={selectedCustomMapping}
+          />
         </div>
         <Button
           text={'Save field mapping'}
