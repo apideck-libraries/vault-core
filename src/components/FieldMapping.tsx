@@ -54,7 +54,7 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
             setCurrentView;
           }
         }}
-        hideOptions={true}
+        hideOptions={!!selectedCustomMapping}
       />
       <div className={`h-full mt-3 ${showConsumer ? '' : 'rounded-b-lg'}`}>
         <div className="text-center px-10">

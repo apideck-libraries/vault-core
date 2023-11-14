@@ -405,28 +405,30 @@ const TopBar = ({
       });
     }
 
-    options.push({
-      label: (
-        <button className="flex font-medium items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="h-4 w-4 mr-2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-          Close
-        </button>
-      ),
-      onClick: () => onClose(),
-    });
+    if (!singleConnectionMode) {
+      options.push({
+        label: (
+          <button className="flex font-medium items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-4 w-4 mr-2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+            Close
+          </button>
+        ),
+        onClick: () => onClose(),
+      });
+    }
 
     return options;
   };
@@ -449,7 +451,9 @@ const TopBar = ({
           if (selectedConnection) deleteConnection(selectedConnection);
         }}
       />
-      {selectedConnection && !hideBackButton && !singleConnectionMode ? (
+      {selectedConnection &&
+      !hideBackButton &&
+      (!singleConnectionMode || hideOptions) ? (
         <button
           className="inline-flex mt-3 items-center justify-center w-10 h-10 text-gray-900 transition-all duration-200 rounded-full hover:bg-gray-100 focus:outline-none"
           onClick={onBack}

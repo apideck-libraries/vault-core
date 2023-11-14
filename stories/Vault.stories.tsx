@@ -29,8 +29,8 @@ const Template: Story<Props> = (args) => (
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     {...args}
     showConsumer={true}
-    unifyBaseUrl="https://localhost:3050"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiJodHRwczovL3ZhdWx0LmFwaWRlY2suY29tL29hdXRoL2NhbGxiYWNrIiwiY29uc3VtZXJfbWV0YWRhdGEiOnsiYWNjb3VudF9uYW1lIjoiQXBpZGVjayBTdGFnaW5nIC0gVW5pZnkiLCJ1c2VyX25hbWUiOiJOaWNrIExsb3lkIiwiaW1hZ2UiOiJodHRwczovL3VuYXZhdGFyLmlvL25pY2tAYXBpZGVjay5jb20ifSwidGhlbWUiOnsiZmF2aWNvbiI6Imh0dHBzOi8vcmVzLmNsb3VkaW5hcnkuY29tL2FwaWRlY2svaW1hZ2UvdXBsb2FkL3YxNTk0NjQwMTA2L21hcmtldHBsYWNlcy91ZmM3MDgyYXN6emdodHZuZ3FhZS5wbmciLCJwcmltYXJ5X2NvbG9yIjoiIzVDNTFDRSIsInByaXZhY3lfdXJsIjoiaHR0cHM6Ly9jb21wbGlhbmNlLmFwaWRlY2suY29tL3ByaXZhY3ktcG9saWN5Iiwic2lkZXBhbmVsX2JhY2tncm91bmRfY29sb3IiOiIjMEUxMjQ0Iiwic2lkZXBhbmVsX3RleHRfY29sb3IiOiIjRkZGRkZGIiwidGVybXNfdXJsIjoiaHR0cHM6Ly93d3cudGVybXNmZWVkLmNvbS90ZXJtcy1jb25kaXRpb25zLzk1N2M4NWMxYjA4OWFlOWUzMjE5YzgzZWZmNjUzNzdlIiwidmF1bHRfbmFtZSI6IkFwaWRlY2sgVW5pZnkgU3RhZ2luZyJ9LCJzZXR0aW5ncyI6eyJzZXNzaW9uX2xlbmd0aCI6IjI0aCJ9LCJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6IjIyMjIiLCJzY29wZXMiOltdLCJpYXQiOjE2OTU3OTc3OTEsImV4cCI6MTY5NTg4NDE5MX0.zYD2uvs1JT4fpMepWNryA05aCN3xJnfeAhbf8dApAbU"
+    // unifyBaseUrl="https://localhost:3050"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiJodHRwczovL3ZhdWx0LmFwaWRlY2suY29tL29hdXRoL2NhbGxiYWNrIiwiY29uc3VtZXJfbWV0YWRhdGEiOnsiYWNjb3VudF9uYW1lIjoiQXBpZGVjayBTYW5kYm94ICIsInVzZXJfbmFtZSI6Ikpha2UiLCJpbWFnZSI6Imh0dHBzOi8vdW5hdmF0YXIuaW8vamFrZUBhcGlkZWNrLmNvbSJ9LCJ0aGVtZSI6eyJmYXZpY29uIjoiaHR0cHM6Ly9yZXMuY2xvdWRpbmFyeS5jb20vYXBpZGVjay9pbWFnZS91cGxvYWQvdjE2OTIwOTA4MDYvbWFya2V0cGxhY2VzL2Zhdmljb25fZHA0YTNsLnBuZyIsInByaW1hcnlfY29sb3IiOiIjMDMwNDVlIiwicHJpdmFjeV91cmwiOiJodHRwczovL2NvbXBsaWFuY2UuYXBpZGVjay5jb20vcHJpdmFjeS1wb2xpY3kiLCJzaWRlcGFuZWxfYmFja2dyb3VuZF9jb2xvciI6IiMxNjI2M2YiLCJzaWRlcGFuZWxfdGV4dF9jb2xvciI6IiNGRkZGRkYiLCJ0ZXJtc191cmwiOiJodHRwczovL3d3dy50ZXJtc2ZlZWQuY29tL3Rlcm1zLWNvbmRpdGlvbnMvOTU3Yzg1YzFiMDg5YWU5ZTMyMTljODNlZmY2NTM3N2UiLCJ2YXVsdF9uYW1lIjoiQXBpZGVjayBTYW1wbGVzIn0sInNldHRpbmdzIjp7InNlc3Npb25fbGVuZ3RoIjoiMjRoIn0sImNvbnN1bWVyX2lkIjoidGVzdC1jb25zdW1lciIsImFwcGxpY2F0aW9uX2lkIjoiY2ZhWnJPUmdhSDJQTVFwSWNqVHBmaEVSSXBJRVVKSGV2MDl1Y2pUcCIsInNjb3BlcyI6W10sImlhdCI6MTY5OTk1MDEwMywiZXhwIjoxNzAwMDM2NTAzfQ.hCfjTFPij5c2iGS0I929ACmT6fPjIi9wAGv034aaDmQ"
   />
 );
 
@@ -48,21 +48,19 @@ Programaticly.args = {
 export const SingleConnection = Template.bind({});
 SingleConnection.args = {
   trigger: (
-    <button className="p-2 border rounded shadow">Open Pipedrive</button>
+    <button className="p-2 border rounded shadow">Open Singe Connection</button>
   ),
   unifiedApi: 'crm',
-  serviceId: 'pipedrive',
+  serviceId: 'act',
 };
 
 export const SettingsView = Template.bind({});
 SettingsView.args = {
   trigger: (
-    <button className="p-2 border rounded shadow">
-      Open hubSpot settings view
-    </button>
+    <button className="p-2 border rounded shadow">Open settings view</button>
   ),
   unifiedApi: 'crm',
-  serviceId: 'hubspot',
+  serviceId: 'copper',
   initialView: 'settings',
 };
 
@@ -70,7 +68,7 @@ export const ConfigurableResourcesView = Template.bind({});
 ConfigurableResourcesView.args = {
   trigger: (
     <button className="p-2 border rounded shadow">
-      Open hubSpot configuruable resources
+      Open configuruable resources
     </button>
   ),
   unifiedApi: 'crm',
@@ -81,12 +79,10 @@ ConfigurableResourcesView.args = {
 export const CusotmMappingView = Template.bind({});
 CusotmMappingView.args = {
   trigger: (
-    <button className="p-2 border rounded shadow">
-      Open hubSpot custom mapping
-    </button>
+    <button className="p-2 border rounded shadow">Open custom mapping</button>
   ),
-  unifiedApi: 'crm',
-  serviceId: 'hubspot',
+  unifiedApi: 'accounting',
+  serviceId: 'quickbooks',
   initialView: 'custom-mapping',
 };
 
