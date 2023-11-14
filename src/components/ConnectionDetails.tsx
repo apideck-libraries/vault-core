@@ -282,7 +282,9 @@ const ConnectionDetails = ({
                 </h3>
                 <Button
                   className="mt-3 flex items-center w-full"
-                  onClick={() => setCurrentView(undefined)}
+                  onClick={() =>
+                    setCurrentView(ConnectionViewType.CustomMapping)
+                  }
                   style={
                     session?.theme?.primary_color
                       ? { backgroundColor: session?.theme.primary_color }

@@ -93,6 +93,11 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
             }`}
           >
             <div className="flex flex-col space-y-4">
+              {selectedConnection?.custom_mappings?.length === 0 && (
+                <div className="bg-white p-5 rounded-lg shadow-sm relative text-center fade-in text-sm ring-1 ring-gray-200/60">
+                  No mapping fields available.
+                </div>
+              )}
               {selectedConnection?.custom_mappings?.map(
                 (mapping: CustomMapping) => {
                   return (

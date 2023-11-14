@@ -126,6 +126,26 @@ const VaultButton = ({ token }) => {
 export default VaultButton;
 ```
 
+If you want to open a specific view you can pass the `initialView` prop. The available views are `settings`, `configurable-resources`, and `custom-mapping`.
+
+```js
+import { Vault } from '@apideck/react-vault';
+
+const MyComponent = () => {
+  return (
+    <Vault
+      token="REPLACE_WITH_SESSION_TOKEN"
+      unifiedApi="accounting"
+      serviceId="quickbooks"
+      initialView="custom-mapping"
+      trigger={<button>Open Vault</button>}
+    />
+  );
+};
+
+export default MyComponent;
+```
+
 If you want to provide a custom logo on top of the modal, you can set the `logo` property on the `theme` you can provide through the session. [View Vault API documentation](https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate).
 
 ### Properties
@@ -142,3 +162,4 @@ If you want to provide a custom logo on top of the modal, you can set the `logo`
 | unifiedApi         | string                           | false    | -       | When unifiedApi is provided it will scope the connection results to that API. If also a serviceId is provided Vault opens for a single connection |
 | serviceId          | string                           | false    | -       | When unifiedApi and serviceId are provided Vault opens a single connection                                                                        |
 | showConsumer       | boolean                          | false    | false   | Show the consumer metadata provided when creating a session                                                                                       |
+| initialView        | ConnectionViewType               | false    | -       | Open Vault in a specific view for a connection session                                                                                            |
