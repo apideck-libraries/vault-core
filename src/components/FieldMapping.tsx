@@ -50,7 +50,7 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
           if (selectedCustomMapping) {
             setSelectedCustomMapping(null);
           } else {
-            setCurrentView(null);
+            setCurrentView(undefined);
             setCurrentView;
           }
         }}

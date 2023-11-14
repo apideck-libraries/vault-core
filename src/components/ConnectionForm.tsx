@@ -18,7 +18,7 @@ import SearchSelect from './SearchSelect';
 
 interface Props {
   connection: Connection;
-  setCurrentView: Dispatch<SetStateAction<ConnectionViewType | null>>;
+  setCurrentView: Dispatch<SetStateAction<ConnectionViewType | undefined>>;
   settings: SessionSettings;
 }
 
@@ -63,13 +63,13 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
             title: `Successfully connected to ${connection.name}`,
           });
           if (updatedConnection?.state === 'callable') {
-            setCurrentView(null);
+            setCurrentView(undefined);
           }
         }
 
         setValidationState(valid ? 'valid' : 'invalid');
       } else {
-        setCurrentView(null);
+        setCurrentView(undefined);
         const updatedConnection = await updateConnection({
           unifiedApi: connection.unified_api,
           serviceId: connection.service_id,

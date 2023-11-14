@@ -38,7 +38,7 @@ describe('Connection form - Invalid session', () => {
       screen = render(
         <ConnectionForm
           connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
-          setShowSettings={() => {}}
+          setCurrentView={() => {}}
           settings={{}}
         />
       );
@@ -56,7 +56,7 @@ describe('Connection form - Invalid session', () => {
       screen = render(
         <ConnectionForm
           connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
-          setShowSettings={() => {}}
+          setCurrentView={() => {}}
           settings={{}}
         />
       );

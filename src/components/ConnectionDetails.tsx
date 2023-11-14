@@ -63,9 +63,7 @@ const ConnectionDetails = ({
     form_fields?.filter((field) => !field.hidden)?.length > 0;
 
   const [hasRequiredMappings, setHasRequiredMappings] = useState(false);
-  const [currentView, setCurrentView] = useState<ConnectionViewType | null>(
-    null
-  );
+  const [currentView, setCurrentView] = useState<ConnectionViewType>();
 
   const requiredAuthVariables =
     authorizationVariablesRequired(selectedConnection);
@@ -284,7 +282,7 @@ const ConnectionDetails = ({
                 </h3>
                 <Button
                   className="mt-3 flex items-center w-full"
-                  onClick={() => setCurrentView(null)}
+                  onClick={() => setCurrentView(undefined)}
                   style={
                     session?.theme?.primary_color
                       ? { backgroundColor: session?.theme.primary_color }

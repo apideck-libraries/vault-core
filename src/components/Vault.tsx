@@ -90,7 +90,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     serviceId,
     unifyBaseUrl = BASE_URL,
     showConsumer = false,
-    initialView = null,
+    initialView,
   },
   ref
 ) {

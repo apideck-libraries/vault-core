@@ -34,7 +34,7 @@ interface Props {
   singleConnectionMode?: boolean;
   settings?: SessionSettings;
   setShowFieldMapping?: Dispatch<SetStateAction<boolean>>;
-  setCurrentView?: Dispatch<SetStateAction<ConnectionViewType | null>>;
+  setCurrentView?: Dispatch<SetStateAction<ConnectionViewType | undefined>>;
 }
 
 const TopBar = ({
@@ -295,7 +295,7 @@ const TopBar = ({
           </button>
         ),
         onClick: async () => {
-          if (setCurrentView) setCurrentView(null);
+          if (setCurrentView) setCurrentView(undefined);
           updateConnection({
             unifiedApi: unified_api,
             serviceId: service_id,
