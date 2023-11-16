@@ -63,7 +63,9 @@ const ConnectionDetails = ({
     form_fields?.filter((field) => !field.hidden)?.length > 0;
 
   const [hasRequiredMappings, setHasRequiredMappings] = useState(false);
-  const [currentView, setCurrentView] = useState<ConnectionViewType>();
+  const [currentView, setCurrentView] = useState<
+    ConnectionViewType | null | undefined
+  >(null);
 
   const requiredAuthVariables =
     authorizationVariablesRequired(selectedConnection);
@@ -88,7 +90,7 @@ const ConnectionDetails = ({
 
   useEffect(() => {
     // Open specific view when provided as prop
-    if (initialView && !currentView) {
+    if (initialView && currentView === null && singleConnectionMode) {
       setCurrentView(initialView);
       return;
     }
@@ -110,27 +112,10 @@ const ConnectionDetails = ({
     }
 
     // On single connection mode, open settings by default
-    if (!currentView && singleConnectionMode) {
+    if (currentView === null && singleConnectionMode) {
       setCurrentView(ConnectionViewType.Settings);
     }
-  }, [needsInput, currentView, initialView, resources, settings]);
-
-  useEffect(() => {
-    // Open / close resource form bases on missing fields
-    if (
-      !currentView &&
-      hasMissingRequiredFields(resources) &&
-      !settings?.hide_resource_settings
-    ) {
-      setCurrentView(ConnectionViewType.ConfigurableResources);
-    }
-  }, [selectedConnection, resources, currentView]);
-
-  useEffect(() => {
-    if (!currentView && initialView === ConnectionViewType.CustomMapping) {
-      setCurrentView(ConnectionViewType.CustomMapping);
-    }
-  }, [initialView]);
+  }, [needsInput, initialView, resources, settings]);
 
   useEffect(() => {
     let hasRequiredMappings = false;
