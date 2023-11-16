@@ -34,7 +34,9 @@ interface Props {
   singleConnectionMode?: boolean;
   settings?: SessionSettings;
   setShowFieldMapping?: Dispatch<SetStateAction<boolean>>;
-  setCurrentView?: Dispatch<SetStateAction<ConnectionViewType | undefined>>;
+  setCurrentView?: Dispatch<
+    SetStateAction<ConnectionViewType | undefined | null>
+  >;
 }
 
 const TopBar = ({

@@ -18,7 +18,9 @@ import SearchSelect from './SearchSelect';
 
 interface Props {
   connection: Connection;
-  setCurrentView: Dispatch<SetStateAction<ConnectionViewType | undefined>>;
+  setCurrentView: Dispatch<
+    SetStateAction<ConnectionViewType | undefined | null>
+  >;
   settings: SessionSettings;
 }
 
