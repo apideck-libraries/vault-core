@@ -51,7 +51,6 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
             setSelectedCustomMapping(null);
           } else {
             setCurrentView(undefined);
-            setCurrentView;
           }
         }}
         hideOptions={!!selectedCustomMapping}
