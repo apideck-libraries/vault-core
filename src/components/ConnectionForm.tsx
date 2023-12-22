@@ -180,7 +180,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
                     onChange={formik.handleChange}
                   />
                 )}
-                {type === 'select' && (
+                {(type === 'select' || type === 'multi-select') && (
                   <SearchSelect
                     field={id}
                     handleChange={formik.handleChange}
@@ -193,6 +193,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
                         : placeholder || 'Select..'
                     }
                     isCreatable={allowCustomValues}
+                    isMulti={type === 'multi-select'}
                   />
                 )}
                 {description && (
