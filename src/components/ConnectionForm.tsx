@@ -8,6 +8,7 @@ import {
 import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
+import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
@@ -30,6 +31,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
   const { updateConnection } = useConnections();
   const { addToast } = useToast();
   const { session } = useSession();
+  const { t } = useTranslation();
   const [validationState, setValidationState] =
     useState<ValidationState>('idle');
 
@@ -62,7 +64,9 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
         if (valid) {
           addToast({
             type: 'success',
-            title: `Successfully connected to ${connection.name}`,
+            title: t('Successfully connected to {{connectionName}}', {
+              connectionName: connection.name,
+            }),
           });
           if (updatedConnection?.state === 'callable') {
             setCurrentView(undefined);
@@ -106,11 +110,14 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
                   for help
                 </>
               ) : (
-                `Could not connect to ${connection.name}. Please check your credentials`
+                t(
+                  'Could not connect to {{connectionName}}. Please check your credentials',
+                  { connectionName: connection.name }
+                )
               )}
             </span>
           }
-          title={`Connection failed`}
+          title={t('Connection failed')}
           variant="danger"
         />
       )}
@@ -209,7 +216,9 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
         <Button
           type="submit"
           text={
-            validationState === 'validating' ? 'Trying to connect...' : 'Save'
+            validationState === 'validating'
+              ? t('Trying to connect...')
+              : t('Save')
           }
           isLoading={validationState === 'validating'}
           size="large"
@@ -239,14 +248,14 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
           </svg>
 
           <span>
-            Need help? View our{' '}
+            {t('Need help? View our')}{' '}
             <a
               className="inline-flex items-center text-main hover:text-main underline font-semibold hover:text-primary-600 transition"
               target="_blank"
               rel="noreferrer"
               href={`https://developers.apideck.com/connectors/${connection.service_id}/docs/consumer+connection`}
             >
-              Connection Guide
+              {t('Connection Guide')}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

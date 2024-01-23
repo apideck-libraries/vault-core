@@ -1,4 +1,5 @@
 import React, { ChangeEvent, RefObject } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   value: string;
@@ -7,6 +8,8 @@ interface Props {
 }
 
 const SearchInput = ({ value, searchInputRef, onChange }: Props) => {
+  const { t } = useTranslation();
+
   return (
     <div className="relative px-6 py-4" id="react-vault-search-input">
       <div className="absolute left-0 flex items-center pt-2.5 md:pt-3 pl-10 pointer-events-none">
@@ -28,7 +31,7 @@ const SearchInput = ({ value, searchInputRef, onChange }: Props) => {
         name="search"
         type="text"
         ref={searchInputRef}
-        placeholder="Search integrations"
+        placeholder={t('Search integrations')}
         value={value}
         className="w-full text-gray-600 border border-transparent bg-gray-100 rounded-md sm:text-sm focus:ring-transparent focus:border-gray-200 placeholder-gray-400 pl-12 md:py-2.5 lg:py-3"
         autoComplete="off"

@@ -2,6 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useState } from 'react';
 
 import { Button } from '@apideck/components';
+import { useTranslation } from 'react-i18next';
 
 export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   onClose: () => void;
@@ -11,6 +12,7 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
 
 export function ConfirmModal({ onClose, isOpen = false, onConfirm }: Props) {
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleConfirm = async () => {
     try {
@@ -63,12 +65,13 @@ export function ConfirmModal({ onClose, isOpen = false, onConfirm }: Props) {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Are you sure?
+                  {t('Are you sure?')}
                 </Dialog.Title>
                 <div className="mt-2">
                   <p className="text-sm text-gray-500">
-                    When you delete a connection you will lose all your
-                    configured settings.
+                    {t(
+                      'When you delete a connection you will lose all your configured settings.'
+                    )}
                   </p>
                 </div>
 

@@ -1,5 +1,6 @@
 import { Button, useToast } from '@apideck/components';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSWR, { useSWRConfig } from 'swr';
 import { Connection, CustomMapping } from '../types/Connection';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
@@ -295,6 +296,7 @@ const OriginFieldCard = ({
   responseDataPath,
 }: OriginFieldCardProps) => {
   const { session } = useSession();
+  const { t } = useTranslation();
 
   return (
     <div className="ring-1 ring-gray-200 rounded-2xl p-5 group shadow-sm hover:shadow-md transition duration-100 bg-white flex flex-col justify-between h-[145px]">
@@ -320,8 +322,8 @@ const OriginFieldCard = ({
                 : selectedMapping
                 ? selectedMapping.title
                 : selectedCustomMapping?.custom_field
-                ? 'Select custom field'
-                : 'Select field'}
+                ? t('Select custom field')
+                : t('Select field')}
             </span>
             <div className="inline-flex items-center py-1 px-2.5 text-sm font-medium text-center text-gray-500 bg-gray-50 border border-gray-300/50 rounded-lg group-hover:bg-gray-100">
               <span className="text-gray-600 group-hover:text-gray-900 mr-1">
@@ -368,7 +370,7 @@ const OriginFieldCard = ({
             {(!!selectedMapping?.type ||
               selectedCustomMapping?.custom_field) && (
               <p className="text-sm text-gray-600 truncate">
-                Type:{' '}
+                {t('Type')}:{' '}
                 <span className="text-gray-600">
                   {selectedMapping?.type || 'Custom field'}
                 </span>
@@ -376,7 +378,7 @@ const OriginFieldCard = ({
             )}
             {!!selectedMapping?.example && (
               <p className="text-sm text-gray-600 truncate mb-1.5">
-                Example:{' '}
+                {t('Example')}:{' '}
                 <span className="text-gray-600">
                   {selectedMapping?.example?.toString()}
                 </span>
@@ -387,7 +389,7 @@ const OriginFieldCard = ({
           <p className="flex items-baseline">
             <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg overflow-y-auto hide-scrollbar">
               {selectedCustomMapping.custom_field
-                ? 'Custom Field'
+                ? t('Custom Field')
                 : renderReadableJSONPath(
                     selectedMapping?.description,
                     responseDataPath
@@ -398,13 +400,12 @@ const OriginFieldCard = ({
       ) : (
         <>
           <div className="text-sm text-gray-600">
-            {`Map a property to ${
-              selectedCustomMapping?.label || selectedCustomMapping?.key
-            }`}
+            {t('Map a property to')}
+            {` `}`${selectedCustomMapping?.label || selectedCustomMapping?.key}`
           </div>
           <p className="flex items-baseline">
             <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-center text-gray-600 bg-gray-50 ring-1 ring-gray-200/70 rounded-lg">
-              None selected
+              {t('None selected')}
             </div>
           </p>
         </>

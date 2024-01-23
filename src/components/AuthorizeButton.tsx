@@ -1,6 +1,7 @@
 import { Button, useToast } from '@apideck/components';
 import React, { useState } from 'react';
 
+import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
@@ -20,6 +21,7 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
     session: { theme, redirect_uri },
   } = useSession();
   const { mutate } = useSWRConfig();
+  const { t } = useTranslation();
 
   const authorizeUrl = `${connection.authorize_url}&redirect_uri=${
     redirect_uri ?? REDIRECT_URL
@@ -48,7 +50,7 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
         const data = await response.json();
         if (data.error) {
           addToast({
-            title: `Something went wrong`,
+            title: t('Something went wrong'),
             description: data.message,
             type: 'error',
             autoClose: true,
@@ -68,8 +70,10 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
         mutate('/vault/connections');
       } catch (error) {
         addToast({
-          title: `Something went wrong`,
-          description: `The integration could not be authorized. Please make sure your settings are correct and try again.`,
+          title: t('Something went wrong'),
+          description: t(
+            'The integration could not be authorized. Please make sure your settings are correct and try again.'
+          ),
           type: 'error',
           autoClose: true,
         });
@@ -127,7 +131,7 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
 
   return (
     <Button
-      text={`Authorize ${connection.name}`}
+      text={`${t('Authorize')} ${connection.name}`}
       isLoading={isLoading}
       disabled={
         connection.integration_state === 'needs_configuration' || isLoading

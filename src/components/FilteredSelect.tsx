@@ -1,5 +1,6 @@
-import { FormField, FormFieldOptionGroup } from '../types/FormField';
 import React, { Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
+import { FormField, FormFieldOptionGroup } from '../types/FormField';
 import SearchSelect, { OptionType } from './SearchSelect';
 
 interface IProps {
@@ -11,6 +12,7 @@ interface IProps {
 const FilteredSelect = ({ field, formikProps, className = '' }: IProps) => {
   const { handleChange, values } = formikProps;
   const { id, type, options, filter } = field;
+  const { t } = useTranslation();
 
   const filterOn = filter?.value;
   if (!filterOn) return <Fragment />;
@@ -29,7 +31,7 @@ const FilteredSelect = ({ field, formikProps, className = '' }: IProps) => {
       field={id}
       value={values[id]}
       handleChange={handleChange}
-      placeholder="Select.."
+      placeholder={t('Select..')}
       options={(filterOptions as OptionType[]) || []}
       isMulti={type === 'multi-select'}
       className={className}

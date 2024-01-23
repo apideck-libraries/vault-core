@@ -1,8 +1,8 @@
-import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
-
 import { Dropdown, useToast } from '@apideck/components';
 import { Option } from '@apideck/components/dist/components/Dropdown';
 import classNames from 'classnames';
+import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
@@ -62,6 +62,7 @@ const TopBar = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { addToast } = useToast();
   const isActionAllowedForSettings = isActionAllowed(settings);
+  const { t } = useTranslation();
 
   const handleRedirect = async (url: string) => {
     setIsReAuthorizing(true);
@@ -77,7 +78,7 @@ const TopBar = ({
         const data = await response.json();
         if (data.error) {
           addToast({
-            title: `Something went wrong`,
+            title: t('Something went wrong'),
             description: data.message,
             type: 'error',
             autoClose: true,
@@ -85,7 +86,7 @@ const TopBar = ({
           return;
         }
         addToast({
-          title: `Authorized ${selectedConnection?.name}`,
+          title: `${t('Authorized')} ${selectedConnection?.name}`,
           type: 'success',
           autoClose: true,
         });
@@ -97,8 +98,10 @@ const TopBar = ({
         mutate('/vault/connections');
       } catch (error) {
         addToast({
-          title: `Something went wrong`,
-          description: `The integration could not be authorized. Please make sure your settings are correct and try again.`,
+          title: t('Something went wrong'),
+          description: t(
+            'The integration could not be authorized. Please make sure your settings are correct and try again.'
+          ),
           type: 'error',
           autoClose: true,
         });
@@ -206,7 +209,7 @@ const TopBar = ({
                 d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
               />
             </svg>
-            Configurable Resources
+            {t('Configurable Resources')}
           </button>
         ),
         onClick: () => {
@@ -235,7 +238,7 @@ const TopBar = ({
                 d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
               />
             </svg>
-            Field Mapping
+            {t('Field Mapping')}
           </button>
         ),
         onClick: () => {
@@ -268,7 +271,7 @@ const TopBar = ({
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            Re-authorize
+            {t('Re-authorize')}
           </button>
         ),
         onClick: () => handleRedirect(authorizeUrl),
@@ -293,7 +296,7 @@ const TopBar = ({
                 d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
               />
             </svg>
-            Disable
+            {t('Disable')}
           </button>
         ),
         onClick: async () => {
@@ -327,7 +330,7 @@ const TopBar = ({
                 d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
               />
             </svg>
-            Enable
+            {t('Enable')}
           </button>
         ),
         onClick: async () => {
@@ -373,7 +376,7 @@ const TopBar = ({
                 d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
               />
             </svg>
-            Disconnect
+            {t('Disconnect')}
           </button>
         ),
         onClick: () => handleRedirect(revokeUrl),
@@ -398,7 +401,7 @@ const TopBar = ({
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
               />
             </svg>
-            Delete
+            {t('Delete')}
           </button>
         ),
         onClick: () => {
@@ -425,7 +428,7 @@ const TopBar = ({
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
-            Close
+            {t('Close')}
           </button>
         ),
         onClick: () => onClose(),

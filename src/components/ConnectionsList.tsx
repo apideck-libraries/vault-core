@@ -2,6 +2,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import classNames from 'classnames';
 import Fuse from 'fuse.js';
+import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import useDebounce from '../utils/useDebounce';
 import ConnectionListItem from './ConnectionListItem';
@@ -20,6 +21,7 @@ const ConnectionsList = ({ connections, isLoading, type }: Props) => {
   const [list, setList] = useState<Connection[]>([]);
   const debouncedSearchTerm = useDebounce(searchTerm, 250);
   const searchInputRef: any = useRef();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (showSearch && debouncedSearchTerm) {
@@ -88,7 +90,9 @@ const ConnectionsList = ({ connections, isLoading, type }: Props) => {
       </ul>
       {connectionsToShow?.length === 0 && (
         <div className="flex items-center justify-center flex-1 h-64">
-          <p className="text-center text-gray-500">No connections {type}</p>
+          <p className="text-center text-gray-500">
+            {t('No connections')} {type}
+          </p>
         </div>
       )}
     </div>

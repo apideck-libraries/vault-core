@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 
+import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
 
@@ -78,6 +79,7 @@ export const ConnectionsProvider = ({
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const { mutate } = useSWRConfig();
   const { addToast } = useToast();
+  const { t } = useTranslation();
 
   const singleConnectionMode =
     unifiedApi?.length && serviceId?.length ? true : false;
@@ -219,9 +221,9 @@ export const ConnectionsProvider = ({
         if (!quiet) {
           const message = values.hasOwnProperty('enabled')
             ? `${result.data?.name} is ${
-                values.enabled ? 'enabled' : 'disabled'
+                values.enabled ? t('enabled') : t('disabled')
               }`
-            : `${result.data?.name} settings are updated`;
+            : `${result.data?.name} ${t('settings are updated')}`;
 
           addToast({
             title: message,
@@ -236,7 +238,7 @@ export const ConnectionsProvider = ({
         return result.data;
       } else {
         addToast({
-          title: 'Updating failed',
+          title: t('Updating failed'),
           description: result.message,
           type: 'error',
         });
@@ -244,7 +246,7 @@ export const ConnectionsProvider = ({
       return null;
     } catch (error) {
       addToast({
-        title: 'Updating failed',
+        title: t('Updating failed'),
         description: (error as any)?.message,
         type: 'error',
       });
@@ -283,7 +285,9 @@ export const ConnectionsProvider = ({
       } else {
         setSelectedConnection(null);
         addToast({
-          title: `${connection.name} has been deleted`,
+          title: t('{{connectionName}} is deleted', {
+            connectionName: connection.name,
+          }),
           type: 'success',
           autoClose: true,
         });

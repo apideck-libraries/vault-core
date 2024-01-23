@@ -14,6 +14,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
@@ -61,6 +62,7 @@ const FieldSelector = ({
   const searchInputRef: any = useRef();
 
   const { selectedConnection, fetchResourceExample } = useConnections();
+  const { t } = useTranslation();
 
   const { data, error: exampleError } = useSWR(
     selectedConnection &&
@@ -186,7 +188,15 @@ const FieldSelector = ({
                   active ? 'text-primary-200' : 'text-gray-500'
                 }`}
               >
-                {isCustomFieldMapping ? <span>Example: {value}</span> : type}
+                {isCustomFieldMapping ? (
+                  <span>
+                    {t('Example')}
+                    {`: `}
+                    {value}
+                  </span>
+                ) : (
+                  type
+                )}
               </span>
             </div>
             {!isSelectable && (
@@ -243,20 +253,20 @@ const FieldSelector = ({
       ? [
           {
             id: 'custom',
-            name: 'Select field',
+            name: t('Select field'),
             current: mode === 'custom',
           },
         ]
       : [
           {
             id: 'root',
-            name: 'Select field',
+            name: t('Select field'),
             current: mode === 'root',
           },
         ]),
     {
       id: 'advanced',
-      name: 'Advanced',
+      name: t('Advanced'),
       current: mode === 'advanced',
     },
   ];
@@ -276,7 +286,7 @@ const FieldSelector = ({
               </Menu.Button>
             ) : (
               <Menu.Button className="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                Select field
+                {t('Select field')}
               </Menu.Button>
             )}
 
@@ -396,7 +406,7 @@ const FieldSelector = ({
                           htmlFor="fieldMapping"
                           className="block text-sm font-medium leading-5 text-gray-700"
                         >
-                          Enter a field mapping.
+                          {t('Enter a field mapping.')}
                         </label>
                         <TextInput
                           placeholder="$['address']['example']"
@@ -485,8 +495,8 @@ const FieldSelector = ({
                           autoFocus={true}
                           placeholder={
                             mode === 'root'
-                              ? 'Search properties'
-                              : 'Search fields'
+                              ? t('Search properties')
+                              : t('Search fields')
                           }
                         />
                       </div>
@@ -526,14 +536,14 @@ const FieldSelector = ({
                   )}
                   {mode === 'root' && noFieldsFound && !error && (
                     <div className="p-3 py-5 text-sm text-gray-500">
-                      No fields found for mapping.
+                      {t('No fields found for mapping.')}
                     </div>
                   )}
                   {mode === 'custom' &&
                     customFields?.length === 0 &&
                     !error && (
                       <div className="p-3 py-5 text-sm text-gray-500">
-                        No custom fields found for mapping.
+                        {t('No custom fields found for mapping.')}
                       </div>
                     )}
                 </div>
@@ -640,6 +650,8 @@ const SearchInput = ({
   autoFocus,
   placeholder = 'Search connectors',
 }: SearchInputProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="relative fade-in">
       <div className="absolute left-0 flex items-center pt-[11px] pl-2.5 pointer-events-none">
@@ -661,7 +673,7 @@ const SearchInput = ({
         name="search"
         type="text"
         ref={searchInputRef}
-        placeholder={placeholder}
+        placeholder={t(placeholder)}
         value={value}
         className="w-full text-gray-600 border bg-gray-100 rounded-md sm:text-sm focus:ring-transparent border-gray-100 focus:border-gray-200 placeholder-gray-400 pl-8"
         autoComplete="off"

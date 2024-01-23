@@ -2,10 +2,12 @@ import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
+import { useTranslation } from 'react-i18next';
 import { BASE_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { Session } from '../types/Session';
+import '../utils/i18n';
 import { ConnectionsProvider } from '../utils/useConnections';
 import { SessionProvider } from '../utils/useSession';
 import Modal from './Modal';
@@ -68,6 +70,12 @@ export interface Props {
    * @default false
    * */
   initialView?: ConnectionViewType;
+
+  /**
+   * Optionally you can directly and one of the following locales: 'en', 'nl', 'fr', and 'de'.
+   * @default en
+   * */
+  locale?: string;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -91,12 +99,14 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     unifyBaseUrl = BASE_URL,
     showConsumer = false,
     initialView,
+    locale = 'en',
   },
   ref
 ) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [session, setSession] = useState<Session>({});
+  const { i18n } = useTranslation();
 
   const onCloseModal = () => {
     if (isOpen) {
@@ -104,6 +114,12 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
       if (onClose) onClose();
     }
   };
+
+  useEffect(() => {
+    if (locale !== i18n.language) {
+      i18n.changeLanguage(locale);
+    }
+  }, [locale]);
 
   useEffect(() => {
     if (open && !token) {

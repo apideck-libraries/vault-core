@@ -1,5 +1,6 @@
 import { Button, useToast } from '@apideck/components';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
 import { CustomMapping } from '../types/CustomMapping';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
@@ -15,6 +16,7 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
   );
   const { addToast } = useToast();
   const { mutate } = useSWRConfig();
+  const { t } = useTranslation();
 
   if (!selectedConnection) return null;
 
@@ -27,7 +29,7 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
       const url = `${unifyBaseUrl}/vault/custom-mappings/${selectedConnection.unified_api}/${selectedConnection.service_id}/${id}`;
       await fetch(url, { method: 'DELETE', headers });
       addToast({
-        title: 'Mapping removed.',
+        title: t('Mapping removed.'),
         type: 'success',
       });
       const detailUrl = `${unifyBaseUrl}/vault/connections/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`;
@@ -60,19 +62,19 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
           <p className="text-sm text-gray-700 mb-4">
             {selectedCustomMapping ? (
               <span>
-                Select a source property from your{' '}
+                {t('Select a source property from your')}{' '}
                 <span className="font-medium">{selectedConnection.name}</span>{' '}
-                data to the{' '}
+                {t('data to the')}{' '}
                 <span className="font-medium">
                   {selectedCustomMapping?.label}
                 </span>{' '}
-                field.
+                {t('field')}.
               </span>
             ) : (
               <span>
-                Map properties from your{' '}
+                {t('Map properties from your')}{' '}
                 <span className="font-medium">{selectedConnection.name}</span>{' '}
-                data to one of the fields below.
+                {t('data to one of the fields below')}.
               </span>
             )}
           </p>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
@@ -32,6 +33,7 @@ export const ModalContent = ({
     token,
   } = useConnections();
   const { session } = useSession();
+  const { t, i18n } = useTranslation();
 
   if ((error && !selectedConnection) || (detailsError && selectedConnection)) {
     return (
@@ -113,7 +115,7 @@ export const ModalContent = ({
           <TabSelect
             tabs={[
               {
-                name: 'Added',
+                name: `${t('Added')}`,
                 content: (
                   <ConnectionsList
                     isLoading={isLoading}
@@ -124,7 +126,7 @@ export const ModalContent = ({
                 count: addedConnections?.length,
               },
               {
-                name: 'Available',
+                name: `${t('Available')}`,
                 content: (
                   <ConnectionsList
                     isLoading={isLoading}
@@ -142,7 +144,7 @@ export const ModalContent = ({
             <div
               className={`text-center text-lg font-medium leading-6 text-gray-900 ${'p-6'}`}
             >
-              <h3>Manage your integrations</h3>
+              <h3>{t('Manage your integrations')}</h3>
             </div>
             <ConnectionsList
               isLoading={isLoading}
@@ -154,11 +156,10 @@ export const ModalContent = ({
         {!isLoading && noConnections && (
           <div className="text-center p-5">
             <h3 className="text-lg font-medium leading-6 text-gray-900">
-              No integrations found
+              {t('No integrations found')}
             </h3>
             <p className="text-gray-600 mt-2 text-base">
-              It looks like the application owner did not yet make any
-              integrations available
+              {t('No integrations have been added yet')}
             </p>
           </div>
         )}

@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 
 import { Alert, Button } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
+import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
@@ -47,6 +48,8 @@ const ConnectionDetails = ({
   } = useConnections();
 
   const { session } = useSession();
+  const { t } = useTranslation();
+
   if (!selectedConnection) return null;
 
   const {
@@ -161,9 +164,12 @@ const ConnectionDetails = ({
               <span className="capitalize">{selectedResource}</span>{' '}
               configuration
             </Dialog.Title>
-            <p className="mt-2 text-sm text-gray-500 mb-5">{`
-                Please provide default values for the fields below. These will be
-                applied when creating new ${selectedResource} through our integration.`}</p>
+            <p className="mt-2 text-sm text-gray-500 mb-5">
+              {t(
+                'Please provide default values for the fields below. These will be applied when creating new {{selectedResource}} through our integration.',
+                { selectedResource }
+              )}
+            </p>
             <ResourceForm
               resource={selectedResource}
               closeForm={() => setSelectedResource(null)}
@@ -203,14 +209,16 @@ const ConnectionDetails = ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            {getApiName(selectedConnection)}
+            {getApiName(selectedConnection, t('Connection'))}
           </a>
           {selectedConnection.integration_state === 'needs_configuration' && (
             <Alert
               className="text-left my-2"
               description={
                 <span>
-                  Configure the {name} integration in the{' '}
+                  {t('Configure the {{name}} integration in the', {
+                    name,
+                  })}{' '}
                   <a
                     href={`https://platform.apideck.com/configuration/${unified_api}/${service_id}`}
                     target="_blank"
@@ -219,11 +227,12 @@ const ConnectionDetails = ({
                   >
                     Apideck admin dashboard
                   </a>{' '}
-                  before linking your account. This integration will not be
-                  visible to your users until configured.
+                  {t(
+                    'before linking your account. This integration will not be visible to your users until configured.'
+                  )}
                 </span>
               }
-              title="Admin configuration required"
+              title={t('Admin configuration required')}
               variant="warning"
             />
           )}
@@ -263,7 +272,7 @@ const ConnectionDetails = ({
                   data-testid="alert-title"
                   className="mt-2 text-sm font-medium text-gray-800 dark:text-white"
                 >
-                  Missing required field mappings.
+                  {t('Missing required field mappings.')}
                 </h3>
                 <Button
                   className="mt-3 flex items-center w-full"
@@ -276,7 +285,7 @@ const ConnectionDetails = ({
                       : {}
                   }
                 >
-                  <span>Field Mapping</span>
+                  <span>{t('Field Mapping')}</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"

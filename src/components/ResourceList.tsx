@@ -1,6 +1,7 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
-import React from 'react';
 import { useConnections } from '../utils/useConnections';
 
 const ResourceList = ({
@@ -11,6 +12,8 @@ const ResourceList = ({
   setSelectedResource: (resource: string) => void;
 }) => {
   const { resources } = useConnections();
+  const { t } = useTranslation();
+
   return (
     <div className="overflow-hidden bg-white border rounded-md">
       <ul className="divide-y divide-gray-200">
@@ -30,7 +33,7 @@ const ResourceList = ({
                   <span>{resource}</span>
                   {hasRequiredFieldsWithoutValue ? (
                     <div className="inline-flex items-center font-medium leading-none rounded-full whitespace-nowrap px-2 py-1 text-xs bg-yellow-100 text-yellow-800">
-                      Missing required fields
+                      {t('Missing required fields')}
                     </div>
                   ) : null}
                 </button>

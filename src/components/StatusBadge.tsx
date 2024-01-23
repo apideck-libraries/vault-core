@@ -1,6 +1,7 @@
-import { Connection } from '../types/Connection';
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Connection } from '../types/Connection';
 
 interface Props {
   connection: Connection;
@@ -13,18 +14,20 @@ const StatusBadge = ({
   isLoading = false,
   size = 'small',
 }: Props) => {
+  const { t } = useTranslation();
+
   const { state, integration_state, enabled } = connection;
 
   const statusText = () => {
     if (integration_state === 'needs_configuration')
-      return 'Needs configuration';
-    if (state === 'invalid') return 'Invalid configuration';
-    if (state === 'available') return 'Not connected';
-    if (!enabled) return 'Disabled';
-    if (state === 'added') return 'Unauthorized';
-    if (state === 'authorized' && size === 'small') return 'Input required';
-    if (state === 'authorized') return 'Needs configuration';
-    if (state === 'callable') return 'Connected';
+      return t('Needs configuration');
+    if (state === 'invalid') return t('Invalid configuration');
+    if (state === 'available') return t('Not connected');
+    if (!enabled) return t('Disabled');
+    if (state === 'added') return t('Unauthorized');
+    if (state === 'authorized' && size === 'small') return t('Input required');
+    if (state === 'authorized') return t('Needs configuration');
+    if (state === 'callable') return t('Connected');
     return null;
   };
 
