@@ -33,7 +33,7 @@ export const ModalContent = ({
     token,
   } = useConnections();
   const { session } = useSession();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   if ((error && !selectedConnection) || (detailsError && selectedConnection)) {
     return (
