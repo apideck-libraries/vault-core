@@ -72,7 +72,7 @@ export interface Props {
   initialView?: ConnectionViewType;
 
   /**
-   * Optionally you can directly and one of the following locales: 'en', 'nl', 'fr', and 'de'.
+   * Optionally you can directly and one of the following locales: 'en', 'nl', 'fr', 'es', and 'de'.
    * @default en
    * */
   locale?: string;
