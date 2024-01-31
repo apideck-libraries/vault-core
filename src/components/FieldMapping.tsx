@@ -7,7 +7,12 @@ import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { useConnections } from '../utils/useConnections';
 import FieldMappingForm from './FieldMappingForm';
 
-const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
+const FieldMapping = ({
+  setCurrentView,
+  TopBarComponent,
+  showConsumer,
+  showLanguageSwitch,
+}) => {
   const { unifyBaseUrl, selectedConnection, headers } = useConnections();
   const [selectedCustomMapping, setSelectedCustomMapping] =
     useState<null | CustomMapping>(null);
@@ -57,7 +62,11 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
         }}
         hideOptions={!!selectedCustomMapping}
       />
-      <div className={`h-full mt-3 ${showConsumer ? '' : 'rounded-b-lg'}`}>
+      <div
+        className={`h-full mt-3 ${
+          showConsumer || showLanguageSwitch ? '' : 'rounded-b-lg'
+        }`}
+      >
         <div className="text-center px-10">
           <p className="text-sm text-gray-700 mb-4">
             {selectedCustomMapping ? (
@@ -84,13 +93,14 @@ const FieldMapping = ({ setCurrentView, TopBarComponent, showConsumer }) => {
             selectedCustomMapping={selectedCustomMapping}
             setSelectedCustomMapping={setSelectedCustomMapping}
             showConsumer={showConsumer}
+            showLanguageSwitch={showLanguageSwitch}
           />
         )}
 
         {!selectedCustomMapping && (
           <div
             className={`bg-gray-50 p-5 border-t border-b border-gray-200 max-h-[480px] overflow-y-auto ${
-              showConsumer ? '' : 'rounded-b-lg'
+              showConsumer || showLanguageSwitch ? '' : 'rounded-b-lg'
             }`}
           >
             <div className="flex flex-col space-y-4">

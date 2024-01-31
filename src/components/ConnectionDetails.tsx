@@ -27,6 +27,7 @@ interface Props {
   settings: SessionSettings;
   showConsumer?: boolean;
   initialView?: ConnectionViewType;
+  showLanguageSwitch?: boolean;
 }
 
 const ConnectionDetails = ({
@@ -35,6 +36,7 @@ const ConnectionDetails = ({
   settings,
   showConsumer,
   initialView,
+  showLanguageSwitch,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
 
@@ -155,7 +157,11 @@ const ConnectionDetails = ({
           onBack={() => setSelectedResource(null)}
           hideOptions={true}
         />
-        <div className={`h-full ${showConsumer ? '' : 'rounded-b-xl'}`}>
+        <div
+          className={`h-full ${
+            showConsumer || showLanguageSwitch ? '' : 'rounded-b-xl'
+          }`}
+        >
           <div className="text-center p-5 md:p-6">
             <Dialog.Title
               as="h3"
@@ -186,6 +192,7 @@ const ConnectionDetails = ({
         setCurrentView={setCurrentView}
         TopBarComponent={TopBarComponent}
         showConsumer={showConsumer}
+        showLanguageSwitch={showLanguageSwitch}
       />
     );
   }
@@ -315,7 +322,7 @@ const ConnectionDetails = ({
 
           {currentView === ConnectionViewType.ConfigurableResources ? (
             <Fragment>
-              <Divider text="Configurable resources" />
+              <Divider text={t('Configurable resources')} />
               <ResourceList
                 connection={selectedConnection}
                 setSelectedResource={setSelectedResource}
@@ -330,7 +337,7 @@ const ConnectionDetails = ({
                   {requiredAuthVariables}
                 </div>
               ) : null}
-              <Divider text="Settings" />
+              <Divider text={t('Settings"')} />
               <ConnectionForm
                 connection={selectedConnection}
                 setCurrentView={setCurrentView}

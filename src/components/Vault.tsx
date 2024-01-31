@@ -76,6 +76,12 @@ export interface Props {
    * @default en
    * */
   locale?: string;
+
+  /**
+   * Optionally you can show the language switch dropdown in the modal
+   * @default false
+   * */
+  showLanguageSwitch?: boolean;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -100,6 +106,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     showConsumer = false,
     initialView,
     locale = 'en',
+    showLanguageSwitch = false,
   },
   ref
 ) {
@@ -187,6 +194,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
                     showConsumer ? session?.consumer_metadata : undefined
                   }
                   initialView={initialView}
+                  showLanguageSwitch={showLanguageSwitch}
                 />
               </SessionProvider>
             </ConnectionsProvider>

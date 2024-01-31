@@ -1,7 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import LanguageSwitchDropdown from './LanguageSwitchDropdown';
 
-const ConsumerSection = ({ consumer }: { consumer: any }) => {
+const ConsumerSection = ({
+  consumer,
+  showLanguageSwitch,
+}: {
+  consumer: any;
+  showLanguageSwitch?: boolean;
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -29,7 +36,11 @@ const ConsumerSection = ({ consumer }: { consumer: any }) => {
             </div>
           </div>
         </div>
-        <p className="text-xs text-gray-500">{t('Signed in')}</p>
+        {showLanguageSwitch ? (
+          <LanguageSwitchDropdown />
+        ) : (
+          <p className="text-xs text-gray-500">{t('Signed in')}</p>
+        )}
       </div>
     </div>
   );

@@ -120,3 +120,8 @@ export const InSpanish = Template.bind({});
 InSpanish.args = {
   locale: 'es',
 };
+
+export const ShowLanguageSwitch = Template.bind({});
+ShowLanguageSwitch.args = {
+  showLanguageSwitch: true,
+};

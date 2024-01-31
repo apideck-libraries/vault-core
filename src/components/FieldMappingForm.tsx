@@ -42,6 +42,7 @@ const FieldMappingForm = ({
   selectedCustomMapping,
   setSelectedCustomMapping,
   showConsumer,
+  showLanguageSwitch,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { addToast } = useToast();
@@ -181,7 +182,7 @@ const FieldMappingForm = ({
     <div>
       <div
         className={`bg-gray-50 p-5 border-t border-b border-gray-200 fade-in ${
-          showConsumer ? '' : 'rounded-b-lg'
+          showConsumer || showLanguageSwitch ? '' : 'rounded-b-lg'
         }`}
       >
         <div className="mb-5">

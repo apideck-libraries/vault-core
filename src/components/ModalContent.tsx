@@ -8,6 +8,7 @@ import { useSession } from '../utils/useSession';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionsList from './ConnectionsList';
 import ConsumerSection from './ConsumerSection';
+import LanguageSection from './LanguageSection';
 import LoadingDetails from './LoadingDetails';
 import TabSelect from './TabSelect';
 import TopBar from './TopBar';
@@ -17,11 +18,13 @@ export const ModalContent = ({
   onConnectionChange,
   consumer,
   initialView,
+  showLanguageSwitch,
 }: {
   consumer?: { image?: string; user_name?: string; account_name?: string };
   onClose: () => any;
   onConnectionChange?: (connection: Connection) => any;
   initialView?: ConnectionViewType;
+  showLanguageSwitch?: boolean;
 }) => {
   const {
     connections,
@@ -89,8 +92,15 @@ export const ModalContent = ({
           showConsumer={showConsumer}
           data-testid={`details-${selectedConnection.id}`}
           initialView={initialView}
+          showLanguageSwitch={showLanguageSwitch}
         />
-        {showConsumer && <ConsumerSection consumer={consumer} />}
+        {showConsumer && (
+          <ConsumerSection
+            consumer={consumer}
+            showLanguageSwitch={showLanguageSwitch}
+          />
+        )}
+        {!showConsumer && showLanguageSwitch && <LanguageSection />}
       </div>
     );
 
@@ -108,7 +118,7 @@ export const ModalContent = ({
       />
       <div
         className={`h-full overflow-hidden min-h-[469px] ${
-          showConsumer ? '' : 'rounded-b-lg'
+          showConsumer || showLanguageSwitch ? '' : 'rounded-b-lg'
         }`}
       >
         {addedConnections?.length > 0 && (
@@ -164,7 +174,13 @@ export const ModalContent = ({
           </div>
         )}
       </div>
-      {showConsumer && <ConsumerSection consumer={consumer} />}
+      {showConsumer && (
+        <ConsumerSection
+          consumer={consumer}
+          showLanguageSwitch={showLanguageSwitch}
+        />
+      )}
+      {!showConsumer && showLanguageSwitch && <LanguageSection />}
     </div>
   );
 };

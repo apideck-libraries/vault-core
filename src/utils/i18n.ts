@@ -82,6 +82,8 @@ const resources = {
       Close: 'Close',
       Connection: 'Connection',
       'Are you sure?': 'Are you sure?',
+      Settings: 'Settings',
+      'Configurable resources': 'Configurable resources',
     },
   },
   nl: {
@@ -164,6 +166,8 @@ const resources = {
       Connection: 'Connectie',
       'When you delete a connection you will lose all your configured settings.':
         'Wanneer je een connectie verwijdert, verlies je al je geconfigureerde instellingen.',
+      Settings: 'Instellingen',
+      'Configurable resources': 'Configruabelen resources',
     },
   },
   fr: {
@@ -245,6 +249,8 @@ const resources = {
       Close: 'Fermer',
       Connection: 'Connexion',
       'Are you sure?': 'Êtes-vous sûr ?',
+      Settings: 'Paramètres',
+      'Configurable resources': 'Ressources configurables',
     },
   },
   de: {
@@ -326,6 +332,8 @@ const resources = {
       Close: 'Schließen',
       Connection: 'Verbindung',
       'Are you sure?': 'Sind Sie sicher?',
+      Settings: 'Einstellungen',
+      'Configurable resources': 'Konfigurierbare Ressourcen',
     },
   },
   es: {
@@ -407,6 +415,8 @@ const resources = {
       Close: 'Cerrar',
       Connection: 'Conexión',
       'Are you sure?': '¿Estás seguro?',
+      Settings: 'Ajustes',
+      'Configurable resources': 'Recursos Configurables',
     },
   },
 };
