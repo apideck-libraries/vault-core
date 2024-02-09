@@ -337,7 +337,7 @@ const ConnectionDetails = ({
                   {requiredAuthVariables}
                 </div>
               ) : null}
-              <Divider text={t('Settings"')} />
+              <Divider text={t('Settings')} />
               <ConnectionForm
                 connection={selectedConnection}
                 setCurrentView={setCurrentView}
