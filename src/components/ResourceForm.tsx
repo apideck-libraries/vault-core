@@ -81,13 +81,19 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
     {}
   );
 
+  const typeMap = sortedFormFields.reduce((acc: any, formField: FormField) => {
+    const { id, type } = formField;
+    acc[id] = type || undefined;
+    return acc;
+  }, {});
+
   const formik = useFormik({
     initialValues,
     onSubmit: async (values) => {
       const defaults = Object.entries(values)
         .map(([k, v]) => {
           return v !== undefined
-            ? { id: k, value: v, target: targetMap[k] }
+            ? { id: k, value: v, target: targetMap[k], type: typeMap[k] }
             : v;
         })
         .filter(Boolean);
