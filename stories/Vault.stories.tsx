@@ -48,7 +48,9 @@ Programaticly.args = {
 export const SingleConnection = Template.bind({});
 SingleConnection.args = {
   trigger: (
-    <button className="p-2 border rounded shadow">Open Singe Connection</button>
+    <button className="p-2 border rounded shadow">
+      Open Single Connection
+    </button>
   ),
   unifiedApi: 'crm',
   serviceId: 'act',
@@ -68,7 +70,7 @@ export const ConfigurableResourcesView = Template.bind({});
 ConfigurableResourcesView.args = {
   trigger: (
     <button className="p-2 border rounded shadow">
-      Open configuruable resources
+      Open configurable resources
     </button>
   ),
   unifiedApi: 'crm',
