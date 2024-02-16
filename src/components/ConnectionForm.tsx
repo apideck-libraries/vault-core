@@ -48,6 +48,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
 
   const formik = useFormik({
     initialValues,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       if (connection.validation_support) {
         setValidationState('validating');

@@ -4,23 +4,10 @@ import { useTranslation } from 'react-i18next';
 import useSWR, { useSWRConfig } from 'swr';
 import { Connection, CustomMapping } from '../types/Connection';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
+import { findByDescription } from '../utils/fieldMappingUtils';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import FieldSelector from './FieldSelector';
-
-export const findByDescription = (obj: any, description: string): any => {
-  for (const key in obj) {
-    if (obj[key] instanceof Object) {
-      const result = findByDescription(obj[key], description);
-      if (result) {
-        return result;
-      }
-    } else if (key === 'description' && obj[key] === description) {
-      return obj;
-    }
-  }
-  return null;
-};
 
 const renderReadableJSONPath = (
   jsonPath: string,

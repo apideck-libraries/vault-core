@@ -116,11 +116,27 @@ const ConnectionDetails = ({
       return;
     }
 
+    if (
+      selectedConnection.state === 'callable' &&
+      selectedConnection.configurable_resources?.length > 0 &&
+      currentView === null
+    ) {
+      setCurrentView(ConnectionViewType.ConfigurableResources);
+      return;
+    }
+
     // On single connection mode, open settings by default
     if (currentView === null && singleConnectionMode) {
       setCurrentView(ConnectionViewType.Settings);
     }
-  }, [needsInput, initialView, resources, settings]);
+  }, [
+    needsInput,
+    initialView,
+    resources,
+    settings,
+    selectedConnection,
+    currentView,
+  ]);
 
   useEffect(() => {
     let hasRequiredMappings = false;
