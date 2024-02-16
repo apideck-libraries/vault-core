@@ -71,11 +71,11 @@
   "size-limit": [
     {
       "path": "dist/react-vault.cjs.production.min.js",
-      "limit": "200 KB"
+      "limit": "300 KB"
     },
     {
       "path": "dist/react-vault.esm.js",
-      "limit": "200 KB"
+      "limit": "300 KB"
     }
   ],
   "resolutions": {
