@@ -17,8 +17,8 @@ import React, {
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
+import { findByDescription } from '../utils/fieldMappingUtils';
 import { useConnections } from '../utils/useConnections';
-import { findByDescription } from './FieldMappingForm';
 
 interface Props {
   onSelect: (field: any) => void;
