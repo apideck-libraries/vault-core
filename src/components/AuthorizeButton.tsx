@@ -130,7 +130,8 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
   }
 
   const buttonText =
-    connection?.service_id === 'microsoft-dynamics-365-business-central'
+    typeof connection?.service_id === 'string' &&
+    connection?.service_id.length > 15
       ? t('Authorize')
       : `${t('Authorize')} ${connection.name}`;
   return (
