@@ -129,9 +129,13 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
     );
   }
 
+  const buttonText =
+    connection?.service_id === 'microsoft-dynamics-365-business-central'
+      ? t('Authorize')
+      : `${t('Authorize')} ${connection.name}`;
   return (
     <Button
-      text={`${t('Authorize')} ${connection.name}`}
+      text={buttonText}
       isLoading={isLoading}
       disabled={
         connection.integration_state === 'needs_configuration' || isLoading
