@@ -161,7 +161,7 @@ const ConnectionDetails = ({
       }}
       setCurrentView={setCurrentView}
       singleConnectionMode={singleConnectionMode}
-      settings={settings}
+      settings={currentView !== ConnectionViewType.Settings ? settings : null}
       {...props}
     />
   );

@@ -154,7 +154,7 @@ const TopBar = ({
 
     const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
 
-    if (hasFormFields) {
+    if (settings && hasFormFields) {
       options.push({
         label: (
           <button className="flex font-medium items-center">
