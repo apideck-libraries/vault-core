@@ -62,6 +62,31 @@ const SearchSelect = ({
     session: { theme: vaultTheme },
   } = useSession();
 
+  const findMatchingOption = (val: string) =>
+    options.find((option) => option.value === val);
+
+  const createNewOptionType = (val: string): OptionType => ({
+    label: val,
+    value: val,
+  });
+
+  const findOrCreateOption = (val: string): OptionType =>
+    findMatchingOption(val) ?? createNewOptionType(val);
+
+  // If the value is not in the options list, add it as a custom option
+  // It handles both single and multi-select cases
+  const addCustomOptionIfNeeded = (
+    updatedValues: OptionType | OptionType[] | undefined,
+    value: string | string[] | readonly string[] | undefined
+  ): OptionType | OptionType[] | undefined => {
+    if (!value || !updatedValues || !Array.isArray(updatedValues))
+      return updatedValues;
+
+    return typeof value === 'string'
+      ? findOrCreateOption(value)
+      : value.map((v) => findOrCreateOption(v));
+  };
+
   useEffect(() => {
     if (!value) return;
 
@@ -71,7 +96,7 @@ const SearchSelect = ({
 
     if (isCreatable) {
       option = rest.isMulti
-        ? ([{ label: value, value }] as OptionType[])
+        ? addCustomOptionIfNeeded(option, value)
         : ({ label: value, value } as OptionType);
     }
 
