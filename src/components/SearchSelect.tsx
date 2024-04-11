@@ -79,12 +79,15 @@ const SearchSelect = ({
     updatedValues: OptionType | OptionType[] | undefined,
     value: string | string[] | readonly string[] | undefined
   ): OptionType | OptionType[] | undefined => {
-    if (!value || !updatedValues || !Array.isArray(updatedValues))
-      return updatedValues;
+    if (!value || !updatedValues) return updatedValues;
 
-    return typeof value === 'string'
-      ? findOrCreateOption(value)
-      : value.map((v) => findOrCreateOption(v));
+    if (Array.isArray(value)) {
+      return value.map((v) => findOrCreateOption(v));
+    } else if (typeof value === 'string') {
+      return findOrCreateOption(value);
+    } else {
+      return updatedValues;
+    }
   };
 
   useEffect(() => {
