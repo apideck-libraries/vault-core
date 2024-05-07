@@ -34,6 +34,7 @@ interface Props {
   singleConnectionMode?: boolean;
   settings?: SessionSettings;
   setShowFieldMapping?: Dispatch<SetStateAction<boolean>>;
+  currentView?: ConnectionViewType;
   setCurrentView?: Dispatch<
     SetStateAction<ConnectionViewType | undefined | null>
   >;
@@ -48,6 +49,7 @@ const TopBar = ({
   singleConnectionMode,
   settings,
   setCurrentView,
+  currentView,
 }: Props) => {
   const {
     selectedConnection,
@@ -154,7 +156,7 @@ const TopBar = ({
 
     const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
 
-    if (settings && hasFormFields) {
+    if (currentView !== ConnectionViewType.Settings && hasFormFields) {
       options.push({
         label: (
           <button className="flex font-medium items-center">

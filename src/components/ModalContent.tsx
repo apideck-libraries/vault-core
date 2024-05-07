@@ -115,6 +115,7 @@ export const ModalContent = ({
         onConnectionChange={onConnectionChange}
         onClose={onClose}
         settings={session?.settings as SessionSettings}
+        currentView={initialView}
       />
       <div
         className={`h-full overflow-hidden min-h-[469px] ${
