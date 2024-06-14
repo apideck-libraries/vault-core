@@ -50,6 +50,31 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
     initialValues,
     enableReinitialize: true,
     onSubmit: async (values) => {
+      // Check if all required fields have values
+      const allRequiredFieldsFilled = formFields.every((field) => {
+        const fieldValue = values[field.id];
+        if (field.required) {
+          if (field.type === 'multi-select' || field.type === 'select') {
+            // Assuming multi-select fields store an array of strings
+            return Array.isArray(fieldValue) && fieldValue.length > 0;
+          } else {
+            // Handle other types as non-array values
+            return fieldValue !== undefined && (fieldValue as unknown) !== '';
+          }
+        }
+        return true; // If not required, no need to check
+      });
+
+      if (!allRequiredFieldsFilled) {
+        setValidationState('idle');
+        addToast({
+          type: 'error',
+          title: t('Missing required fields'),
+          description: t('Please fill all required fields before submitting.'),
+        });
+        return;
+      }
+
       if (connection.validation_support) {
         setValidationState('validating');
         const updatedConnection = await updateConnection({

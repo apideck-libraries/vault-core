@@ -63,7 +63,7 @@ const resources = {
       'Something went wrong': 'Something went wrong',
       'The integration could not be authorized. Please make sure your settings are correct and try again.':
         'The integration could not be authorized. Please make sure your settings are correct and try again.',
-      Authorize: 'Authorize',
+      Authorize: 'Authorize {{connectionName}}',
       'Missing required fields': 'Missing required fields',
       'Missing required field mappings.': 'Missing required field mappings.',
       'Field Mapping': 'Field Mapping',
@@ -145,7 +145,7 @@ const resources = {
       'Something went wrong': 'Er is iets misgegaan',
       'The integration could not be authorized. Please make sure your settings are correct and try again.':
         'De integratie kon niet worden geautoriseerd. Controleer of je instellingen correct zijn en probeer het opnieuw.',
-      Authorize: 'Autoriseren',
+      Authorize: '{{connectionName}} Autoriseren',
       'Missing required fields': 'Ontbrekende verplichte velden',
       'Missing required field mappings.':
         'Ontbrekende verplichte veldmappings.',
@@ -229,7 +229,7 @@ const resources = {
       'Something went wrong': 'Quelque chose a mal tourné',
       'The integration could not be authorized. Please make sure your settings are correct and try again.':
         "L'intégration n'a pas pu être autorisée. Veuillez vérifier que vos paramètres sont corrects et réessayez.",
-      Authorize: 'Autoriser',
+      Authorize: 'Autoriser {{connectionName}}',
       'Missing required fields': 'Champs obligatoires manquants',
       'Missing required field mappings.':
         'Mappages de champs obligatoires manquants.',
@@ -312,7 +312,7 @@ const resources = {
       'Something went wrong': 'Etwas ist schiefgelaufen',
       'The integration could not be authorized. Please make sure your settings are correct and try again.':
         'Die Integration konnte nicht autorisiert werden. Bitte stellen Sie sicher, dass Ihre Einstellungen korrekt sind und versuchen Sie es erneut.',
-      Authorize: 'Autorisieren',
+      Authorize: '{{connectionName}} Autorisieren',
       'Missing required fields': 'Fehlende erforderliche Felder',
       'Missing required field mappings.':
         'Fehlende erforderliche Feldzuordnungen.',
@@ -395,7 +395,7 @@ const resources = {
       'Something went wrong': 'Algo salió mal',
       'The integration could not be authorized. Please make sure your settings are correct and try again.':
         'La integración no pudo ser autorizada. Por favor, asegúrate de que tus ajustes son correctos y vuelve a intentarlo.',
-      Authorize: 'Autorizar',
+      Authorize: 'Autorizar {{connectionName}}',
       'Missing required fields': 'Faltan campos requeridos',
       'Missing required field mappings.': 'Faltan mapeos de campos requeridos.',
       'Field Mapping': 'Mapeo de Campo',
