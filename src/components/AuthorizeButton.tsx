@@ -129,11 +129,7 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
     );
   }
 
-  const buttonText =
-    typeof connection?.service_id === 'string' &&
-    connection?.service_id.length > 15
-      ? t('Authorize')
-      : `${t('Authorize')} ${connection.name}`;
+  const buttonText = t('Authorize', { connectionName: connection.name });
   return (
     <Button
       text={buttonText}
