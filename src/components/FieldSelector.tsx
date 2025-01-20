@@ -34,6 +34,27 @@ interface Props {
   error?: string;
 }
 
+const getDisplayValue = (value: any) => {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'boolean') return value.toString();
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '[]';
+    if (typeof value[0] === 'object') {
+      // Find first non-null value and create new object with just that key-value pair
+      const firstObj = value[0];
+      const nonNullKey = Object.entries(firstObj).find(
+        ([_, val]) => val !== null
+      )?.[0];
+      const result = nonNullKey
+        ? { [nonNullKey]: firstObj[nonNullKey] }
+        : firstObj;
+      return `[${JSON.stringify(result, null, 2)}]`;
+    }
+    return `[${value.slice(0, 2).join(', ')}${value.length > 2 ? '...' : ''}]`;
+  }
+  return value;
+};
+
 const FieldSelector = ({
   onSelect,
   properties: propertiesProps,
@@ -136,6 +157,7 @@ const FieldSelector = ({
     finder,
     value,
     options,
+    example,
   }: any): any => {
     const isSelectable =
       (type === 'array' && !items?.properties && !options?.length) || // array of primitives
@@ -194,13 +216,14 @@ const FieldSelector = ({
             } group flex w-full items-center px-4 py-2.5 justify-between`}
             onClick={(e) => {
               if (isSelectable) {
+                let formattedExample = getDisplayValue(value || example);
                 onSelect({
                   isCustomFieldMapping,
                   description,
                   finder,
                   title,
                   type,
-                  example: typeof value === 'string' ? value : undefined,
+                  example: formattedExample,
                 });
                 return;
               }
@@ -212,9 +235,16 @@ const FieldSelector = ({
               });
             }}
           >
-            <span className="flex items-center">
-              <span className="truncate">{title}</span>
-            </span>
+            <div className="flex flex-col items-start truncate">
+              <span className="font-semibold text-sm">{title}</span>
+              <span
+                className={`italic text-xs ${
+                  active ? 'text-primary-200' : 'text-gray-500'
+                }`}
+              >
+                Example: {getDisplayValue(value || example)}
+              </span>
+            </div>
             {!isSelectable && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -633,7 +663,7 @@ const FieldSelector = ({
                             mode: 'manual',
                             type: mappingObject?.type || 'Advanced',
                             description: jsonPath,
-                            example: mappingObject?.example,
+                            example: getDisplayValue(mappingObject?.example),
                           });
                         }
                         setShowWayFinder(false);

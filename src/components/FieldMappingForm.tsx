@@ -104,9 +104,11 @@ const FieldMappingForm = ({
           type: selectedCustomMapping.custom_field
             ? 'Custom field'
             : mappingObject?.type,
-          example: selectedCustomMapping.custom_field
-            ? customField?.value
-            : mappingObject?.example,
+          example: getDisplayValue(
+            selectedCustomMapping.custom_field
+              ? customField?.value
+              : mappingObject?.example
+          ),
         });
         return;
       }
@@ -276,6 +278,27 @@ type OriginFieldCardProps = {
   responseDataPath?: string;
 };
 
+const getDisplayValue = (value: any) => {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'boolean') return value.toString();
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '[]';
+    if (typeof value[0] === 'object') {
+      // Find first non-null value and create new object with just that key-value pair
+      const firstObj = value[0];
+      const nonNullKey = Object.entries(firstObj).find(
+        ([_, val]) => val !== null
+      )?.[0];
+      const result = nonNullKey
+        ? { [nonNullKey]: firstObj[nonNullKey] }
+        : firstObj;
+      return `[${JSON.stringify(result, null, 2)}]`;
+    }
+    return `[${value.slice(0, 2).join(', ')}${value.length > 2 ? '...' : ''}]`;
+  }
+  return value;
+};
+
 const OriginFieldCard = ({
   selectedConnection,
   selectedCustomMapping,
@@ -368,7 +391,7 @@ const OriginFieldCard = ({
               <p className="text-sm text-gray-600 truncate mb-1.5">
                 {t('Example')}:{' '}
                 <span className="text-gray-600">
-                  {selectedMapping?.example?.toString()}
+                  {getDisplayValue(selectedMapping?.example)}
                 </span>
               </p>
             )}
