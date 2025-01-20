@@ -18,7 +18,7 @@
     "prepare": "tsdx build && yarn build-tailwind",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "build-tailwind": "NODE_ENV=production npx tailwindcss -o ./dist/tailwind.css --minify && yarn copy-css",
     "copy-css": "cp ./src/styles/base.css ./dist/styles.css && cp ./src/styles/custom.css ./dist/custom.css",
