@@ -286,7 +286,9 @@ export const ConnectionsProvider = ({
         setSelectedConnection(null);
         addToast({
           title: t('{{connectionName}} is deleted', {
-            connectionName: connection.name,
+            context: {
+              connectionName: connection.name,
+            },
           }),
           type: 'success',
           autoClose: true,

@@ -35,9 +35,9 @@
     "@apideck/wayfinder": "^0.2.3",
     "formik": "^2.2.9",
     "fuse.js": "^6.5.3",
-    "i18next": "^23.7.18",
+    "i18next": "^24.2.3",
     "jwt-decode": "^3.1.2",
-    "markdown-to-jsx": "^7.1.6",
+    "markdown-to-jsx": "^7.7.4",
     "react-i18next": "^14.0.1",
     "react-select": "^5.2.2",
     "swr": "^1.0.1"
@@ -114,7 +114,7 @@
     "tailwindcss": "^3.0.17",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.5",
+    "typescript": "^5.0.4",
     "whatwg-fetch": "^3.6.2"
   }
 }

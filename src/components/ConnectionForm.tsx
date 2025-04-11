@@ -8,7 +8,6 @@ import {
 import React, { Dispatch, SetStateAction, useState } from 'react';
 
 import { useFormik } from 'formik';
-import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
@@ -16,6 +15,7 @@ import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   connection: Connection;
@@ -66,7 +66,9 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
           addToast({
             type: 'success',
             title: t('Successfully connected to {{connectionName}}', {
-              connectionName: connection.name,
+              context: {
+                connectionName: connection.name,
+              },
             }),
           });
           if (updatedConnection?.state === 'callable') {
@@ -113,7 +115,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
               ) : (
                 t(
                   'Could not connect to {{connectionName}}. Please check your credentials',
-                  { connectionName: connection.name }
+                  { context: { connectionName: connection.name } }
                 )
               )}
             </span>
