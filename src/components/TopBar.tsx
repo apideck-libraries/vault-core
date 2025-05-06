@@ -191,8 +191,9 @@ const TopBar = ({
 
     if (
       (state === 'authorized' || state === 'callable') &&
-      configurable_resources?.length &&
-      !settings?.hide_resource_settings
+      (configurable_resources ?? []).length > 0 &&
+      !settings?.hide_resource_settings &&
+      setCurrentView
     ) {
       options.push({
         label: (
@@ -215,9 +216,7 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          if (setCurrentView && !settings?.hide_resource_settings) {
-            setCurrentView(ConnectionViewType.ConfigurableResources);
-          }
+          setCurrentView(ConnectionViewType.ConfigurableResources);
         },
       });
     }

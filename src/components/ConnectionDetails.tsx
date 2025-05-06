@@ -106,20 +106,13 @@ const ConnectionDetails = ({
       return;
     }
 
-    // Open / close resource form bases on missing fields
+    // Show ConfigurableResources view if specific conditions are met
     if (
-      !currentView &&
-      hasMissingRequiredFields(resources) &&
-      !settings?.hide_resource_settings
-    ) {
-      setCurrentView(ConnectionViewType.ConfigurableResources);
-      return;
-    }
-
-    if (
-      selectedConnection.state === 'callable' &&
-      selectedConnection.configurable_resources?.length > 0 &&
-      currentView === null
+      currentView === null &&
+      (selectedConnection.configurable_resources ?? []).length > 0 &&
+      !settings?.hide_resource_settings &&
+      (hasMissingRequiredFields(resources) ||
+        selectedConnection.state === 'callable')
     ) {
       setCurrentView(ConnectionViewType.ConfigurableResources);
       return;

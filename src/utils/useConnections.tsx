@@ -158,7 +158,7 @@ export const ConnectionsProvider = ({
     const isReAuthorized = state === 'authorized' || state === 'callable';
 
     if (
-      configurable_resources?.length &&
+      (configurable_resources ?? []).length > 0 &&
       isReAuthorized &&
       !resources.length &&
       !isUpdating
@@ -404,7 +404,7 @@ export const ConnectionsProvider = ({
     const requests: any = [];
     const resources = connection?.configurable_resources;
 
-    resources.forEach((resource: any) => {
+    resources?.forEach((resource: any) => {
       requests.push(fetchConfig(resource));
     });
 
