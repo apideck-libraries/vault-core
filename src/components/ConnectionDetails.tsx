@@ -28,6 +28,7 @@ interface Props {
   showConsumer?: boolean;
   initialView?: ConnectionViewType;
   showLanguageSwitch?: boolean;
+  autoStartAuthorization?: boolean;
 }
 
 const ConnectionDetails = ({
@@ -37,6 +38,7 @@ const ConnectionDetails = ({
   showConsumer,
   initialView,
   showLanguageSwitch,
+  autoStartAuthorization,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
 
@@ -326,6 +328,7 @@ const ConnectionDetails = ({
               <AuthorizeButton
                 connection={selectedConnection}
                 onConnectionChange={onConnectionChange}
+                autoStartAuthorization={autoStartAuthorization}
               />
             </div>
           ) : null}
