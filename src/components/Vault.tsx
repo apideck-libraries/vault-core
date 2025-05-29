@@ -82,6 +82,12 @@ export interface Props {
    * @default false
    * */
   showLanguageSwitch?: boolean;
+
+  /**
+   * Optionally you can auto start the authorization process
+   * @default false
+   * */
+  autoStartAuthorization?: boolean;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -107,6 +113,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     initialView,
     locale = 'en',
     showLanguageSwitch = false,
+    autoStartAuthorization = false,
   },
   ref
 ) {
@@ -195,6 +202,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
                   }
                   initialView={initialView}
                   showLanguageSwitch={showLanguageSwitch}
+                  autoStartAuthorization={autoStartAuthorization}
                 />
               </SessionProvider>
             </ConnectionsProvider>

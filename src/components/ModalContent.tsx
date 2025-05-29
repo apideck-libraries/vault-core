@@ -19,12 +19,14 @@ export const ModalContent = ({
   consumer,
   initialView,
   showLanguageSwitch,
+  autoStartAuthorization,
 }: {
   consumer?: { image?: string; user_name?: string; account_name?: string };
   onClose: () => any;
   onConnectionChange?: (connection: Connection) => any;
   initialView?: ConnectionViewType;
   showLanguageSwitch?: boolean;
+  autoStartAuthorization?: boolean;
 }) => {
   const {
     connections,
@@ -93,6 +95,7 @@ export const ModalContent = ({
           data-testid={`details-${selectedConnection.id}`}
           initialView={initialView}
           showLanguageSwitch={showLanguageSwitch}
+          autoStartAuthorization={autoStartAuthorization}
         />
         {showConsumer && (
           <ConsumerSection
