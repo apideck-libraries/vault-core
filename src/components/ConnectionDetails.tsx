@@ -13,6 +13,7 @@ import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import AuthorizeButton from './AuthorizeButton';
 import ConnectionForm from './ConnectionForm';
+import ConsentScreen from './ConsentScreen';
 import Divider from './Divider';
 import FieldMapping from './FieldMapping';
 import LoadingDetails from './LoadingDetails';
@@ -47,6 +48,8 @@ const ConnectionDetails = ({
     isLoadingDetails,
     resources,
     singleConnectionMode,
+    transitionToPending,
+    denyConsent,
   } = useConnections();
 
   const { session } = useSession();
@@ -132,6 +135,19 @@ const ConnectionDetails = ({
   ]);
 
   useEffect(() => {
+    if (
+      session?.data_scopes?.enabled &&
+      selectedConnection?.consent_state === 'implicit'
+    ) {
+      transitionToPending(selectedConnection);
+    }
+  }, [
+    selectedConnection?.id,
+    selectedConnection?.consent_state,
+    session?.data_scopes?.enabled,
+  ]);
+
+  useEffect(() => {
     let hasRequiredMappings = false;
     selectedConnection.custom_mappings?.forEach((mapping) => {
       if (mapping.required && !mapping.value) {
@@ -193,6 +209,27 @@ const ConnectionDetails = ({
           </div>
         </div>
       </>
+    );
+  }
+
+  console.log('session', session);
+  console.log('selectedConnection', selectedConnection);
+
+  if (
+    session?.data_scopes?.enabled &&
+    (selectedConnection.consent_state === 'pending' ||
+      selectedConnection.consent_state === 'requires_reconsent')
+  ) {
+    return (
+      <ConsentScreen
+        connection={selectedConnection}
+        onConnectionChange={onConnectionChange}
+        onClose={() => setSelectedConnection(null)}
+        onDeny={async () => {
+          await denyConsent(selectedConnection);
+          setSelectedConnection(null);
+        }}
+      />
     );
   }
 
@@ -330,7 +367,8 @@ const ConnectionDetails = ({
             </div>
           ) : null}
 
-          {currentView === ConnectionViewType.ConfigurableResources ? (
+          {currentView === ConnectionViewType.ConfigurableResources &&
+          (selectedConnection.configurable_resources ?? []).length > 0 ? (
             <Fragment>
               <Divider text={t('Configurable resources')} />
               <ResourceList

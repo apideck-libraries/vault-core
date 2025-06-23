@@ -91,8 +91,11 @@ const ConnectionListItem = ({ connection }: Props) => {
                 ></path>
               </svg>
             ) : (
-              connection.state !== 'callable' &&
-              connection.state !== 'available' && (
+              ((connection.state !== 'callable' &&
+                connection.state !== 'available') ||
+                connection.consent_state === 'pending' ||
+                connection.consent_state === 'denied' ||
+                connection.consent_state === 'requires_reconsent') && (
                 <StatusBadge connection={connection} size="small" />
               )
             )}

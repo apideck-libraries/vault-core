@@ -84,6 +84,26 @@ const resources = {
       'Are you sure?': 'Are you sure?',
       Settings: 'Settings',
       'Configurable resources': 'Configurable resources',
+      'Requires authorization': 'Requires authorization',
+      'Authorization denied': 'Authorization denied',
+      'Connection disabled': 'Connection disabled',
+      'Re-authorization required': 'Re-authorization required',
+      'Deny Access?': 'Deny Access?',
+      'If you deny access, you will not be able to use this integration. Are you sure?':
+        'If you deny access, you will not be able to use this integration. Are you sure?',
+      'Yes, Deny Access': 'Yes, Deny Access',
+      'Requested Data Access': 'Requested Data Access',
+      'The application requesting permission to access the following data.':
+        'The application requesting permission to access the following data.',
+      'New permissions requested': 'New permissions requested',
+      'The developer has updated the integration and requires additional permissions to keep it working.':
+        'The developer has updated the integration and requires additional permissions to keep it working.',
+      'Full Data Access': 'Full Data Access',
+      'This application is requesting access to all data available through this connection.':
+        'This application is requesting access to all data available through this connection.',
+      'By authorizing you agree to grant the application access to the data listed above.':
+        'By authorizing you agree to grant the application access to the data listed above.',
+      '{{count}} fields': '{{count}} fields',
     },
   },
   nl: {
@@ -168,6 +188,26 @@ const resources = {
         'Wanneer je een connectie verwijdert, verlies je al je geconfigureerde instellingen.',
       Settings: 'Instellingen',
       'Configurable resources': 'Configruabelen resources',
+      'Requires authorization': 'Autorisatie vereist',
+      'Authorization denied': 'Autorisatie geweigerd',
+      'Connection disabled': 'Verbinding uitgeschakeld',
+      'Re-authorization required': 'Herautorisatie vereist',
+      'Deny Access?': 'Toegang weigeren?',
+      'If you deny access, you will not be able to use this integration. Are you sure?':
+        'Als je de toegang weigert, kun je deze integratie niet gebruiken. Weet je het zeker?',
+      'Yes, Deny Access': 'Ja, toegang weigeren',
+      'Requested Data Access': 'Gevraagde gegevenstoegang',
+      'The application requesting permission to access the following data.':
+        'De applicatie waarmee je verbinding maakt, vraagt toestemming om toegang te krijgen tot de volgende gegevens.',
+      'New permissions requested': 'Nieuwe machtigingen aangevraagd',
+      'The developer has updated the integration and requires additional permissions to keep it working.':
+        'De ontwikkelaar heeft de integratie bijgewerkt en vereist extra machtigingen om deze werkend te houden.',
+      'Full Data Access': 'Volledige gegevenstoegang',
+      'This application is requesting access to all data available through this connection.':
+        'Deze applicatie vraagt toegang tot alle gegevens die beschikbaar zijn via deze verbinding.',
+      'By authorizing you agree to grant the application access to the data listed above.':
+        'Door je te autoriseren, ga je ermee akkoord de applicatie toegang te verlenen tot de hierboven vermelde gegevens.',
+      '{{count}} fields': '{{count}} velden',
     },
   },
   fr: {
@@ -251,6 +291,26 @@ const resources = {
       'Are you sure?': 'Êtes-vous sûr ?',
       Settings: 'Paramètres',
       'Configurable resources': 'Ressources configurables',
+      'Requires authorization': 'Autorisation requise',
+      'Authorization denied': 'Autorisation refusée',
+      'Connection disabled': 'Connexion désactivée',
+      'Re-authorization required': 'Réautorisation requise',
+      'Deny Access?': "Refuser l'accès ?",
+      'If you deny access, you will not be able to use this integration. Are you sure?':
+        "Si vous refusez l'accès, vous ne pourrez pas utiliser cette intégration. Êtes-vous sûr ?",
+      'Yes, Deny Access': "Oui, refuser l'accès",
+      'Requested Data Access': 'Accès aux données demandé',
+      'The application requesting permission to access the following data.':
+        "L'application à laquelle vous vous connectez demande l'autorisation d'accéder aux données suivantes.",
+      'New permissions requested': 'Nouvelles autorisations demandées',
+      'The developer has updated the integration and requires additional permissions to keep it working.':
+        "Le développeur a mis à jour l'intégration et nécessite des autorisations supplémentaires pour la maintenir fonctionnelle.",
+      'Full Data Access': 'Accès complet aux données',
+      'This application is requesting access to all data available through this connection.':
+        'Cette application demande l_accès à toutes les données disponibles via cette connexion.',
+      'By authorizing you agree to grant the application access to the data listed above.':
+        'En autorisant, vous acceptez de donner à l_application l_accès aux données listées ci-dessus.',
+      '{{count}} fields': '{{count}} champs',
     },
   },
   de: {
@@ -334,6 +394,26 @@ const resources = {
       'Are you sure?': 'Sind Sie sicher?',
       Settings: 'Einstellungen',
       'Configurable resources': 'Konfigurierbare Ressourcen',
+      'Requires authorization': 'Autorisierung erforderlich',
+      'Authorization denied': 'Autorisierung verweigert',
+      'Connection disabled': 'Verbindung deaktiviert',
+      'Re-authorization required': 'Erneute Autorisierung erforderlich',
+      'Deny Access?': 'Zugriff verweigern?',
+      'If you deny access, you will not be able to use this integration. Are you sure?':
+        'Wenn Sie den Zugriff verweigern, können Sie diese Integration nicht verwenden. Sind Sie sicher?',
+      'Yes, Deny Access': 'Ja, Zugriff verweigern',
+      'Requested Data Access': 'Angeforderter Datenzugriff',
+      'The application requesting permission to access the following data.':
+        'Die Anwendung, mit der Sie eine Verbindung herstellen, fordert die Berechtigung zum Zugriff auf die folgenden Daten an.',
+      'New permissions requested': 'Neue Berechtigungen angefordert',
+      'The developer has updated the integration and requires additional permissions to keep it working.':
+        'Der Entwickler hat die Integration aktualisiert und benötigt zusätzliche Berechtigungen, damit sie weiterhin funktioniert.',
+      'Full Data Access': 'Vollständiger Datenzugriff',
+      'This application is requesting access to all data available through this connection.':
+        'Diese Anwendung fordert Zugriff auf alle über diese Verbindung verfügbaren Daten.',
+      'By authorizing you agree to grant the application access to the data listed above.':
+        'Wenn Sie sich autorisieren, erteilen Sie der Anwendung die Erlaubnis, auf die oben aufgeführten Daten zuzugreifen.',
+      '{{count}} fields': '{{count}} Felder',
     },
   },
   es: {
@@ -417,6 +497,26 @@ const resources = {
       'Are you sure?': '¿Estás seguro?',
       Settings: 'Ajustes',
       'Configurable resources': 'Recursos Configurables',
+      'Requires authorization': 'Requiere autorización',
+      'Authorization denied': 'Autorización denegada',
+      'Connection disabled': 'Conexión deshabilitada',
+      'Re-authorization required': 'Se requiere reautorización',
+      'Deny Access?': '¿Denegar acceso?',
+      'If you deny access, you will not be able to use this integration. Are you sure?':
+        'Si deniegas el acceso, no podrás utilizar esta integración. ¿Estás seguro?',
+      'Yes, Deny Access': 'Sí, denegar acceso',
+      'Requested Data Access': 'Acceso a datos solicitado',
+      'The application requesting permission to access the following data.':
+        'La aplicación a la que te estás conectando solicita permiso para acceder a los siguientes datos.',
+      'New permissions requested': 'Nuevos permisos solicitados',
+      'The developer has updated the integration and requires additional permissions to keep it working.':
+        'El desarrollador ha actualizado la integración y requiere permisos adicionales para que siga funcionando.',
+      'Full Data Access': 'Acceso completo a los datos',
+      'This application is requesting access to all data available through this connection.':
+        'Esta aplicación solicita acceso a todos los datos disponibles a través de esta conexión.',
+      'By authorizing you agree to grant the application access to the data listed above.':
+        'Al autorizar, aceptas conceder a la aplicación acceso a los datos mencionados anteriormente.',
+      '{{count}} fields': '{{count}} campos',
     },
   },
 };

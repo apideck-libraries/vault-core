@@ -16,9 +16,20 @@ const StatusBadge = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const { state, integration_state, enabled } = connection;
+  const { state, integration_state, enabled, consent_state } = connection;
 
   const statusText = () => {
+    switch (consent_state) {
+      case 'pending':
+        return t('Requires authorization');
+      case 'denied':
+        return t('Authorization denied');
+      case 'revoked':
+        return t('Connection disabled');
+      case 'requires_reconsent':
+        return t('Re-authorization required');
+    }
+
     if (integration_state === 'needs_configuration')
       return t('Needs configuration');
     if (state === 'invalid') return t('Invalid configuration');
@@ -31,6 +42,31 @@ const StatusBadge = ({
     return null;
   };
 
+  const getStatusClass = () => {
+    if (consent_state === 'denied' || consent_state === 'requires_reconsent') {
+      return 'bg-yellow-100 text-yellow-800';
+    }
+    if (consent_state === 'revoked' || !enabled) {
+      return 'bg-gray-100 text-gray-800';
+    }
+    if (
+      enabled &&
+      (state === 'added' ||
+        state === 'authorized' ||
+        state === 'invalid' ||
+        consent_state === 'pending')
+    ) {
+      return 'bg-yellow-100 text-yellow-800';
+    }
+    if (enabled && state === 'callable') {
+      return 'bg-green-100 text-green-800';
+    }
+    if (state === 'available') {
+      return 'bg-red-100 text-red-800';
+    }
+    return 'bg-gray-100 text-gray-800';
+  };
+
   return (
     <div
       className={classNames(
@@ -38,15 +74,8 @@ const StatusBadge = ({
         {
           'px-4 py-1.5 text-sm': size === 'large',
           'px-2 py-1 text-xs': size === 'small',
-          'bg-gray-100 text-gray-800': !enabled,
-          'bg-yellow-100 text-yellow-800':
-            enabled &&
-            (state === 'added' ||
-              state === 'authorized' ||
-              state === 'invalid'),
-          'bg-green-100 text-green-800': enabled && state === 'callable',
-          'bg-red-100 text-red-800': state === 'available',
-        }
+        },
+        getStatusClass()
       )}
       data-testid="status-badge"
     >

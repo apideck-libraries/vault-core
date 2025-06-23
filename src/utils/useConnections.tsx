@@ -10,12 +10,13 @@ import React, {
 import useSWR, { useSWRConfig } from 'swr';
 
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../types/Connection';
+import { Connection, ConsentState } from '../types/Connection';
 import { FormField } from '../types/FormField';
 
 interface ContextProps {
   connections: Connection[];
   deleteConnection: (connection: Connection) => void;
+  denyConsent: (connection: Connection) => Promise<void>;
   detailsError: any;
   error: any;
   isLoading: boolean;
@@ -30,6 +31,7 @@ interface ContextProps {
   headers: any;
   token?: string;
   connectionsUrl?: string;
+  transitionToPending: (connection: Connection) => Promise<void>;
   updateConnection: (options: {
     unifiedApi: string;
     serviceId: string;
@@ -166,6 +168,57 @@ export const ConnectionsProvider = ({
       getResourceConfig();
     }
   }, [connection]);
+
+  const updateConnectionState = (
+    connection: Connection,
+    newState: ConsentState
+  ) => {
+    const updatedConnection = { ...connection, consent_state: newState };
+    setSelectedConnection(updatedConnection);
+
+    // Mutate list view only if we are not in single connection mode
+    if (!singleConnectionMode && data?.data) {
+      const updatedList = {
+        ...data,
+        data: data.data.map((c: Connection) =>
+          c.id === connection.id ? updatedConnection : c
+        ),
+      };
+      mutate(listUrl, updatedList, false);
+    }
+
+    // Mutate details view
+    mutate(detailsUrl, { data: updatedConnection }, false);
+  };
+
+  const transitionToPending = async (connection: Connection) => {
+    console.log(
+      'Mock transitionToPending called for connection:',
+      connection.id
+    );
+    // This is a mock implementation.
+    // In a real scenario, this would make a PATCH request to the backend.
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+    updateConnectionState(connection, 'pending');
+    addToast({
+      title: 'Connection requires consent',
+      type: 'info',
+      autoClose: true,
+    });
+  };
+
+  const denyConsent = async (connection: Connection) => {
+    console.log('Mock denyConsent called for connection:', connection.id);
+    // This is a mock implementation.
+    // In a real scenario, this would make a PATCH request to the backend.
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+    updateConnectionState(connection, 'denied');
+    addToast({
+      title: 'Consent denied',
+      description: `Access to ${connection.name} was denied.`,
+      type: 'warning',
+    });
+  };
 
   const updateConnection = async ({
     unifiedApi,
@@ -465,6 +518,8 @@ export const ConnectionsProvider = ({
       fetcher,
       unifyBaseUrl,
       connectionsUrl: `${unifyBaseUrl}/vault/connections`,
+      denyConsent,
+      transitionToPending,
     }),
     [
       isUpdating,
@@ -477,6 +532,8 @@ export const ConnectionsProvider = ({
       error,
       detailsError,
       fetchResourceSchema,
+      denyConsent,
+      transitionToPending,
     ]
   );
 

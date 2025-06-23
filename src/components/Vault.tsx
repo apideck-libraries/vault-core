@@ -1,4 +1,10 @@
-import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
@@ -82,6 +88,12 @@ export interface Props {
    * @default false
    * */
   showLanguageSwitch?: boolean;
+
+  /**
+   * For testing purposes only. Will be removed.
+   * @internal
+   */
+  dataScopesEnabledForTesting?: boolean;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -107,6 +119,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     initialView,
     locale = 'en',
     showLanguageSwitch = false,
+    dataScopesEnabledForTesting = true,
   },
   ref
 ) {
@@ -160,7 +173,47 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     }
   }, [token]);
 
+  const sessionWithMockedScopes = useMemo(() => {
+    if (!dataScopesEnabledForTesting) {
+      return session;
+    }
+    return {
+      ...session,
+      data_scopes: {
+        enabled: true,
+        modified: new Date().toISOString(),
+        resources: {
+          'hris.employees': {
+            id: { read: true, write: false },
+            first_name: { read: true, write: true },
+            last_name: { read: true, write: true },
+            email: { read: true, write: true },
+            'employment.job_title': { read: true, write: true },
+          },
+          'hris.departments': {
+            id: { read: true, write: false },
+            name: { read: true, write: true },
+          },
+          'accounting.invoices': {
+            id: { read: true, write: false },
+            type: { read: true, write: true },
+            status: { read: false, write: true },
+            date: { read: true, write: true },
+            total: { read: true, write: true },
+            'customer.name': { read: true, write: true },
+            'customer.id': { read: true, write: true },
+            'customer.email': { read: true, write: true },
+            'customer.phone': { read: true, write: true },
+            'customer.address': { read: true, write: true },
+          },
+        },
+      },
+    };
+  }, [session, dataScopesEnabledForTesting]);
+
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
+
+  console.log('sessionWithMockedScopes', sessionWithMockedScopes);
 
   return (
     <div id="react-vault" className="apideck">
@@ -186,7 +239,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               unifyBaseUrl={unifyBaseUrl}
             >
-              <SessionProvider session={session}>
+              <SessionProvider session={sessionWithMockedScopes}>
                 <ModalContent
                   onClose={onCloseModal}
                   onConnectionChange={onConnectionChange}

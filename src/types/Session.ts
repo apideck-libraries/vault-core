@@ -25,6 +25,19 @@ export interface SessionConsumerMetadata {
   image?: string;
 }
 
+export interface DataScopes {
+  enabled: boolean;
+  modified: string;
+  resources: {
+    [apiScopedResourceName: string]: {
+      [dotField: string]: {
+        read: boolean;
+        write: boolean;
+      };
+    };
+  };
+}
+
 export interface Session {
   application_id?: string;
   consumer_id?: string;
@@ -32,4 +45,6 @@ export interface Session {
   settings?: SessionSettings;
   theme?: SessionTheme;
   consumer_metadata?: SessionConsumerMetadata;
+  jwt?: string;
+  data_scopes?: DataScopes;
 }
