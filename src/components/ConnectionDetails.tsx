@@ -204,6 +204,7 @@ const ConnectionDetails = ({
   if (
     session?.data_scopes?.enabled &&
     (selectedConnection.consent_state === 'pending' ||
+      selectedConnection.consent_state === 'denied' ||
       selectedConnection.consent_state === 'requires_reconsent')
   ) {
     return (
