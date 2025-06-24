@@ -185,12 +185,12 @@ const ConsentScreen: React.FC<Props> = ({
         singleConnectionMode={true}
       />
       <div className="h-full p-6 text-center">
-        <h2 className="text-xl font-semibold mb-2">
+        <h2 className="text-lg font-semibold mb-2">
           {t('Requested Data Access')}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-gray-600 text-sm mb-4">
           {t(
-            'The application requesting permission to access the following data.'
+            'The application is requesting permission to access the following data.'
           )}
         </p>
         {newFields.size > 0 && (

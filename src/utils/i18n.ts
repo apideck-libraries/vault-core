@@ -93,8 +93,8 @@ const resources = {
         'If you deny access, you will not be able to use this integration. Are you sure?',
       'Yes, Deny Access': 'Yes, Deny Access',
       'Requested Data Access': 'Requested Data Access',
-      'The application requesting permission to access the following data.':
-        'The application requesting permission to access the following data.',
+      'The application is requesting permission to access the following data.':
+        'The application is requesting permission to access the following data.',
       'New permissions requested': 'New permissions requested',
       'The developer has updated the integration and requires additional permissions to keep it working.':
         'The developer has updated the integration and requires additional permissions to keep it working.',
@@ -197,7 +197,7 @@ const resources = {
         'Als je de toegang weigert, kun je deze integratie niet gebruiken. Weet je het zeker?',
       'Yes, Deny Access': 'Ja, toegang weigeren',
       'Requested Data Access': 'Gevraagde gegevenstoegang',
-      'The application requesting permission to access the following data.':
+      'The application is requesting permission to access the following data.':
         'De applicatie waarmee je verbinding maakt, vraagt toestemming om toegang te krijgen tot de volgende gegevens.',
       'New permissions requested': 'Nieuwe machtigingen aangevraagd',
       'The developer has updated the integration and requires additional permissions to keep it working.':
@@ -300,7 +300,7 @@ const resources = {
         "Si vous refusez l'accès, vous ne pourrez pas utiliser cette intégration. Êtes-vous sûr ?",
       'Yes, Deny Access': "Oui, refuser l'accès",
       'Requested Data Access': 'Accès aux données demandé',
-      'The application requesting permission to access the following data.':
+      'The application is requesting permission to access the following data.':
         "L'application à laquelle vous vous connectez demande l'autorisation d'accéder aux données suivantes.",
       'New permissions requested': 'Nouvelles autorisations demandées',
       'The developer has updated the integration and requires additional permissions to keep it working.':
@@ -403,7 +403,7 @@ const resources = {
         'Wenn Sie den Zugriff verweigern, können Sie diese Integration nicht verwenden. Sind Sie sicher?',
       'Yes, Deny Access': 'Ja, Zugriff verweigern',
       'Requested Data Access': 'Angeforderter Datenzugriff',
-      'The application requesting permission to access the following data.':
+      'The application is requesting permission to access the following data.':
         'Die Anwendung, mit der Sie eine Verbindung herstellen, fordert die Berechtigung zum Zugriff auf die folgenden Daten an.',
       'New permissions requested': 'Neue Berechtigungen angefordert',
       'The developer has updated the integration and requires additional permissions to keep it working.':
@@ -506,7 +506,7 @@ const resources = {
         'Si deniegas el acceso, no podrás utilizar esta integración. ¿Estás seguro?',
       'Yes, Deny Access': 'Sí, denegar acceso',
       'Requested Data Access': 'Acceso a datos solicitado',
-      'The application requesting permission to access the following data.':
+      'The application is requesting permission to access the following data.':
         'La aplicación a la que te estás conectando solicita permiso para acceder a los siguientes datos.',
       'New permissions requested': 'Nuevos permisos solicitados',
       'The developer has updated the integration and requires additional permissions to keep it working.':

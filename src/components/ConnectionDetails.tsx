@@ -48,7 +48,6 @@ const ConnectionDetails = ({
     isLoadingDetails,
     resources,
     singleConnectionMode,
-    transitionToPending,
     denyConsent,
   } = useConnections();
 
@@ -132,19 +131,6 @@ const ConnectionDetails = ({
     settings,
     selectedConnection,
     currentView,
-  ]);
-
-  useEffect(() => {
-    if (
-      session?.data_scopes?.enabled &&
-      selectedConnection?.consent_state === 'implicit'
-    ) {
-      transitionToPending(selectedConnection);
-    }
-  }, [
-    selectedConnection?.id,
-    selectedConnection?.consent_state,
-    session?.data_scopes?.enabled,
   ]);
 
   useEffect(() => {

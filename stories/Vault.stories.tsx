@@ -30,7 +30,7 @@ const Template: Story<Props> = (args) => (
     {...args}
     showConsumer={true}
     unifyBaseUrl="http://localhost:3050"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6IjIyMjIiLCJzY29wZXMiOltdLCJpYXQiOjE3MzczNzYwNjAsImV4cCI6MTczNzM3OTY2MH0.M6ZHjGXCx_XESd4X90RtZR9guT5xxiSGzKGdrUwDkLA"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiJodHRwczovL3ZhdWx0LmFwaWRlY2suY29tL29hdXRoL2NhbGxiYWNrIiwiY29uc3VtZXJfbWV0YWRhdGEiOnt9LCJ0aGVtZSI6eyJmYXZpY29uIjoiaHR0cHM6Ly9yZXMuY2xvdWRpbmFyeS5jb20vYXBpZGVjay9pbWFnZS91cGxvYWQvdjE1OTQ2NDAxMDYvbWFya2V0cGxhY2VzL3VmYzcwODJhc3p6Z2h0dm5ncWFlLnBuZyIsInByaW1hcnlfY29sb3IiOiIjNUM1MUNFIiwicHJpdmFjeV91cmwiOiJodHRwczovL2NvbXBsaWFuY2UuYXBpZGVjay5jb20vcHJpdmFjeS1wb2xpY3kiLCJzaWRlcGFuZWxfYmFja2dyb3VuZF9jb2xvciI6IiMwRTEyNDQiLCJzaWRlcGFuZWxfdGV4dF9jb2xvciI6IiNGRkZGRkYiLCJ0ZXJtc191cmwiOiJodHRwczovL3d3dy50ZXJtc2ZlZWQuY29tL3Rlcm1zLWNvbmRpdGlvbnMvOTU3Yzg1YzFiMDg5YWU5ZTMyMTljODNlZmY2NTM3N2UiLCJ2YXVsdF9uYW1lIjoiQXBpZGVjayBVbmlmeSBTdGFnaW5nIn0sInNldHRpbmdzIjp7InNlc3Npb25fbGVuZ3RoIjoiMjRoIn0sImNvbnN1bWVyX2lkIjoidGVzdC1jb25zdW1lciIsImFwcGxpY2F0aW9uX2lkIjoiMjIyMiIsInNjb3BlcyI6W10sImlhdCI6MTc1MDY2ODU2MSwiZXhwIjoxNzUwNzU0OTYxfQ.O89C8xZAFV26v7LFMg3LEEuko48CI0tq1-sPXQ2rEkw"
   />
 );
 
@@ -52,8 +52,8 @@ SingleConnection.args = {
       Open Single Connection
     </button>
   ),
-  unifiedApi: 'crm',
-  serviceId: 'act',
+  unifiedApi: 'accounting',
+  serviceId: 'xero',
 };
 
 export const SettingsView = Template.bind({});
