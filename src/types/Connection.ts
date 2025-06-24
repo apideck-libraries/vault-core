@@ -45,7 +45,7 @@ export type ConsentState =
 
 export interface ConsentRecord {
   id: string;
-  timestamp: string;
+  created_at: string;
   granted: boolean;
   resources:
     | '*'

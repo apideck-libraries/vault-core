@@ -4,8 +4,8 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { DataScopes } from '../types/Session';
+import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
-import AuthorizeButton from './AuthorizeButton';
 import ConfirmModal from './ConfirmModal';
 import TopBar from './TopBar';
 
@@ -128,6 +128,7 @@ const ConsentScreen: React.FC<Props> = ({
 }) => {
   const { session } = useSession();
   const { t } = useTranslation();
+  const { grantConsent, isUpdating } = useConnections();
   const dataScopes = session?.data_scopes;
   const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
   const [showDenyModal, setShowDenyModal] = useState(false);
@@ -223,9 +224,12 @@ const ConsentScreen: React.FC<Props> = ({
             )}
           </p>
           <div className="flex flex-col space-y-3">
-            <AuthorizeButton
-              connection={connection}
-              onConnectionChange={onConnectionChange}
+            <Button
+              text={t('Accept')}
+              isLoading={isUpdating}
+              onClick={() => grantConsent(connection)}
+              size="large"
+              className="w-full !truncate"
             />
             <Button variant="outline" onClick={() => setShowDenyModal(true)}>
               {t('Deny')}

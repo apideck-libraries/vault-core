@@ -13,6 +13,7 @@ import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import AuthorizeButton from './AuthorizeButton';
 import ConnectionForm from './ConnectionForm';
+import ConsentHistory from './ConsentHistory';
 import ConsentScreen from './ConsentScreen';
 import Divider from './Divider';
 import FieldMapping from './FieldMapping';
@@ -198,9 +199,6 @@ const ConnectionDetails = ({
     );
   }
 
-  console.log('session', session);
-  console.log('selectedConnection', selectedConnection);
-
   if (
     session?.data_scopes?.enabled &&
     (selectedConnection.consent_state === 'pending' ||
@@ -217,6 +215,18 @@ const ConnectionDetails = ({
           setSelectedConnection(null);
         }}
       />
+    );
+  }
+
+  if (currentView === ConnectionViewType.ConsentHistory) {
+    return (
+      <>
+        <TopBarComponent
+          onBack={() => setCurrentView(ConnectionViewType.Settings)}
+          hideOptions={true}
+        />
+        <ConsentHistory connection={selectedConnection} />
+      </>
     );
   }
 

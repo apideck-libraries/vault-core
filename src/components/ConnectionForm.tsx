@@ -90,6 +90,10 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
     },
   });
 
+  // If there is only one field and it is disabled, we can disable the save button as users needs to authorize first
+  const hasSingleDisabledField =
+    filteredFormFields?.length === 1 && filteredFormFields[0].disabled === true;
+
   return (
     <>
       {validationState === 'invalid' && (
@@ -197,8 +201,8 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
                     options={options as any}
                     placeholder={
                       disabled
-                        ? 'Available after authorization'
-                        : placeholder || 'Select..'
+                        ? t('Available after authorization')
+                        : placeholder || t('Select..')
                     }
                     isCreatable={allowCustomValues}
                     isMulti={type === 'multi-select'}
@@ -224,6 +228,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
           isLoading={validationState === 'validating'}
           size="large"
           className="w-full"
+          disabled={hasSingleDisabledField}
           style={
             session?.theme?.primary_color
               ? { backgroundColor: session?.theme.primary_color }
