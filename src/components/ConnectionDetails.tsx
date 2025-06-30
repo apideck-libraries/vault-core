@@ -104,7 +104,12 @@ const ConnectionDetails = ({
     }
 
     // Open / close settings form bases on state
-    if (needsInput && currentView !== ConnectionViewType.Settings) {
+    if (
+      needsInput &&
+      currentView !== ConnectionViewType.Settings &&
+      currentView !== ConnectionViewType.ConsentHistory &&
+      currentView !== ConnectionViewType.ConsentScreen
+    ) {
       setCurrentView(ConnectionViewType.Settings);
       return;
     }
@@ -200,10 +205,11 @@ const ConnectionDetails = ({
   }
 
   if (
-    session?.data_scopes?.enabled &&
-    (selectedConnection.consent_state === 'pending' ||
-      selectedConnection.consent_state === 'denied' ||
-      selectedConnection.consent_state === 'requires_reconsent')
+    (session?.data_scopes?.enabled &&
+      (selectedConnection.consent_state === 'pending' ||
+        selectedConnection.consent_state === 'denied' ||
+        selectedConnection.consent_state === 'requires_reconsent')) ||
+    currentView === ConnectionViewType.ConsentScreen
   ) {
     return (
       <ConsentScreen
@@ -225,7 +231,10 @@ const ConnectionDetails = ({
           onBack={() => setCurrentView(ConnectionViewType.Settings)}
           hideOptions={true}
         />
-        <ConsentHistory connection={selectedConnection} />
+        <ConsentHistory
+          connection={selectedConnection}
+          setCurrentView={setCurrentView}
+        />
       </>
     );
   }

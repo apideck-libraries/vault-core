@@ -3,4 +3,5 @@ export enum ConnectionViewType {
   ConfigurableResources = 'configurable-resources',
   CustomMapping = 'custom-mapping',
   ConsentHistory = 'consent-history',
+  ConsentScreen = 'consent-screen',
 }
