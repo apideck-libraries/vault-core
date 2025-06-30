@@ -204,11 +204,16 @@ const ConnectionDetails = ({
     );
   }
 
+  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
+    'pending',
+    'denied',
+    'revoked',
+    'requires_reconsent',
+  ];
+
   if (
     (session?.data_scopes?.enabled &&
-      (selectedConnection.consent_state === 'pending' ||
-        selectedConnection.consent_state === 'denied' ||
-        selectedConnection.consent_state === 'requires_reconsent')) ||
+      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
     currentView === ConnectionViewType.ConsentScreen
   ) {
     return (
