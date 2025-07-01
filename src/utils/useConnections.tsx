@@ -12,14 +12,13 @@ import useSWR, { useSWRConfig } from 'swr';
 import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { FormField } from '../types/FormField';
-import { useSession } from './useSession';
 
 interface ContextProps {
   connections: Connection[];
   deleteConnection: (connection: Connection) => void;
-  denyConsent: (connection: Connection) => Promise<void>;
-  grantConsent: (connection: Connection) => Promise<void>;
-  revokeConsent: (connection: Connection) => Promise<void>;
+  denyConsent: (connection: Connection, resources: any) => Promise<void>;
+  grantConsent: (connection: Connection, resources: any) => Promise<void>;
+  revokeConsent: (connection: Connection, resources: any) => Promise<void>;
   detailsError: any;
   error: any;
   isLoading: boolean;
@@ -85,7 +84,6 @@ export const ConnectionsProvider = ({
   const { mutate } = useSWRConfig();
   const { addToast } = useToast();
   const { t } = useTranslation();
-  const { session } = useSession();
 
   const singleConnectionMode =
     unifiedApi?.length && serviceId?.length ? true : false;
@@ -173,11 +171,13 @@ export const ConnectionsProvider = ({
     }
   }, [connection]);
 
-  const denyConsent = async (connection: Connection) => {
+  const denyConsent = async (
+    connection: Connection,
+    resources: any
+  ): Promise<void> => {
     try {
       setIsUpdating(true);
       const consentUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`;
-      const resources = session?.data_scopes?.resources || '*';
       const response = await fetch(consentUrl, {
         method: 'PATCH',
         headers,
@@ -221,15 +221,13 @@ export const ConnectionsProvider = ({
     }
   };
 
-  const revokeConsent = async (connection: Connection) => {
+  const revokeConsent = async (
+    connection: Connection,
+    resources: any
+  ): Promise<void> => {
     try {
       setIsUpdating(true);
       const consentUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`;
-      const lastGrantedConsent = [...(connection.consents || [])]
-        .reverse()
-        .find((c) => c.granted);
-      const resources =
-        lastGrantedConsent?.resources || session?.data_scopes?.resources || '*';
 
       const response = await fetch(consentUrl, {
         method: 'PATCH',
@@ -274,11 +272,13 @@ export const ConnectionsProvider = ({
     }
   };
 
-  const grantConsent = async (connection: Connection) => {
+  const grantConsent = async (
+    connection: Connection,
+    resources: any
+  ): Promise<void> => {
     try {
       setIsUpdating(true);
       const consentUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`;
-      const resources = session?.data_scopes?.resources || '*';
       const response = await fetch(consentUrl, {
         method: 'PATCH',
         headers,

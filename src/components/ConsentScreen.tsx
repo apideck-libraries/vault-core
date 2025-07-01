@@ -117,7 +117,7 @@ interface Props {
   connection: Connection;
   onConnectionChange?: (connection: Connection) => any;
   onClose: () => void;
-  onDeny: () => void;
+  onDeny: (filteredResources: any) => void;
 }
 
 const ConsentScreen: React.FC<Props> = ({
@@ -133,11 +133,24 @@ const ConsentScreen: React.FC<Props> = ({
   const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
   const [showDenyModal, setShowDenyModal] = useState(false);
 
+  console.log('session', session);
+
+  const filteredResources = useMemo(() => {
+    if (!dataScopes?.resources || !connection.unified_api) {
+      return dataScopes?.resources;
+    }
+    return Object.fromEntries(
+      Object.entries(dataScopes.resources).filter(([key]) =>
+        key.startsWith(`${connection.unified_api}.`)
+      )
+    );
+  }, [dataScopes?.resources, connection.unified_api]);
+
   const newFields = useMemo(() => {
     if (
       connection.consent_state !== 'requires_reconsent' ||
       !connection.consents ||
-      !dataScopes?.resources
+      !filteredResources
     ) {
       return new Set<string>();
     }
@@ -151,28 +164,33 @@ const ConsentScreen: React.FC<Props> = ({
     }
 
     const oldFields = new Set<string>();
-    for (const resource in lastGrantedConsent.resources) {
-      for (const field in lastGrantedConsent.resources[resource]) {
-        oldFields.add(`${resource}.${field}`);
+    const unifiedApi = connection.unified_api;
+    if (unifiedApi) {
+      for (const resource in lastGrantedConsent.resources) {
+        if (resource.startsWith(`${unifiedApi}.`)) {
+          for (const field in lastGrantedConsent.resources[resource]) {
+            oldFields.add(`${resource}.${field}`);
+          }
+        }
       }
     }
 
     const currentFields = new Set<string>();
-    for (const resource in dataScopes.resources) {
-      for (const field in dataScopes.resources[resource]) {
+    for (const resource in filteredResources) {
+      for (const field in filteredResources[resource]) {
         currentFields.add(`${resource}.${field}`);
       }
     }
 
     return new Set([...currentFields].filter((field) => !oldFields.has(field)));
-  }, [connection, dataScopes]);
+  }, [connection, filteredResources]);
 
   return (
     <>
       <ConfirmModal
         isOpen={showDenyModal}
         onClose={() => setShowDenyModal(false)}
-        onConfirm={onDeny}
+        onConfirm={() => onDeny(filteredResources)}
         title={t('Deny Access?')}
         description={t(
           'If you deny access, you will not be able to use this integration. Are you sure?'
@@ -205,8 +223,8 @@ const ConsentScreen: React.FC<Props> = ({
           />
         )}
 
-        {hasDataScopes ? (
-          <ScopesList scopes={dataScopes.resources} newFields={newFields} />
+        {hasDataScopes && filteredResources ? (
+          <ScopesList scopes={filteredResources} newFields={newFields} />
         ) : (
           <Alert
             variant="info"
@@ -227,7 +245,7 @@ const ConsentScreen: React.FC<Props> = ({
             <Button
               text={t('Accept')}
               isLoading={isUpdating}
-              onClick={() => grantConsent(connection)}
+              onClick={() => grantConsent(connection, filteredResources)}
               size="large"
               className="w-full !truncate"
             />

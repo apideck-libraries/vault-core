@@ -1,11 +1,18 @@
 import { Button } from '@apideck/components';
 import { Disclosure } from '@headlessui/react';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, ConsentRecord } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { DataScopes } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
+import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
 
 interface Props {
@@ -142,6 +149,19 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
   const { fetchConsentRecords, revokeConsent, isUpdating } = useConnections();
   const { t } = useTranslation();
   const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const { session } = useSession();
+  const dataScopes = session?.data_scopes;
+
+  const filteredResources = useMemo(() => {
+    if (!dataScopes?.resources || !connection.unified_api) {
+      return dataScopes?.resources;
+    }
+    return Object.fromEntries(
+      Object.entries(dataScopes.resources).filter(([key]) =>
+        key.startsWith(`${connection.unified_api}.`)
+      )
+    );
+  }, [dataScopes?.resources, connection.unified_api]);
 
   useEffect(() => {
     const loadRecords = async () => {
@@ -235,7 +255,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
       <ConfirmModal
         isOpen={showRevokeModal}
         onClose={() => setShowRevokeModal(false)}
-        onConfirm={() => revokeConsent(connection)}
+        onConfirm={() => revokeConsent(connection, filteredResources)}
         title={t('Revoke Access?')}
         description={t(
           'This will stop all data sharing with the application. Are you sure?'

@@ -221,8 +221,8 @@ const ConnectionDetails = ({
         connection={selectedConnection}
         onConnectionChange={onConnectionChange}
         onClose={() => setSelectedConnection(null)}
-        onDeny={async () => {
-          await denyConsent(selectedConnection);
+        onDeny={async (resources: any) => {
+          await denyConsent(selectedConnection, resources);
           setSelectedConnection(null);
         }}
       />
