@@ -178,7 +178,7 @@ const resources = {
       'Updating failed': 'Bijwerken mislukt',
       '{{connectionName}} is deleted': '{{connectionName}} is verwijderd',
       'Configurable Resources': 'Configruabelen Resources',
-      'Re-authorize': 'Opnieuw autoriseren',
+      'Re-authorize': 'Herverbinden',
       Disable: 'Uitschakelen',
       Enable: 'Inschakelen',
       Disconnect: 'Ontkoppelen',
