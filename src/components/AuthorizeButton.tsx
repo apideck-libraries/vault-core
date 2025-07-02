@@ -1,5 +1,5 @@
 import { Button, useToast } from '@apideck/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
@@ -11,9 +11,14 @@ import { useSession } from '../utils/useSession';
 interface Props {
   connection: Connection;
   onConnectionChange?: (connection: Connection) => any;
+  autoStartAuthorization?: boolean;
 }
 
-const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
+const AuthorizeButton = ({
+  connection,
+  onConnectionChange,
+  autoStartAuthorization,
+}: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { connectionsUrl, headers } = useConnections();
   const { addToast } = useToast();
@@ -22,6 +27,9 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
   } = useSession();
   const { mutate } = useSWRConfig();
   const { t } = useTranslation();
+
+  const isAuthorizationEnabled =
+    connection.integration_state !== 'needs_configuration' && !isLoading;
 
   const authorizeUrl = `${connection.authorize_url}&redirect_uri=${
     redirect_uri ?? REDIRECT_URL
@@ -129,13 +137,18 @@ const AuthorizeButton = ({ connection, onConnectionChange }: Props) => {
     );
   }
 
+  // Auto start authorization if the connection is enabled and the autoStartAuthorization flag is true
+  useEffect(() => {
+    if (autoStartAuthorization && isAuthorizationEnabled) {
+      authorizeConnection();
+    }
+  }, []);
+
   return (
     <Button
       text={t('Authorize')}
       isLoading={isLoading}
-      disabled={
-        connection.integration_state === 'needs_configuration' || isLoading
-      }
+      disabled={!isAuthorizationEnabled}
       size="large"
       className="w-full !truncate"
       onClick={authorizeConnection}

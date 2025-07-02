@@ -20,6 +20,7 @@ export const ModalContent = ({
   initialView,
   showLanguageSwitch,
   showButtonLayout,
+  autoStartAuthorization,
 }: {
   consumer?: { image?: string; user_name?: string; account_name?: string };
   onClose: () => any;
@@ -27,6 +28,7 @@ export const ModalContent = ({
   initialView?: ConnectionViewType;
   showLanguageSwitch?: boolean;
   showButtonLayout?: boolean;
+  autoStartAuthorization?: boolean;
 }) => {
   const {
     connections,
@@ -96,6 +98,7 @@ export const ModalContent = ({
           initialView={initialView}
           showLanguageSwitch={showLanguageSwitch}
           showButtonLayout={showButtonLayout}
+          autoStartAuthorization={autoStartAuthorization}
         />
         {showConsumer && (
           <ConsumerSection
