@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 
-import { Alert, Button } from '@apideck/components';
+import { Alert, Button, usePrevious } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
@@ -12,7 +12,10 @@ import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import AuthorizeButton from './AuthorizeButton';
+import ButtonLayoutMenu from './ButtonLayoutMenu';
 import ConnectionForm from './ConnectionForm';
+import ConsentHistory from './ConsentHistory';
+import ConsentScreen from './ConsentScreen';
 import Divider from './Divider';
 import FieldMapping from './FieldMapping';
 import LoadingDetails from './LoadingDetails';
@@ -28,6 +31,7 @@ interface Props {
   showConsumer?: boolean;
   initialView?: ConnectionViewType;
   showLanguageSwitch?: boolean;
+  showButtonLayout?: boolean;
   autoStartAuthorization?: boolean;
 }
 
@@ -38,6 +42,7 @@ const ConnectionDetails = ({
   showConsumer,
   initialView,
   showLanguageSwitch,
+  showButtonLayout,
   autoStartAuthorization,
 }: Props) => {
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
@@ -49,6 +54,7 @@ const ConnectionDetails = ({
     isLoadingDetails,
     resources,
     singleConnectionMode,
+    denyConsent,
   } = useConnections();
 
   const { session } = useSession();
@@ -77,11 +83,14 @@ const ConnectionDetails = ({
   const requiredAuthVariables =
     authorizationVariablesRequired(selectedConnection);
 
+  const previousState = usePrevious(selectedConnection.state);
+
   const shouldShowAuthorizeButton =
     enabled &&
     state !== 'callable' &&
     auth_type === 'oauth2' &&
-    !requiredAuthVariables;
+    !requiredAuthVariables &&
+    !(state === 'authorized' && hasFormFields); // Don't show authorize if already authorized with form fields - they need to configure instead
 
   const needsInput = useMemo(() => {
     return (
@@ -97,31 +106,63 @@ const ConnectionDetails = ({
 
   useEffect(() => {
     // Open specific view when provided as prop
-    if (initialView && currentView === null && singleConnectionMode) {
+    if (
+      initialView &&
+      (currentView === null || currentView === undefined) &&
+      singleConnectionMode
+    ) {
       setCurrentView(initialView);
       return;
     }
 
-    // Open / close settings form bases on state
-    if (needsInput && currentView !== ConnectionViewType.Settings) {
+    // Open / close settings form based on state
+    // Force Settings only when currentView is null/undefined (initial load) and input is needed
+    // This allows manual navigation back to ButtonMenu while still auto-navigating to Settings after authorization
+    if (needsInput && (currentView === null || currentView === undefined)) {
+      setCurrentView(ConnectionViewType.Settings);
+      return;
+    }
+
+    const justAuthorized =
+      previousState !== 'authorized' && state === 'authorized';
+
+    // Auto-navigate to Settings after authorization if form fields are needed
+    // This handles the case where user just completed OAuth and needs to configure
+    if (showButtonLayout && justAuthorized && hasFormFields && enabled) {
       setCurrentView(ConnectionViewType.Settings);
       return;
     }
 
     // Show ConfigurableResources view if specific conditions are met
     if (
-      currentView === null &&
+      (currentView === null ||
+        currentView === undefined ||
+        currentView === ConnectionViewType.ButtonMenu) &&
       (selectedConnection.configurable_resources ?? []).length > 0 &&
       !settings?.hide_resource_settings &&
-      (hasMissingRequiredFields(resources) ||
-        selectedConnection.state === 'callable')
+      hasMissingRequiredFields(resources)
     ) {
       setCurrentView(ConnectionViewType.ConfigurableResources);
       return;
     }
 
+    // Show button menu layout when enabled and no other specific requirements
+    // Handle both null and undefined (ConnectionForm sets to undefined after successful save)
+    if (
+      (currentView === null || currentView === undefined) &&
+      showButtonLayout &&
+      !needsInput &&
+      selectedConnection.integration_state !== 'needs_configuration'
+    ) {
+      setCurrentView(ConnectionViewType.ButtonMenu);
+      return;
+    }
+
     // On single connection mode, open settings by default
-    if (currentView === null && singleConnectionMode) {
+    if (
+      (currentView === null || currentView === undefined) &&
+      singleConnectionMode
+    ) {
       setCurrentView(ConnectionViewType.Settings);
     }
   }, [
@@ -131,6 +172,8 @@ const ConnectionDetails = ({
     settings,
     selectedConnection,
     currentView,
+    showButtonLayout,
+    previousState,
   ]);
 
   useEffect(() => {
@@ -148,9 +191,18 @@ const ConnectionDetails = ({
       onClose={onClose}
       onConnectionChange={onConnectionChange}
       onBack={() => {
-        if (singleConnectionMode) {
+        // When using button layout, go back to ButtonMenu from other views
+        if (
+          showButtonLayout &&
+          currentView &&
+          currentView !== ConnectionViewType.ButtonMenu
+        ) {
+          setCurrentView(ConnectionViewType.ButtonMenu);
+        } else if (singleConnectionMode) {
+          // In single connection mode, if we can't go back to ButtonMenu, close the vault
           onClose();
         } else if (setSelectedConnection) {
+          // In multi-connection mode, go back to connections list
           setSelectedConnection(null);
         }
       }}
@@ -158,6 +210,7 @@ const ConnectionDetails = ({
       currentView={currentView}
       singleConnectionMode={singleConnectionMode}
       settings={settings}
+      showButtonLayout={showButtonLayout}
       {...props}
     />
   );
@@ -198,6 +251,49 @@ const ConnectionDetails = ({
     );
   }
 
+  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
+    'pending',
+    'denied',
+    'revoked',
+    'requires_reconsent',
+  ];
+
+  if (
+    (session?.data_scopes?.enabled &&
+      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
+    currentView === ConnectionViewType.ConsentScreen
+  ) {
+    return (
+      <ConsentScreen
+        connection={selectedConnection}
+        onClose={() => setSelectedConnection(null)}
+        onDeny={async (resources: any) => {
+          await denyConsent(selectedConnection, resources);
+          setSelectedConnection(null);
+        }}
+      />
+    );
+  }
+
+  if (currentView === ConnectionViewType.ConsentHistory) {
+    return (
+      <>
+        <TopBarComponent
+          onBack={() =>
+            showButtonLayout
+              ? setCurrentView(ConnectionViewType.ButtonMenu)
+              : setCurrentView(ConnectionViewType.Settings)
+          }
+          hideOptions={true}
+        />
+        <ConsentHistory
+          connection={selectedConnection}
+          setCurrentView={setCurrentView}
+        />
+      </>
+    );
+  }
+
   if (currentView === ConnectionViewType.CustomMapping) {
     return (
       <FieldMapping
@@ -211,19 +307,44 @@ const ConnectionDetails = ({
 
   if (isLoadingDetails) return <LoadingDetails />;
 
+  // Button Layout View
+  if (currentView === ConnectionViewType.ButtonMenu && showButtonLayout) {
+    return (
+      <>
+        <TopBarComponent />
+        <ButtonLayoutMenu
+          connection={selectedConnection}
+          onConnectionChange={onConnectionChange}
+          setCurrentView={setCurrentView}
+          settings={settings}
+          shouldShowAuthorizeButton={shouldShowAuthorizeButton || false}
+          isUpdating={isUpdating}
+          showButtonLayout={showButtonLayout}
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      <TopBarComponent />
+      <TopBarComponent
+        hideOptions={
+          singleConnectionMode &&
+          showButtonLayout &&
+          (currentView === ConnectionViewType.Settings ||
+            currentView === ConnectionViewType.ConfigurableResources)
+        }
+      />
       <div className="h-full rounded-b-xl">
         <div className="text-center p-5 md:p-6">
           <Dialog.Title
             as="h3"
-            className="text-lg font-medium leading-6 text-gray-900 mb-2"
+            className="text-lg font-semibold leading-6 text-gray-900 mb-1"
           >
             {name}
           </Dialog.Title>
           <a
-            className="text-sm text-gray-700 mb-4 font-medium hover:text-gray-900"
+            className="text-sm text-gray-700 mb-3 font-medium hover:text-gray-900"
             href={`https://developers.apideck.com/apis/${unified_api}/reference`}
             target="_blank"
             rel="noopener noreferrer"
@@ -257,7 +378,7 @@ const ConnectionDetails = ({
           )}
 
           {selectedConnection.integration_state !== 'needs_configuration' && (
-            <div className="mx-auto mt-4">
+            <div className="mx-auto mt-3">
               <StatusBadge
                 connection={selectedConnection}
                 isLoading={
@@ -271,7 +392,7 @@ const ConnectionDetails = ({
           {selectedConnection.state === 'callable' &&
             hasRequiredMappings &&
             (currentView !== ConnectionViewType.Settings || !hasFormFields) && (
-              <div className="max-w-md w-full rounded-md p-4 bg-gray-50 text-center mt-4 border border-gray-100">
+              <div className="max-w-md w-full rounded-md p-4 bg-gray-50 text-center mt-3 border border-gray-100">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -324,7 +445,7 @@ const ConnectionDetails = ({
             )}
 
           {shouldShowAuthorizeButton ? (
-            <div className="mt-4">
+            <div className="mt-3">
               <AuthorizeButton
                 connection={selectedConnection}
                 onConnectionChange={onConnectionChange}
@@ -333,7 +454,8 @@ const ConnectionDetails = ({
             </div>
           ) : null}
 
-          {currentView === ConnectionViewType.ConfigurableResources ? (
+          {currentView === ConnectionViewType.ConfigurableResources &&
+          (selectedConnection.configurable_resources ?? []).length > 0 ? (
             <Fragment>
               <Divider text={t('Configurable resources')} />
               <ResourceList
@@ -346,7 +468,7 @@ const ConnectionDetails = ({
           {hasFormFields && currentView === ConnectionViewType.Settings ? (
             <Fragment>
               {requiredAuthVariables ? (
-                <div className={'mt-4 text-xs sm:text-sm text-gray-700'}>
+                <div className={'mt-3 text-xs sm:text-sm text-gray-700'}>
                   {requiredAuthVariables}
                 </div>
               ) : null}

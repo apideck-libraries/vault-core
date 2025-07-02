@@ -2,7 +2,7 @@
 
 <br />
 
-**🚨 We recommend using the new [@apideck/vault-react](https://www.npmjs.com/package/@apideck/vault-react) package.**
+**🚨 We recommend using the new [@apideck/vault-react](https://www.npmjs.com/package/@apideck/vault-react) or [@apideck/vault-js](https://github.com/apideck-libraries/vault-js) packages.**
 
 <br />
 
@@ -165,4 +165,5 @@ If you want to provide a custom logo on top of the modal, you can set the `logo`
 | initialView            | ConnectionViewType               | false    | -       | Open Vault in a specific view for a connection session                                                                                            |
 | locale                 | string                           | false    | en      | Open Vault in a specific language                                                                                                                 |
 | showLanguageSwitch     | boolean                          | false    | false   | Show language switch at bottom                                                                                                                    |
+| showButtonLayout       | boolean                          | false    | false   | Show button layout instead of dropdown menu in TopBar for connection actions                                                                      |
 | autoStartAuthorization | boolean                          | false    | false   | Automatically start the authorization process. Applies Works only in the single connection mode                                                   |

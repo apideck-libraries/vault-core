@@ -29,8 +29,8 @@ const Template: Story<Props> = (args) => (
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     {...args}
     showConsumer={true}
-    unifyBaseUrl="http://localhost:3050"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXIiLCJhcHBsaWNhdGlvbl9pZCI6IjIyMjIiLCJzY29wZXMiOltdLCJpYXQiOjE3MzczNzYwNjAsImV4cCI6MTczNzM3OTY2MH0.M6ZHjGXCx_XESd4X90RtZR9guT5xxiSGzKGdrUwDkLA"
+    // unifyBaseUrl="http://localhost:3050"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aGVtZSI6eyJsb2dvIjoiaHR0cHM6Ly93d3cuYXBpZGVjay5jb20vZmF2aWNvbi5pY28ifSwiY29uc3VtZXJfaWQiOiJkZW1vLXJlYWN0LXZhdWx0LWc1M2YwYS0yMDI1LTA3LTAxVDE0OjE0OjI3LjkxOVoiLCJhcHBsaWNhdGlvbl9pZCI6IkFpQ2t6eGNwWld1eFVSTVVrYTlmOVdPVVJoa09iMEh4cEtVa2EiLCJzY29wZXMiOltdLCJpYXQiOjE3NTE0NDQ5MjIsImV4cCI6MTc1MTQ0ODUyMn0.FSW2oZ1WKy2JjcrAMEnhkXp15nLDd73pJYnGYTpCmns"
   />
 );
 
@@ -52,8 +52,8 @@ SingleConnection.args = {
       Open Single Connection
     </button>
   ),
-  unifiedApi: 'crm',
-  serviceId: 'act',
+  unifiedApi: 'accounting',
+  serviceId: 'xero',
 };
 
 export const SettingsView = Template.bind({});
@@ -126,4 +126,13 @@ InSpanish.args = {
 export const ShowLanguageSwitch = Template.bind({});
 ShowLanguageSwitch.args = {
   showLanguageSwitch: true,
+  showButtonLayout: true,
+};
+
+export const ButtonLayout = Template.bind({});
+ButtonLayout.args = {
+  showButtonLayout: true,
+  showLanguageSwitch: true,
+  // unifiedApi: 'issue-tracking',
+  // serviceId: 'xero',
 };

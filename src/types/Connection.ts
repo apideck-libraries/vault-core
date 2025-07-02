@@ -35,6 +35,30 @@ export interface CustomMapping {
   value: string;
 }
 
+export type ConsentState =
+  | 'implicit'
+  | 'pending'
+  | 'granted'
+  | 'denied'
+  | 'revoked'
+  | 'requires_reconsent';
+
+export interface ConsentRecord {
+  id: string;
+  created_at: string;
+  granted: boolean;
+  resources:
+    | '*'
+    | {
+        [apiScopedResourceName: string]: {
+          [dotField: string]: {
+            read: boolean;
+            write: boolean;
+          };
+        };
+      };
+}
+
 export interface Connection {
   id: string;
   service_id: string;
@@ -63,4 +87,6 @@ export interface Connection {
   has_guide?: boolean;
   validation_support?: boolean;
   custom_mappings: CustomMapping[];
+  consent_state?: ConsentState;
+  consents?: ConsentRecord[];
 }

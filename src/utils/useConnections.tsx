@@ -16,6 +16,9 @@ import { FormField } from '../types/FormField';
 interface ContextProps {
   connections: Connection[];
   deleteConnection: (connection: Connection) => void;
+  denyConsent: (connection: Connection, resources: any) => Promise<void>;
+  grantConsent: (connection: Connection, resources: any) => Promise<void>;
+  revokeConsent: (connection: Connection, resources: any) => Promise<void>;
   detailsError: any;
   error: any;
   isLoading: boolean;
@@ -40,6 +43,7 @@ interface ContextProps {
   fetchResourceSchema: (resource: string) => Promise<any>;
   fetchResourceExample: (resource: string) => Promise<any>;
   fetchCustomFields: (resource: string) => Promise<any>;
+  fetchConsentRecords: (connection: Connection) => Promise<any>;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -154,18 +158,170 @@ export const ConnectionsProvider = ({
   useEffect(() => {
     if (!connection) return;
 
-    const { configurable_resources, state } = connection;
+    const { configurable_resources, state, enabled } = connection;
     const isReAuthorized = state === 'authorized' || state === 'callable';
 
     if (
       (configurable_resources ?? []).length > 0 &&
       isReAuthorized &&
       !resources.length &&
-      !isUpdating
+      !isUpdating &&
+      enabled
     ) {
       getResourceConfig();
     }
   }, [connection]);
+
+  const denyConsent = async (
+    connection: Connection,
+    resources: any
+  ): Promise<void> => {
+    try {
+      setIsUpdating(true);
+      const consentUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`;
+      const response = await fetch(consentUrl, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ granted: false, resources }),
+      });
+      const result = await response.json();
+
+      if (response.ok && result.data) {
+        addToast({
+          title: t('Consent denied'),
+          description: t('Access to {{name}} was denied.', {
+            name: connection.name,
+          }),
+          type: 'warning',
+        });
+        setSelectedConnection(null);
+        const updatedConnection = { ...connection, consent_state: 'denied' };
+        const updatedList = {
+          ...data,
+          data: data.data.map((c: Connection) =>
+            c.id === connection.id ? updatedConnection : c
+          ),
+        };
+        mutate(listUrl, updatedList, { revalidate: false });
+        mutate(detailsUrl, { data: updatedConnection }, { revalidate: false });
+      } else {
+        addToast({
+          title: t('Updating failed'),
+          description: result.message || 'An unexpected error occurred.',
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      addToast({
+        title: t('Updating failed'),
+        description: (error as any)?.message,
+        type: 'error',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const revokeConsent = async (
+    connection: Connection,
+    resources: any
+  ): Promise<void> => {
+    try {
+      setIsUpdating(true);
+      const consentUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`;
+
+      const response = await fetch(consentUrl, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ granted: false, resources }),
+      });
+
+      if (response.ok) {
+        addToast({
+          title: t('Access revoked'),
+          description: t('Access to {{name}} has been revoked.', {
+            name: connection.name,
+          }),
+          type: 'success',
+        });
+        setSelectedConnection(null);
+        const updatedConnection = { ...connection, consent_state: 'revoked' };
+        const updatedList = {
+          ...data,
+          data: data.data.map((c: Connection) =>
+            c.id === connection.id ? updatedConnection : c
+          ),
+        };
+        mutate(listUrl, updatedList, { revalidate: false });
+        mutate(detailsUrl, { data: updatedConnection }, { revalidate: false });
+      } else {
+        const result = await response.json();
+        addToast({
+          title: t('Revocation failed'),
+          description: result.message || 'An unexpected error occurred.',
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      addToast({
+        title: t('Revocation failed'),
+        description: (error as any)?.message,
+        type: 'error',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const grantConsent = async (
+    connection: Connection,
+    resources: any
+  ): Promise<void> => {
+    try {
+      setIsUpdating(true);
+      const consentUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`;
+      const response = await fetch(consentUrl, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ granted: true, resources }),
+      });
+      const result = await response.json();
+
+      if (response.ok && result.data) {
+        const updatedConnection = {
+          ...connection,
+          consent_state: 'granted',
+        };
+        const updatedList = {
+          ...data,
+          data: data.data.map((c: Connection) =>
+            c.id === connection.id ? updatedConnection : c
+          ),
+        };
+        mutate(listUrl, updatedList, { revalidate: false });
+        mutate(detailsUrl, { data: updatedConnection }, { revalidate: false });
+        addToast({
+          title: t('Consent granted'),
+          description: t('You can now authorize the connection.'),
+          type: 'success',
+        });
+      } else {
+        addToast({
+          title: t('Updating failed'),
+          description: result.message || 'An unexpected error occurred.',
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      addToast({
+        title: t('Updating failed'),
+        description: (error as any)?.message,
+        type: 'error',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const updateConnection = async ({
     unifiedApi,
@@ -265,24 +421,27 @@ export const ConnectionsProvider = ({
           headers,
         }
       );
-      const updatedConnection: Connection = {
-        ...connection,
-        enabled: false,
-        state: 'available',
-      };
-      const updatedData = {
-        ...data,
-        data: [
-          updatedConnection,
-          ...data.data?.filter((con: Connection) => con.id !== connection.id),
-        ],
-      };
-      mutate(listUrl, updatedData, false);
-      onConnectionDelete?.(updatedConnection);
 
       if (singleConnectionMode) {
+        // Clear the specific connection details cache to prevent stale data
+        const detailsUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}`;
+        mutate(detailsUrl, undefined, false);
         onClose();
       } else {
+        const updatedConnection: Connection = {
+          ...connection,
+          enabled: false,
+          state: 'available',
+        };
+        const updatedData = {
+          ...data,
+          data: [
+            updatedConnection,
+            ...data.data?.filter((con: Connection) => con.id !== connection.id),
+          ],
+        };
+        mutate(listUrl, updatedData, false);
+        onConnectionDelete?.(updatedConnection);
         setSelectedConnection(null);
         addToast({
           title: t('{{connectionName}} is deleted', {
@@ -298,6 +457,27 @@ export const ConnectionsProvider = ({
         description: (error as any)?.message,
         type: 'error',
       });
+    }
+  };
+
+  const fetchConsentRecords = async (connection: Connection) => {
+    try {
+      const response = await fetch(
+        `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`,
+        { headers }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to fetch consent records');
+      }
+      return result.data;
+    } catch (error) {
+      addToast({
+        title: t('Failed to fetch consent records'),
+        description: (error as any)?.message,
+        type: 'error',
+      });
+      return [];
     }
   };
 
@@ -465,6 +645,10 @@ export const ConnectionsProvider = ({
       fetcher,
       unifyBaseUrl,
       connectionsUrl: `${unifyBaseUrl}/vault/connections`,
+      denyConsent,
+      revokeConsent,
+      grantConsent,
+      fetchConsentRecords,
     }),
     [
       isUpdating,
@@ -477,6 +661,10 @@ export const ConnectionsProvider = ({
       error,
       detailsError,
       fetchResourceSchema,
+      denyConsent,
+      revokeConsent,
+      grantConsent,
+      fetchConsentRecords,
     ]
   );
 

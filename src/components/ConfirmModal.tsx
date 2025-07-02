@@ -8,9 +8,21 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   onClose: () => void;
   isOpen: boolean;
   onConfirm: () => void;
+  title?: string;
+  description?: string;
+  confirmButtonText?: string;
+  cancelButtonText?: string;
 }
 
-export function ConfirmModal({ onClose, isOpen = false, onConfirm }: Props) {
+export function ConfirmModal({
+  onClose,
+  isOpen = false,
+  onConfirm,
+  title,
+  description,
+  confirmButtonText,
+  cancelButtonText,
+}: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
 
@@ -65,27 +77,28 @@ export function ConfirmModal({ onClose, isOpen = false, onConfirm }: Props) {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  {t('Are you sure?')}
+                  {title || t('Are you sure?')}
                 </Dialog.Title>
                 <div className="mt-2">
                   <p className="text-sm text-gray-500">
-                    {t(
-                      'When you delete a connection you will lose all your configured settings.'
-                    )}
+                    {description ||
+                      t(
+                        'When you delete a connection you will lose all your configured settings.'
+                      )}
                   </p>
                 </div>
 
                 <div className="mt-4 space-x-4 flex">
                   <Button
                     onClick={handleConfirm}
-                    text="Delete"
+                    text={confirmButtonText || t('Delete')}
                     variant="danger"
                     className="w-full"
                     isLoading={isLoading}
                   />
                   <Button
                     onClick={onClose}
-                    text="Cancel"
+                    text={cancelButtonText || t('Cancel')}
                     variant="outline"
                     className="w-full"
                   />

@@ -1,4 +1,10 @@
-import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
@@ -84,6 +90,12 @@ export interface Props {
   showLanguageSwitch?: boolean;
 
   /**
+   * Use button layout instead of dropdown menu in TopBar for connection actions
+   * @default false
+   * */
+  showButtonLayout?: boolean;
+
+  /**
    * Optionally you can auto start the authorization process
    * @default false
    * */
@@ -113,10 +125,13 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     initialView,
     locale = 'en',
     showLanguageSwitch = false,
+    showButtonLayout = false,
     autoStartAuthorization = false,
   },
   ref
 ) {
+  const dataScopesEnabledForTesting = false; // TODO: Remove this when done with local testing
+
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [session, setSession] = useState<Session>({});
@@ -167,6 +182,45 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     }
   }, [token]);
 
+  // TODO: Keep for now, I'll remove this later when done with local testing
+  const sessionWithMockedScopes = useMemo(() => {
+    if (!dataScopesEnabledForTesting) {
+      return session;
+    }
+    return {
+      ...session,
+      data_scopes: {
+        enabled: true,
+        modified: new Date().toISOString(),
+        resources: {
+          'hris.employees': {
+            id: { read: true, write: false },
+            first_name: { read: true, write: true },
+            last_name: { read: true, write: true },
+            email: { read: true, write: true },
+            'employment.job_title': { read: true, write: true },
+          },
+          'hris.departments': {
+            id: { read: true, write: false },
+            name: { read: true, write: true },
+          },
+          'accounting.invoices': {
+            id: { read: true, write: false },
+            type: { read: true, write: true },
+            status: { read: false, write: true },
+            date: { read: true, write: true },
+            total: { read: true, write: true },
+            'customer.name': { read: true, write: true },
+            'customer.id': { read: true, write: true },
+            'customer.email': { read: true, write: true },
+            'customer.phone': { read: true, write: true },
+            'customer.address': { read: true, write: true },
+          },
+        },
+      },
+    };
+  }, [session, dataScopesEnabledForTesting]);
+
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
   return (
@@ -193,7 +247,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               unifyBaseUrl={unifyBaseUrl}
             >
-              <SessionProvider session={session}>
+              <SessionProvider session={sessionWithMockedScopes}>
                 <ModalContent
                   onClose={onCloseModal}
                   onConnectionChange={onConnectionChange}
@@ -202,6 +256,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
                   }
                   initialView={initialView}
                   showLanguageSwitch={showLanguageSwitch}
+                  showButtonLayout={showButtonLayout}
                   autoStartAuthorization={autoStartAuthorization}
                 />
               </SessionProvider>
