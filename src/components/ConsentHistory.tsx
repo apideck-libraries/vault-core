@@ -10,7 +10,6 @@ import React, {
 import { useTranslation } from 'react-i18next';
 import { Connection, ConsentRecord } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
-import { DataScopes } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
@@ -49,9 +48,8 @@ const ScopeRow: React.FC<{
   );
 };
 
-const ScopesDetail: React.FC<{ scopes: DataScopes['resources'] }> = ({
-  scopes,
-}) => {
+// TODO: fix types
+const ScopesDetail: React.FC<{ scopes: any }> = ({ scopes }) => {
   const { t } = useTranslation();
   const resources = Object.keys(scopes);
 
