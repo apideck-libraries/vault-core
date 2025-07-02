@@ -404,7 +404,11 @@ const ButtonLayoutMenu: React.FC<Props> = ({
         {buttonOptions.length > 0 && (
           <div className="mt-3">
             <Divider text={t('Actions')} />
-            <div className="grid grid-cols-2 gap-3 mt-3">
+            <div
+              className={`grid grid-cols-2 gap-3 mt-3 ${
+                buttonOptions.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+              }`}
+            >
               {buttonOptions.map((button, index) => (
                 <Button
                   key={index}
