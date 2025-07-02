@@ -32,6 +32,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
   const { addToast } = useToast();
   const { session } = useSession();
   const { t } = useTranslation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationState, setValidationState] =
     useState<ValidationState>('idle');
 
@@ -76,12 +77,14 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
 
         setValidationState(valid ? 'valid' : 'invalid');
       } else {
+        setIsSubmitting(true);
         setCurrentView(undefined);
         const updatedConnection = await updateConnection({
           unifiedApi: connection.unified_api,
           serviceId: connection.service_id,
           values: { settings: { ...values } },
         });
+        setIsSubmitting(false);
 
         if (!updatedConnection) {
           setCurrentView(ConnectionViewType.Settings);
@@ -128,7 +131,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
       )}
 
       <form
-        className="space-y-4 text-left"
+        className="space-y-3 text-left"
         onSubmit={formik.handleSubmit}
         id="react-vault-connection-form"
         data-testid="connection-form"
@@ -225,7 +228,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
               ? t('Trying to connect...')
               : t('Save')
           }
-          isLoading={validationState === 'validating'}
+          isLoading={validationState === 'validating' || isSubmitting}
           size="large"
           className="w-full"
           disabled={hasSingleDisabledField}
@@ -237,7 +240,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
         />
       </form>
       {showGuide && (
-        <div className="flex text-sm items-center text-gray-600 rounded-b-xl py-3 px-5 md:px-6 bg-gray-100 -mx-5 md:-mx-6 -mb-5 md:-mb-6 mt-4 border-t border-gray-200">
+        <div className="flex text-sm items-center text-gray-600 rounded-b-xl py-3 px-5 md:px-6 bg-gray-100 -mx-5 md:-mx-6 -mb-5 md:-mb-6 mt-3 border-t border-gray-200">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

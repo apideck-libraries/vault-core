@@ -29,8 +29,8 @@ const Template: Story<Props> = (args) => (
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     {...args}
     showConsumer={true}
-    unifyBaseUrl="http://localhost:3050"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiJodHRwczovL3ZhdWx0LmFwaWRlY2suY29tL29hdXRoL2NhbGxiYWNrIiwiY29uc3VtZXJfbWV0YWRhdGEiOnt9LCJ0aGVtZSI6eyJmYXZpY29uIjoiaHR0cHM6Ly9yZXMuY2xvdWRpbmFyeS5jb20vYXBpZGVjay9pbWFnZS91cGxvYWQvdjE1OTQ2NDAxMDYvbWFya2V0cGxhY2VzL3VmYzcwODJhc3p6Z2h0dm5ncWFlLnBuZyIsInByaW1hcnlfY29sb3IiOiIjNUM1MUNFIiwicHJpdmFjeV91cmwiOiJodHRwczovL2NvbXBsaWFuY2UuYXBpZGVjay5jb20vcHJpdmFjeS1wb2xpY3kiLCJzaWRlcGFuZWxfYmFja2dyb3VuZF9jb2xvciI6IiMwRTEyNDQiLCJzaWRlcGFuZWxfdGV4dF9jb2xvciI6IiNGRkZGRkYiLCJ0ZXJtc191cmwiOiJodHRwczovL3d3dy50ZXJtc2ZlZWQuY29tL3Rlcm1zLWNvbmRpdGlvbnMvOTU3Yzg1YzFiMDg5YWU5ZTMyMTljODNlZmY2NTM3N2UiLCJ2YXVsdF9uYW1lIjoiQXBpZGVjayBVbmlmeSBTdGFnaW5nIn0sInNldHRpbmdzIjp7InNlc3Npb25fbGVuZ3RoIjoiMjRoIn0sImNvbnN1bWVyX2lkIjoidGVzdC1jb25zdW1lciIsImFwcGxpY2F0aW9uX2lkIjoiMjIyMiIsInNjb3BlcyI6W10sImlhdCI6MTc1MTI2OTQ1OCwiZXhwIjoxNzUxMzU1ODU4fQ.G6NKCiL-ZelBxhaTXdYZJv9XqLaWxaacLKeWwq4xzYI"
+    // unifyBaseUrl="http://localhost:3050"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aGVtZSI6eyJsb2dvIjoiaHR0cHM6Ly93d3cuYXBpZGVjay5jb20vZmF2aWNvbi5pY28ifSwiY29uc3VtZXJfaWQiOiJkZW1vLXJlYWN0LXZhdWx0LWc1M2YwYS0yMDI1LTA3LTAxVDE0OjE0OjI3LjkxOVoiLCJhcHBsaWNhdGlvbl9pZCI6IkFpQ2t6eGNwWld1eFVSTVVrYTlmOVdPVVJoa09iMEh4cEtVa2EiLCJzY29wZXMiOltdLCJpYXQiOjE3NTE0NDQ5MjIsImV4cCI6MTc1MTQ0ODUyMn0.FSW2oZ1WKy2JjcrAMEnhkXp15nLDd73pJYnGYTpCmns"
   />
 );
 
@@ -126,4 +126,13 @@ InSpanish.args = {
 export const ShowLanguageSwitch = Template.bind({});
 ShowLanguageSwitch.args = {
   showLanguageSwitch: true,
+  showButtonLayout: true,
+};
+
+export const ButtonLayout = Template.bind({});
+ButtonLayout.args = {
+  showButtonLayout: true,
+  showLanguageSwitch: true,
+  // unifiedApi: 'issue-tracking',
+  // serviceId: 'xero',
 };

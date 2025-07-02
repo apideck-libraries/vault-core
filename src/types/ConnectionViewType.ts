@@ -4,4 +4,5 @@ export enum ConnectionViewType {
   CustomMapping = 'custom-mapping',
   ConsentHistory = 'consent-history',
   ConsentScreen = 'consent-screen',
+  ButtonMenu = 'button-menu',
 }

@@ -90,10 +90,10 @@ export interface Props {
   showLanguageSwitch?: boolean;
 
   /**
-   * For testing purposes only. Will be removed.
-   * @internal
-   */
-  dataScopesEnabledForTesting?: boolean;
+   * Use button layout instead of dropdown menu in TopBar for connection actions
+   * @default false
+   * */
+  showButtonLayout?: boolean;
 }
 
 const SESSION_MESSAGE = `Make sure you first create a session and then provide the returned token to the component. https://developers.apideck.com/apis/vault/reference#operation/sessionsCreate`;
@@ -119,10 +119,12 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     initialView,
     locale = 'en',
     showLanguageSwitch = false,
-    dataScopesEnabledForTesting = true,
+    showButtonLayout = false,
   },
   ref
 ) {
+  const dataScopesEnabledForTesting = false; // TODO: Remove this when done with local testing
+
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [session, setSession] = useState<Session>({});
@@ -173,6 +175,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     }
   }, [token]);
 
+  // TODO: Keep for now, I'll remove this later when done with local testing
   const sessionWithMockedScopes = useMemo(() => {
     if (!dataScopesEnabledForTesting) {
       return session;
@@ -213,8 +216,6 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
 
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
-  console.log('sessionWithMockedScopes', sessionWithMockedScopes);
-
   return (
     <div id="react-vault" className="apideck">
       {trigger
@@ -248,6 +249,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
                   }
                   initialView={initialView}
                   showLanguageSwitch={showLanguageSwitch}
+                  showButtonLayout={showButtonLayout}
                 />
               </SessionProvider>
             </ConnectionsProvider>

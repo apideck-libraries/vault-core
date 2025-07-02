@@ -32,6 +32,18 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
       config.resource === resource
   )?.defaults;
 
+  if (!selectedConnection.enabled && !formFields) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 text-center bg-gray-50 rounded-lg ring-1 ring-gray-200">
+        <p className="text-gray-600 dark:text-gray-300 mb-2">
+          Connection is currently disabled
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Please first enable the connection to configure resources
+        </p>
+      </div>
+    );
+  }
   if (!formFields)
     return (
       <div className="flex items-center justify-center h-20">
@@ -112,7 +124,7 @@ const ResourceForm = ({ resource, closeForm }: Props) => {
   });
 
   return (
-    <form className="text-left" onSubmit={formik.handleSubmit}>
+    <form className="text-left fade-in" onSubmit={formik.handleSubmit}>
       <div className="bg-gray-50 -mx-5 md:-mx-6 px-5 md:px-6 py-5 border-t border-b border-gray-200 space-y-4 ">
         {formFields?.map((field: FormField) => {
           const {

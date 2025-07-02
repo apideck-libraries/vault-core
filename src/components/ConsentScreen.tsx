@@ -115,25 +115,17 @@ const ScopesList: React.FC<ScopeProps & { newFields?: Set<string> }> = ({
 
 interface Props {
   connection: Connection;
-  onConnectionChange?: (connection: Connection) => any;
   onClose: () => void;
   onDeny: (filteredResources: any) => void;
 }
 
-const ConsentScreen: React.FC<Props> = ({
-  connection,
-  onConnectionChange,
-  onClose,
-  onDeny,
-}) => {
+const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
   const { session } = useSession();
   const { t } = useTranslation();
   const { grantConsent, isUpdating } = useConnections();
   const dataScopes = session?.data_scopes;
   const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
   const [showDenyModal, setShowDenyModal] = useState(false);
-
-  console.log('session', session);
 
   const filteredResources = useMemo(() => {
     if (!dataScopes?.resources || !connection.unified_api) {
@@ -203,7 +195,7 @@ const ConsentScreen: React.FC<Props> = ({
         hideOptions={true}
         singleConnectionMode={true}
       />
-      <div className="h-full p-6 text-center">
+      <div className="h-full p-6 text-center fade-in">
         <h2 className="text-lg font-semibold mb-2">
           {t('Requested Data Access')}
         </h2>

@@ -158,14 +158,15 @@ export const ConnectionsProvider = ({
   useEffect(() => {
     if (!connection) return;
 
-    const { configurable_resources, state } = connection;
+    const { configurable_resources, state, enabled } = connection;
     const isReAuthorized = state === 'authorized' || state === 'callable';
 
     if (
       (configurable_resources ?? []).length > 0 &&
       isReAuthorized &&
       !resources.length &&
-      !isUpdating
+      !isUpdating &&
+      enabled
     ) {
       getResourceConfig();
     }
@@ -420,24 +421,27 @@ export const ConnectionsProvider = ({
           headers,
         }
       );
-      const updatedConnection: Connection = {
-        ...connection,
-        enabled: false,
-        state: 'available',
-      };
-      const updatedData = {
-        ...data,
-        data: [
-          updatedConnection,
-          ...data.data?.filter((con: Connection) => con.id !== connection.id),
-        ],
-      };
-      mutate(listUrl, updatedData, false);
-      onConnectionDelete?.(updatedConnection);
 
       if (singleConnectionMode) {
+        // Clear the specific connection details cache to prevent stale data
+        const detailsUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}`;
+        mutate(detailsUrl, undefined, false);
         onClose();
       } else {
+        const updatedConnection: Connection = {
+          ...connection,
+          enabled: false,
+          state: 'available',
+        };
+        const updatedData = {
+          ...data,
+          data: [
+            updatedConnection,
+            ...data.data?.filter((con: Connection) => con.id !== connection.id),
+          ],
+        };
+        mutate(listUrl, updatedData, false);
+        onConnectionDelete?.(updatedConnection);
         setSelectedConnection(null);
         addToast({
           title: t('{{connectionName}} is deleted', {

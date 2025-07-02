@@ -1,27 +1,16 @@
-import { Dropdown, useToast } from '@apideck/components';
+import { Dropdown } from '@apideck/components';
 import { Option } from '@apideck/components/dist/components/Dropdown';
 import classNames from 'classnames';
 import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
-import { FormField } from '../types/FormField';
-import { SessionSettings, VaultAction } from '../types/Session';
+import { SessionSettings } from '../types/Session';
+import { useConnectionActions } from '../utils/connectionActions';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
-
-const isActionAllowed =
-  (settings?: SessionSettings) =>
-  (action: VaultAction): boolean => {
-    if (!settings?.allow_actions) {
-      return true;
-    }
-
-    return settings.allow_actions.includes(action);
-  };
 
 interface Props {
   onClose: () => void;
@@ -38,6 +27,7 @@ interface Props {
   setCurrentView?: Dispatch<
     SetStateAction<ConnectionViewType | undefined | null>
   >;
+  showButtonLayout?: boolean;
 }
 
 const TopBar = ({
@@ -50,86 +40,19 @@ const TopBar = ({
   settings,
   setCurrentView,
   currentView,
+  showButtonLayout,
 }: Props) => {
-  const {
-    selectedConnection,
-    updateConnection,
-    deleteConnection,
-    connectionsUrl,
-    headers,
-  } = useConnections();
+  const { selectedConnection, deleteConnection } = useConnections();
   const { session } = useSession();
-  const [isReAuthorizing, setIsReAuthorizing] = useState(false);
-  const { mutate } = useSWRConfig();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { addToast } = useToast();
-  const isActionAllowedForSettings = isActionAllowed(settings);
   const { t } = useTranslation();
-
-  const handleRedirect = async (url: string) => {
-    setIsReAuthorizing(true);
-    if (
-      selectedConnection?.oauth_grant_type === 'client_credentials' ||
-      selectedConnection?.oauth_grant_type === 'password'
-    ) {
-      try {
-        const response: any = await fetch(
-          `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}/token`,
-          { method: 'POST', headers }
-        );
-        const data = await response.json();
-        if (data.error) {
-          addToast({
-            title: t('Something went wrong'),
-            description: data.message,
-            type: 'error',
-            autoClose: true,
-          });
-          return;
-        }
-        addToast({
-          title: `${t('Authorized')} ${selectedConnection?.name}`,
-          type: 'success',
-          autoClose: true,
-        });
-        mutate(
-          `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
-        ).then((result) => {
-          onConnectionChange?.(result.data);
-        });
-        mutate('/vault/connections');
-      } catch (error) {
-        addToast({
-          title: t('Something went wrong'),
-          description: t(
-            'The integration could not be authorized. Please make sure your settings are correct and try again.'
-          ),
-          type: 'error',
-          autoClose: true,
-        });
-      } finally {
-        setIsReAuthorizing(false);
-      }
-    } else {
-      const child = window.open(
-        url,
-        '_blank',
-        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-      );
-      const checkChild = () => {
-        if (child?.closed) {
-          clearInterval(timer);
-          mutate(
-            `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
-          ).then((result) => {
-            onConnectionChange?.(result.data);
-          });
-          setIsReAuthorizing(false);
-        }
-      };
-      const timer = setInterval(checkChild, 500);
-    }
-  };
+  const {
+    isReAuthorizing,
+    handleRedirect,
+    handleDisable,
+    handleEnable,
+    isActionAllowedForSettings,
+  } = useConnectionActions();
 
   const getOptions = () => {
     if (!selectedConnection) return [];
@@ -137,8 +60,6 @@ const TopBar = ({
     const {
       state,
       enabled,
-      unified_api,
-      service_id,
       form_fields,
       auth_type,
       configurable_resources,
@@ -153,6 +74,8 @@ const TopBar = ({
       session?.redirect_uri ?? REDIRECT_URL
     }`;
     const options: Option[] = [];
+
+    const isActionAllowed = isActionAllowedForSettings(settings);
 
     const hasFormFields = form_fields?.filter((field) => !field.hidden)?.length;
 
@@ -284,7 +207,7 @@ const TopBar = ({
     if (
       (state === 'authorized' || state === 'callable') &&
       auth_type === 'oauth2' &&
-      isActionAllowedForSettings('reauthorize')
+      isActionAllowed('reauthorize')
     ) {
       options.push({
         label: (
@@ -308,11 +231,11 @@ const TopBar = ({
             {t('Re-authorize')}
           </button>
         ),
-        onClick: () => handleRedirect(authorizeUrl),
+        onClick: () => handleRedirect(authorizeUrl, onConnectionChange),
       });
     }
 
-    if (enabled && isActionAllowedForSettings('disable')) {
+    if (enabled && isActionAllowed('disable')) {
       options.push({
         label: (
           <button className="flex font-medium items-center">
@@ -334,19 +257,12 @@ const TopBar = ({
           </button>
         ),
         onClick: async () => {
-          if (setCurrentView) setCurrentView(undefined);
-          updateConnection({
-            unifiedApi: unified_api,
-            serviceId: service_id,
-            values: {
-              enabled: false,
-            },
-          });
+          await handleDisable(setCurrentView, showButtonLayout);
         },
       });
     }
 
-    if (!enabled && isActionAllowedForSettings('disable')) {
+    if (!enabled && isActionAllowed('disable')) {
       options.push({
         label: (
           <button className="flex font-medium items-center">
@@ -368,22 +284,7 @@ const TopBar = ({
           </button>
         ),
         onClick: async () => {
-          const updatedConnection = await updateConnection({
-            unifiedApi: unified_api,
-            serviceId: service_id,
-            values: {
-              enabled: true,
-            },
-          });
-          if (updatedConnection) {
-            const { state, form_fields } = updatedConnection;
-            const hasFormFields = form_fields?.filter(
-              (field: FormField) => !field.hidden
-            )?.length;
-            if (state !== 'callable' && hasFormFields && setCurrentView) {
-              setCurrentView(ConnectionViewType.Settings);
-            }
-          }
+          await handleEnable(setCurrentView, showButtonLayout);
         },
       });
     }
@@ -391,7 +292,7 @@ const TopBar = ({
     if (
       revoke_url &&
       (state === 'authorized' || state === 'callable') &&
-      isActionAllowedForSettings('disconnect')
+      isActionAllowed('disconnect')
     ) {
       options.push({
         label: (
@@ -413,11 +314,11 @@ const TopBar = ({
             {t('Disconnect')}
           </button>
         ),
-        onClick: () => handleRedirect(revokeUrl),
+        onClick: () => handleRedirect(revokeUrl, onConnectionChange),
       });
     }
 
-    if (state !== 'available' && isActionAllowedForSettings('delete')) {
+    if (state !== 'available' && isActionAllowed('delete')) {
       options.push({
         label: (
           <button className="flex font-medium items-center">
@@ -512,7 +413,10 @@ const TopBar = ({
             />
           </svg>
         </button>
-      ) : singleConnectionMode && !hideBackButton && options.length > 0 ? (
+      ) : singleConnectionMode &&
+        !hideBackButton &&
+        options.length > 0 &&
+        !showButtonLayout ? (
         <div className="flex flex-col items-start mt-3">
           <Dropdown
             trigger={
@@ -524,16 +428,16 @@ const TopBar = ({
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
+                  strokeWidth={1.5}
                   stroke="currentColor"
+                  className="w-6 h-6"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                   />
                 </svg>
               </div>
@@ -551,7 +455,7 @@ const TopBar = ({
         {showLogo ? (
           <div
             className={classNames(
-              'w-20 h-20 -mt-8 rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto overflow-hidden',
+              'w-20 h-20 -mt-10 ring-2 ring-white rounded-full shadow-md mx-aut bg-white ring-white ring-4 mx-auto overflow-hidden',
               { 'animate-pulse': isReAuthorizing }
             )}
           >
@@ -573,6 +477,7 @@ const TopBar = ({
         {selectedConnection &&
         !hideOptions &&
         !singleConnectionMode &&
+        !showButtonLayout &&
         options.length > 0 ? (
           <Dropdown
             trigger={
@@ -584,16 +489,16 @@ const TopBar = ({
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
+                  strokeWidth={1.5}
                   stroke="currentColor"
+                  className="w-6 h-6"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                   />
                 </svg>
               </div>
