@@ -2,7 +2,7 @@
 
 <br />
 
-**🚨 We recommend using the new [@apideck/vault-js](https://github.com/apideck-libraries/vault-js) package.**
+**🚨 We recommend using the new [@apideck/vault-react](https://www.npmjs.com/package/@apideck/vault-react) or [@apideck/vault-js](https://github.com/apideck-libraries/vault-js) packages.**
 
 <br />
 
