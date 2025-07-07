@@ -1,38 +1,17 @@
 import { FormField } from './FormField';
+import { SessionConsumerMetadata } from './Session';
 
-export interface RawJSON {
-  [key: string]: string | string[] | number | boolean | undefined;
-}
-
-export interface Settings extends RawJSON {
-  instance_url?: string;
-  base_url?: string;
-}
-
-export type ConnectionState =
-  | 'available'
-  | 'added'
-  | 'authorized'
-  | 'callable'
-  | 'invalid';
-export type IntegrationState =
-  | 'needs_configuration'
-  | 'disabled'
-  | 'configured';
-
-export type OauthGrantType =
-  | 'client_credentials'
-  | 'authorization_code'
-  | 'password';
-
-export interface CustomMapping {
-  custom_field: boolean;
-  description: string;
-  id: string;
-  key: string;
-  label: string;
-  required: false;
-  value: string;
+export interface ApplicationDataScopes {
+  enabled: boolean;
+  updatedAt: string;
+  resources: {
+    [apiScopedResourceName: string]: {
+      [dotField: string]: {
+        read: boolean;
+        write: boolean;
+      };
+    };
+  };
 }
 
 export type ConsentState =
@@ -42,6 +21,57 @@ export type ConsentState =
   | 'denied'
   | 'revoked'
   | 'requires_reconsent';
+
+export type ConnectionState =
+  | 'available'
+  | 'added'
+  | 'authorized'
+  | 'callable'
+  | 'invalid';
+
+export type IntegrationState =
+  | 'needs_configuration'
+  | 'disabled'
+  | 'configured';
+
+export interface Connection {
+  id: string;
+  service_id: string;
+  unified_api: string;
+  name: string;
+  icon: string;
+  logo?: string;
+  website?: string;
+  tag_line?: string;
+  auth_type?: 'oauth2' | 'apiKey' | 'basic' | 'custom' | 'none';
+  enabled?: boolean;
+  state: ConnectionState;
+  integration_state?: IntegrationState;
+  form_fields?: FormField[];
+  authorize_url?: string | null;
+  revoke_url?: string | null;
+  application_data_scopes?: ApplicationDataScopes;
+  created_at?: number;
+  updated_at?: number;
+  configurable_resources?: string[];
+  resource_schema_support?: string[];
+  resource_settings_support?: string[];
+  validation_support?: boolean;
+  schema_support?: boolean;
+  settings_required_for_authorization?: string[];
+  has_guide?: boolean;
+  settings?: {
+    [key: string]: any;
+  };
+  metadata?: {
+    [key: string]: any;
+  };
+  consumer_metadata?: SessionConsumerMetadata;
+  custom_mappings?: any[];
+  consent_state?: ConsentState;
+  consents?: ConsentRecord[];
+  [key: string]: any;
+}
 
 export interface ConsentRecord {
   id: string;
@@ -59,34 +89,6 @@ export interface ConsentRecord {
       };
 }
 
-export interface Connection {
-  id: string;
-  service_id: string;
-  unified_api: string;
-  auth_type: string | null;
-  name: string;
-  icon: string;
-  logo?: string;
-  website?: string;
-  tag_line?: string;
-  authorize_url?: string;
-  revoke_url?: string | null;
-  state: ConnectionState;
-  integration_state: IntegrationState;
-  enabled?: boolean;
-  settings?: Settings;
-  settings_required_for_authorization?: string[];
-  configurable_resources: string[];
-  resource_schema_support: string[];
-  configuration?: { resource: string; defaults: FormField[] }[];
-  form_fields: FormField[];
-  created_at?: number;
-  updated_at?: number;
-  resources?: { id: string; config: any }[];
-  oauth_grant_type?: OauthGrantType;
-  has_guide?: boolean;
-  validation_support?: boolean;
-  custom_mappings: CustomMapping[];
-  consent_state?: ConsentState;
-  consents?: ConsentRecord[];
+export interface RawJSON {
+  [key: string]: any;
 }

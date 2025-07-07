@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 import { Connection, ConsentRecord } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { useConnections } from '../utils/useConnections';
-import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
 
 interface Props {
@@ -29,10 +28,10 @@ const ScopeRow: React.FC<{
     <div
       className={`flex fade-in justify-between items-center py-2 px-3 text-sm border-b border-gray-100 dark:border-gray-800 last:border-b-0`}
     >
-      <span className="text-gray-700 dark:text-gray-300 flex items-center">
+      <span className="text-gray-700 dark:text-gray-300 flex items-center truncate">
         {scope}
       </span>
-      <div className="flex items-center space-x-1.5">
+      <div className="flex items-center space-x-1">
         {permissions.read && (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
             Read
@@ -48,8 +47,9 @@ const ScopeRow: React.FC<{
   );
 };
 
-// TODO: fix types
-const ScopesDetail: React.FC<{ scopes: any }> = ({ scopes }) => {
+const ScopesDetail: React.FC<{
+  scopes: NonNullable<Connection['application_data_scopes']>['resources'];
+}> = ({ scopes }) => {
   const { t } = useTranslation();
   const resources = Object.keys(scopes);
 
@@ -147,8 +147,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
   const { fetchConsentRecords, revokeConsent, isUpdating } = useConnections();
   const { t } = useTranslation();
   const [showRevokeModal, setShowRevokeModal] = useState(false);
-  const { session } = useSession();
-  const dataScopes = session?.data_scopes;
+  const dataScopes = connection.application_data_scopes;
 
   const filteredResources = useMemo(() => {
     if (!dataScopes?.resources || !connection.unified_api) {
@@ -176,7 +175,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
     if (typeof resources === 'object' && resources !== null) {
       const resourceCount = Object.keys(resources).length;
       const fieldCount = Object.values(resources).reduce(
-        (acc, resource) => acc + Object.keys(resource).length,
+        (acc: number, resource: any) => acc + Object.keys(resource).length,
         0
       );
       return t('{{resourceCount}} resources, {{fieldCount}} fields', {
@@ -280,22 +279,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
                       new Date(a.created_at).getTime()
                   )
                   .map((record, recordIdx) => {
-                    const dummymode = true;
-                    const dummyResources = {
-                      'crm.company': {
-                        name: { read: true, write: false },
-                        number_of_employees: { read: true, write: false },
-                      },
-                      'crm.contact': {
-                        name: { read: true, write: true },
-                        email: { read: true, write: true },
-                        phone_number: { read: true, write: false },
-                      },
-                    };
-                    const resourcesToShow =
-                      dummymode && recordIdx === 0
-                        ? dummyResources
-                        : record.resources;
+                    const resourcesToShow = record.resources;
                     const isExpandable =
                       typeof resourcesToShow === 'object' &&
                       resourcesToShow !== null;

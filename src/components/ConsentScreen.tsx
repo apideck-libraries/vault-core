@@ -3,14 +3,12 @@ import { Disclosure } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
-import { DataScopes } from '../types/Session';
 import { useConnections } from '../utils/useConnections';
-import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
 import TopBar from './TopBar';
 
 interface ScopeProps {
-  scopes: DataScopes['resources'];
+  scopes: NonNullable<Connection['application_data_scopes']>['resources'];
 }
 
 const ScopeRow: React.FC<{
@@ -24,7 +22,7 @@ const ScopeRow: React.FC<{
         isNew ? 'bg-green-50 dark:bg-green-900/20' : ''
       }`}
     >
-      <span className="text-gray-700 dark:text-gray-300 flex items-center">
+      <span className="text-gray-700 dark:text-gray-300 flex items-center truncate">
         {scope}
         {isNew && (
           <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
@@ -120,10 +118,9 @@ interface Props {
 }
 
 const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
-  const { session } = useSession();
   const { t } = useTranslation();
   const { grantConsent, isUpdating } = useConnections();
-  const dataScopes = session?.data_scopes;
+  const dataScopes = connection.application_data_scopes;
   const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
   const [showDenyModal, setShowDenyModal] = useState(false);
 
@@ -224,6 +221,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
             description={t(
               'This application is requesting access to all data available through this connection.'
             )}
+            className="!text-left"
           />
         )}
 

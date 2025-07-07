@@ -251,21 +251,28 @@ const ConnectionDetails = ({
     );
   }
 
-  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
-    'pending',
-    'denied',
-    'revoked',
-    'requires_reconsent',
-  ];
-
+  // TODO i will put this back when done testing locally leave for now
+  // const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
+  //   'pending',
+  //   'denied',
+  //   'revoked',
+  //   'requires_reconsent',
+  // ];
+  // if (
+  //   (selectedConnection?.application_data_scopes?.enabled &&
+  //     statesRequiringConsent.includes(selectedConnection.consent_state)) ||
+  //   currentView === ConnectionViewType.ConsentScreen
+  // ) {
   if (
-    (session?.data_scopes?.enabled &&
-      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
-    currentView === ConnectionViewType.ConsentScreen
+    selectedConnection?.application_data_scopes?.enabled &&
+    (true || currentView === ConnectionViewType.ConsentScreen)
   ) {
     return (
       <ConsentScreen
-        connection={selectedConnection}
+        connection={{
+          ...selectedConnection,
+          consent_state: 'requires_reconsent',
+        }}
         onClose={() => setSelectedConnection(null)}
         onDeny={async (resources: any) => {
           await denyConsent(selectedConnection, resources);
@@ -324,6 +331,8 @@ const ConnectionDetails = ({
       </>
     );
   }
+
+  console.log('connection details', selectedConnection);
 
   return (
     <>

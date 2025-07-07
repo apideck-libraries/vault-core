@@ -1,4 +1,10 @@
-import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
@@ -124,7 +130,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   },
   ref
 ) {
-  // const dataScopesEnabledForTesting = false; // TODO: Remove this when done with local testing
+  const dataScopesEnabledForTesting = true; // TODO: Remove this when done with local testing
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
@@ -177,43 +183,17 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   }, [token]);
 
   // TODO: Keep for now, I'll remove this later when done with local testing
-  // const sessionWithMockedScopes = useMemo(() => {
-  //   if (!dataScopesEnabledForTesting) {
-  //     return session;
-  //   }
-  //   return {
-  //     ...session,
-  //     data_scopes: {
-  //       enabled: true,
-  //       modified: new Date().toISOString(),
-  //       resources: {
-  //         'hris.employees': {
-  //           id: { read: true, write: false },
-  //           first_name: { read: true, write: true },
-  //           last_name: { read: true, write: true },
-  //           email: { read: true, write: true },
-  //           'employment.job_title': { read: true, write: true },
-  //         },
-  //         'hris.departments': {
-  //           id: { read: true, write: false },
-  //           name: { read: true, write: true },
-  //         },
-  //         'accounting.invoices': {
-  //           id: { read: true, write: false },
-  //           type: { read: true, write: true },
-  //           status: { read: false, write: true },
-  //           date: { read: true, write: true },
-  //           total: { read: true, write: true },
-  //           'customer.name': { read: true, write: true },
-  //           'customer.id': { read: true, write: true },
-  //           'customer.email': { read: true, write: true },
-  //           'customer.phone': { read: true, write: true },
-  //           'customer.address': { read: true, write: true },
-  //         },
-  //       },
-  //     },
-  //   };
-  // }, [session, dataScopesEnabledForTesting]);
+  const sessionWithMockedScopes = useMemo(() => {
+    if (!dataScopesEnabledForTesting) {
+      return session;
+    }
+    return {
+      ...session,
+      data_scopes: {
+        enabled: true,
+      },
+    };
+  }, [session, dataScopesEnabledForTesting]);
 
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
@@ -241,7 +221,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               unifyBaseUrl={unifyBaseUrl}
             >
-              <SessionProvider session={session}>
+              <SessionProvider session={sessionWithMockedScopes}>
                 <ModalContent
                   onClose={onCloseModal}
                   onConnectionChange={onConnectionChange}
