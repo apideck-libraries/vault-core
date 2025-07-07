@@ -251,7 +251,6 @@ const ConnectionDetails = ({
     );
   }
 
-  // TODO i will put this back when done testing locally leave for now
   const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
     'pending',
     'denied',
