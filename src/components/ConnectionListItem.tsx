@@ -65,7 +65,7 @@ const ConnectionListItem = ({ connection }: Props) => {
                 {connection.name}
               </p>
               <p className="text-sm text-gray-500 truncate">
-                {getApiName(connection, t('Connection'))}
+                {getApiName(connection)}
               </p>
             </div>
             {isLoading ? (

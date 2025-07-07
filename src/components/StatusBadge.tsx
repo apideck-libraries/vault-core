@@ -21,13 +21,13 @@ const StatusBadge = ({
   const statusText = () => {
     switch (consent_state) {
       case 'pending':
-        return t('Requires authorization');
+        return t('Permission required');
       case 'denied':
-        return t('Authorization denied');
+        return t('Permission denied');
       case 'revoked':
-        return t('Connection disabled');
+        return t('Permission revoked');
       case 'requires_reconsent':
-        return t('Re-authorization required');
+        return t('New permissions required');
     }
 
     if (integration_state === 'needs_configuration')
@@ -44,7 +44,7 @@ const StatusBadge = ({
 
   const getStatusClass = () => {
     if (consent_state === 'denied' || consent_state === 'requires_reconsent') {
-      return 'bg-yellow-100 text-yellow-800';
+      return 'bg-red-100 text-red-800';
     }
     if (consent_state === 'revoked' || !enabled) {
       return 'bg-gray-100 text-gray-800';

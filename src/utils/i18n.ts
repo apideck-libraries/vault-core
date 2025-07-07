@@ -105,6 +105,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'By authorizing you agree to grant the application access to the data listed above.',
       '{{count}} fields': '{{count}} fields',
+      'Updated Permissions Requested': 'Updated Permissions Requested',
+      'Integration updated with new permissions':
+        'This integration has been updated and requires access to additional data. The new fields are marked as "New" for your review.',
+      'Permission required': 'Permission required',
+      'Permission denied': 'Permission denied',
+      'Permission revoked': 'Permission revoked',
+      'New permissions required': 'New permissions required',
     },
   },
   nl: {
@@ -210,6 +217,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'Door je te autoriseren, ga je ermee akkoord de applicatie toegang te verlenen tot de hierboven vermelde gegevens.',
       '{{count}} fields': '{{count}} velden',
+      'Updated Permissions Requested': 'Bijgewerkte Toestemmingen Gevraagd',
+      'Integration updated with new permissions':
+        'Deze integratie is bijgewerkt en vereist toegang tot extra gegevens. De nieuwe velden zijn gemarkeerd als "Nieuw" voor uw beoordeling.',
+      'Permission required': 'Toestemming vereist',
+      'Permission denied': 'Toestemming geweigerd',
+      'Permission revoked': 'Toestemming ingetrokken',
+      'New permissions required': 'Nieuwe toestemmingen vereist',
     },
   },
   fr: {
@@ -314,6 +328,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'En autorisant, vous acceptez de donner à l_application l_accès aux données listées ci-dessus.',
       '{{count}} fields': '{{count}} champs',
+      'Updated Permissions Requested': 'Autorisations Mises à Jour Requises',
+      'Integration updated with new permissions':
+        "Cette intégration a été mise à jour et nécessite l'accès à des données supplémentaires. Les nouveaux champs sont marqués comme « Nouveau » pour votre examen.",
+      'Permission required': 'Autorisation requise',
+      'Permission denied': 'Autorisation refusée',
+      'Permission revoked': 'Autorisation révoquée',
+      'New permissions required': 'Nouvelles autorisations requises',
     },
   },
   de: {
@@ -418,6 +439,14 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'Wenn Sie sich autorisieren, erteilen Sie der Anwendung die Erlaubnis, auf die oben aufgeführten Daten zuzugreifen.',
       '{{count}} fields': '{{count}} Felder',
+      'Updated Permissions Requested':
+        'Aktualisierte Berechtigungen Angefordert',
+      'Integration updated with new permissions':
+        'Diese Integration wurde aktualisiert und erfordert Zugriff auf zusätzliche Daten. Die neuen Felder sind zur Überprüfung als „Neu“ gekennzeichnet.',
+      'Permission required': 'Berechtigung erforderlich',
+      'Permission denied': 'Berechtigung verweigert',
+      'Permission revoked': 'Berechtigung widerrufen',
+      'New permissions required': 'Neue Berechtigungen erforderlich',
     },
   },
   es: {
@@ -522,6 +551,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'Al autorizar, aceptas conceder a la aplicación acceso a los datos mencionados anteriormente.',
       '{{count}} fields': '{{count}} campos',
+      'Updated Permissions Requested': 'Permisos Actualizados Solicitados',
+      'Integration updated with new permissions':
+        'Esta integración se ha actualizado y requiere acceso a datos adicionales. Los nuevos campos están marcados como "Nuevo" para su revisión.',
+      'Permission required': 'Permiso requerido',
+      'Permission denied': 'Permiso denegado',
+      'Permission revoked': 'Permiso revocado',
+      'New permissions required': 'Nuevos permisos requeridos',
     },
   },
 };

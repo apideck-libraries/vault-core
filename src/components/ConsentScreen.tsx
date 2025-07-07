@@ -1,8 +1,8 @@
 import { Alert, Button } from '@apideck/components';
 import { Disclosure } from '@headlessui/react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../types/Connection';
+import { Connection, ConsentRecord } from '../types/Connection';
 import { useConnections } from '../utils/useConnections';
 import ConfirmModal from './ConfirmModal';
 import TopBar from './TopBar';
@@ -25,19 +25,19 @@ const ScopeRow: React.FC<{
       <span className="text-gray-700 dark:text-gray-300 flex items-center truncate">
         {scope}
         {isNew && (
-          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             New
           </span>
         )}
       </span>
       <div className="flex items-center space-x-1.5">
         {permissions.read && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             Read
           </span>
         )}
         {permissions.write && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             Write
           </span>
         )}
@@ -58,7 +58,18 @@ const ScopesList: React.FC<ScopeProps & { newFields?: Set<string> }> = ({
       {resources.map((resource) => {
         const resourceName = resource.split('.').pop();
         const fields = scopes[resource];
-        const fieldNames = Object.keys(fields);
+        const fieldNames = Object.keys(fields).sort((a, b) => {
+          const aIsNew = newFields?.has(`${resource}.${a}`);
+          const bIsNew = newFields?.has(`${resource}.${b}`);
+
+          if (aIsNew && !bIsNew) return -1;
+          if (!aIsNew && bIsNew) return 1;
+
+          return a.localeCompare(b);
+        });
+        const hasNewFields = fieldNames.some((fieldName) =>
+          newFields?.has(`${resource}.${fieldName}`)
+        );
 
         return (
           <Disclosure
@@ -71,6 +82,11 @@ const ScopesList: React.FC<ScopeProps & { newFields?: Set<string> }> = ({
                 <Disclosure.Button className="flex items-center justify-between w-full px-3 py-2 bg-gray-50 rounded-md hover:bg-gray-100 text-left ring-gray-100 ring-1 ring-inset">
                   <div className="flex items-center">
                     <span className="font-medium">{resourceName}</span>
+                    {hasNewFields && (
+                      <span className="ml-2 fade-in inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        New
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center">
                     <span className="text-sm text-gray-500 mr-2">
@@ -119,10 +135,12 @@ interface Props {
 
 const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
   const { t } = useTranslation();
-  const { grantConsent, isUpdating } = useConnections();
+  const { grantConsent, isUpdating, fetchConsentRecords } = useConnections();
   const dataScopes = connection.application_data_scopes;
   const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
   const [showDenyModal, setShowDenyModal] = useState(false);
+  const [consentHistory, setConsentHistory] = useState<ConsentRecord[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const filteredResources = useMemo(() => {
     if (!dataScopes?.resources || !connection.unified_api) {
@@ -135,18 +153,35 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
     );
   }, [dataScopes?.resources, connection.unified_api]);
 
+  useEffect(() => {
+    if (connection.consent_state === 'requires_reconsent') {
+      const loadHistory = async () => {
+        setIsLoadingHistory(true);
+        const records = await fetchConsentRecords(connection);
+        if (records) {
+          setConsentHistory(records);
+        }
+        setIsLoadingHistory(false);
+      };
+      loadHistory();
+    }
+  }, [connection.id, connection.consent_state, fetchConsentRecords]);
+
   const newFields = useMemo(() => {
     if (
       connection.consent_state !== 'requires_reconsent' ||
-      !connection.consents ||
+      consentHistory.length === 0 ||
       !filteredResources
     ) {
       return new Set<string>();
     }
 
-    const lastGrantedConsent = [...connection.consents]
-      .reverse()
-      .find((c) => c.granted);
+    const lastGrantedConsent = [...consentHistory]
+      .filter((c) => c.granted)
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )[0];
 
     if (!lastGrantedConsent || lastGrantedConsent.resources === '*') {
       return new Set<string>();
@@ -157,7 +192,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
     if (unifiedApi) {
       for (const resource in lastGrantedConsent.resources) {
         if (resource.startsWith(`${unifiedApi}.`)) {
-          for (const field in lastGrantedConsent.resources[resource]) {
+          for (const field in (lastGrantedConsent.resources as any)[resource]) {
             oldFields.add(`${resource}.${field}`);
           }
         }
@@ -172,7 +207,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
     }
 
     return new Set([...currentFields].filter((field) => !oldFields.has(field)));
-  }, [connection, filteredResources]);
+  }, [connection, filteredResources, consentHistory]);
 
   return (
     <>
@@ -194,23 +229,19 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
       />
       <div className="h-full p-6 text-center fade-in">
         <h2 className="text-lg font-semibold mb-2">
-          {t('Requested Data Access')}
+          {newFields.size > 0
+            ? t('Updated Permissions Requested')
+            : t('Requested Data Access')}
         </h2>
         <p className="text-gray-600 text-sm mb-4">
-          {t(
-            'The application is requesting permission to access the following data.'
-          )}
+          {newFields.size > 0
+            ? t(
+                'This integration has been updated and requires access to additional data. The new fields are marked as "New" for your review.'
+              )
+            : t(
+                'The application is requesting permission to access the following data.'
+              )}
         </p>
-        {newFields.size > 0 && (
-          <Alert
-            variant="info"
-            className="text-left mb-4"
-            title={t('New permissions requested')}
-            description={t(
-              'The developer has updated the integration and requires additional permissions to keep it working.'
-            )}
-          />
-        )}
 
         {hasDataScopes && filteredResources ? (
           <ScopesList scopes={filteredResources} newFields={newFields} />
@@ -234,7 +265,8 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
           <div className="flex flex-col space-y-3">
             <Button
               text={t('Accept')}
-              isLoading={isUpdating}
+              isLoading={isUpdating || isLoadingHistory}
+              disabled={isUpdating || isLoadingHistory}
               onClick={() => grantConsent(connection, filteredResources)}
               size="large"
               className="w-full !truncate"

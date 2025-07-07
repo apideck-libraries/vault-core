@@ -73,7 +73,7 @@ const ConnectionDetails = ({
   } = selectedConnection;
 
   const hasFormFields =
-    form_fields?.filter((field) => !field.hidden)?.length > 0;
+    (form_fields?.filter((field) => !field.hidden)?.length ?? 0) > 0;
 
   const [hasRequiredMappings, setHasRequiredMappings] = useState(false);
   const [currentView, setCurrentView] = useState<
@@ -252,27 +252,20 @@ const ConnectionDetails = ({
   }
 
   // TODO i will put this back when done testing locally leave for now
-  // const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
-  //   'pending',
-  //   'denied',
-  //   'revoked',
-  //   'requires_reconsent',
-  // ];
-  // if (
-  //   (selectedConnection?.application_data_scopes?.enabled &&
-  //     statesRequiringConsent.includes(selectedConnection.consent_state)) ||
-  //   currentView === ConnectionViewType.ConsentScreen
-  // ) {
+  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
+    'pending',
+    'denied',
+    'revoked',
+    'requires_reconsent',
+  ];
   if (
-    selectedConnection?.application_data_scopes?.enabled &&
-    (true || currentView === ConnectionViewType.ConsentScreen)
+    (selectedConnection?.application_data_scopes?.enabled &&
+      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
+    currentView === ConnectionViewType.ConsentScreen
   ) {
     return (
       <ConsentScreen
-        connection={{
-          ...selectedConnection,
-          consent_state: 'requires_reconsent',
-        }}
+        connection={selectedConnection}
         onClose={() => setSelectedConnection(null)}
         onDeny={async (resources: any) => {
           await denyConsent(selectedConnection, resources);
