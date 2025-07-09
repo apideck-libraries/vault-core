@@ -1,6 +1,6 @@
 import { Alert, Button } from '@apideck/components';
 import { Disclosure } from '@headlessui/react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, ConsentRecord } from '../types/Connection';
 import { useConnections } from '../utils/useConnections';
@@ -135,12 +135,10 @@ interface Props {
 
 const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
   const { t } = useTranslation();
-  const { grantConsent, isUpdating, fetchConsentRecords } = useConnections();
+  const { grantConsent, isUpdating } = useConnections();
   const dataScopes = connection.application_data_scopes;
   const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
   const [showDenyModal, setShowDenyModal] = useState(false);
-  const [consentHistory, setConsentHistory] = useState<ConsentRecord[]>([]);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const filteredResources = useMemo(() => {
     if (!dataScopes?.resources || !connection.unified_api) {
@@ -153,46 +151,28 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
     );
   }, [dataScopes?.resources, connection.unified_api]);
 
-  useEffect(() => {
-    if (connection.consent_state === 'requires_reconsent') {
-      const loadHistory = async () => {
-        setIsLoadingHistory(true);
-        const records = await fetchConsentRecords(connection);
-        if (records) {
-          setConsentHistory(records);
-        }
-        setIsLoadingHistory(false);
-      };
-      loadHistory();
-    }
-  }, [connection.id, connection.consent_state, fetchConsentRecords]);
-
   const newFields = useMemo(() => {
     if (
       connection.consent_state !== 'requires_reconsent' ||
-      consentHistory.length === 0 ||
-      !filteredResources
+      !connection.latest_consent?.granted ||
+      !filteredResources ||
+      connection.latest_consent.resources === '*'
     ) {
       return new Set<string>();
     }
 
-    const lastGrantedConsent = [...consentHistory]
-      .filter((c) => c.granted)
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )[0];
-
-    if (!lastGrantedConsent || lastGrantedConsent.resources === '*') {
-      return new Set<string>();
-    }
+    const lastGrantedConsent = connection.latest_consent;
 
     const oldFields = new Set<string>();
     const unifiedApi = connection.unified_api;
     if (unifiedApi) {
-      for (const resource in lastGrantedConsent.resources) {
+      const resources = lastGrantedConsent.resources as Exclude<
+        ConsentRecord['resources'],
+        '*'
+      >;
+      for (const resource in resources) {
         if (resource.startsWith(`${unifiedApi}.`)) {
-          for (const field in (lastGrantedConsent.resources as any)[resource]) {
+          for (const field in resources[resource]) {
             oldFields.add(`${resource}.${field}`);
           }
         }
@@ -207,7 +187,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
     }
 
     return new Set([...currentFields].filter((field) => !oldFields.has(field)));
-  }, [connection, filteredResources, consentHistory]);
+  }, [connection, filteredResources]);
 
   return (
     <>
@@ -266,8 +246,8 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
           <div className="flex flex-col space-y-3">
             <Button
               text={t('Accept')}
-              isLoading={isUpdating || isLoadingHistory}
-              disabled={isUpdating || isLoadingHistory}
+              isLoading={isUpdating}
+              disabled={isUpdating}
               onClick={() => grantConsent(connection, filteredResources)}
               size="large"
               className="w-full !truncate"

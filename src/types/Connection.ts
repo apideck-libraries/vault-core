@@ -69,6 +69,7 @@ export interface Connection {
   consumer_metadata?: SessionConsumerMetadata;
   custom_mappings?: any[];
   consent_state?: ConsentState;
+  latest_consent?: ConsentRecord;
   consents?: ConsentRecord[];
   [key: string]: any;
 }
