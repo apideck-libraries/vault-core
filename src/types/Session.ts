@@ -33,4 +33,5 @@ export interface Session {
   theme?: SessionTheme;
   consumer_metadata?: SessionConsumerMetadata;
   jwt?: string;
+  data_scopes?: { enabled?: boolean };
 }

@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Connection, ConsentRecord } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { useConnections } from '../utils/useConnections';
+import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
 
 interface Props {
@@ -108,8 +109,8 @@ const ScopesDetail: React.FC<{
   );
 };
 
-const SkeletonLoader = () => (
-  <div className="flow-root animate-pulse px-3">
+const SkeletonLoader = ({ className }: { className?: string }) => (
+  <div className={`flow-root animate-pulse px-3 ${className}`}>
     <ul role="list" className="-mb-4">
       {[...Array(4)].map((_, i) => (
         <li key={i}>
@@ -146,6 +147,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { fetchConsentRecords, revokeConsent, isUpdating } = useConnections();
   const { t } = useTranslation();
+  const { session } = useSession();
   const [showRevokeModal, setShowRevokeModal] = useState(false);
   const dataScopes = connection.application_data_scopes;
 
@@ -167,7 +169,9 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
       setRecords(consentRecords);
       setIsLoading(false);
     };
-    loadRecords();
+    if (connection.id) {
+      loadRecords();
+    }
   }, [connection.id]);
 
   const getScopeSummary = (resources: ConsentRecord['resources']) => {
@@ -189,6 +193,22 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
   const canRevoke =
     connection.consent_state === 'implicit' ||
     connection.consent_state === 'granted';
+
+  if (!connection) return <SkeletonLoader className="my-8 mx-4" />;
+
+  if (!session?.data_scopes?.enabled)
+    return (
+      <div className="text-center py-10 px-6">
+        <h3 className="text-lg font-medium text-gray-900">
+          {t('Data scopes not enabled')}
+        </h3>
+        <p className="mt-1 text-sm text-gray-500">
+          {t(
+            'Data scopes are not enabled. Please contact the application owner.'
+          )}
+        </p>
+      </div>
+    );
 
   const NoHistory = () => {
     const { t } = useTranslation();

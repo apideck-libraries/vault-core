@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  forwardRef,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
@@ -130,8 +124,6 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
   },
   ref
 ) {
-  const dataScopesEnabledForTesting = true; // TODO: Remove this when done with local testing
-
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [session, setSession] = useState<Session>({});
@@ -182,19 +174,6 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     }
   }, [token]);
 
-  // TODO: Keep for now, I'll remove this later when done with local testing
-  const sessionWithMockedScopes = useMemo(() => {
-    if (!dataScopesEnabledForTesting) {
-      return session;
-    }
-    return {
-      ...session,
-      data_scopes: {
-        enabled: true,
-      },
-    };
-  }, [session, dataScopesEnabledForTesting]);
-
   const shouldRenderModal = (token && token?.length > 0 && isOpen) || trigger;
 
   return (
@@ -221,7 +200,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               unifyBaseUrl={unifyBaseUrl}
             >
-              <SessionProvider session={sessionWithMockedScopes}>
+              <SessionProvider session={session}>
                 <ModalContent
                   onClose={onCloseModal}
                   onConnectionChange={onConnectionChange}
