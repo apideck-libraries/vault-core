@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import classNames from 'classnames';
-import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
 import { getApiName } from '../utils/getApiName';
 import { useConnections } from '../utils/useConnections';
@@ -13,7 +12,6 @@ interface Props {
 
 const ConnectionListItem = ({ connection }: Props) => {
   const { updateConnection, setSelectedConnection } = useConnections();
-  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {

@@ -16,18 +16,28 @@ const StatusBadge = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const { state, integration_state, enabled, consent_state } = connection;
+  const {
+    state,
+    integration_state,
+    enabled,
+    consent_state,
+    application_data_scopes,
+  } = connection;
+
+  const scopesEnabled = application_data_scopes?.enabled;
 
   const statusText = () => {
-    switch (consent_state) {
-      case 'pending':
-        return t('Permission required');
-      case 'denied':
-        return t('Permission denied');
-      case 'revoked':
-        return t('Permission revoked');
-      case 'requires_reconsent':
-        return t('New permissions required');
+    if (scopesEnabled) {
+      switch (consent_state) {
+        case 'pending':
+          return t('Permission required');
+        case 'denied':
+          return t('Permission denied');
+        case 'revoked':
+          return t('Permission revoked');
+        case 'requires_reconsent':
+          return t('New permissions required');
+      }
     }
 
     if (integration_state === 'needs_configuration')
@@ -42,32 +52,28 @@ const StatusBadge = ({
     return null;
   };
 
-  const getStatusClass = () => {
-    if (
-      consent_state === 'denied' ||
+  const isConsentActionRequired =
+    scopesEnabled &&
+    (consent_state === 'denied' ||
       consent_state === 'requires_reconsent' ||
-      consent_state === 'revoked'
-    ) {
-      return 'bg-red-100 text-red-800';
-    }
-    if (!enabled) {
-      return 'bg-gray-100 text-gray-800';
-    }
-    if (
-      enabled &&
-      (state === 'added' ||
-        state === 'authorized' ||
-        state === 'invalid' ||
-        consent_state === 'pending')
-    ) {
-      return 'bg-yellow-100 text-yellow-800';
-    }
-    if (enabled && state === 'callable') {
-      return 'bg-green-100 text-green-800';
-    }
-    if (state === 'available') {
-      return 'bg-red-100 text-red-800';
-    }
+      consent_state === 'revoked');
+
+  const needsUserAttention =
+    enabled &&
+    (state === 'added' ||
+      state === 'authorized' ||
+      state === 'invalid' ||
+      (scopesEnabled && consent_state === 'pending'));
+
+  const isConnected = enabled && state === 'callable';
+  const isAvailableForConnection = state === 'available';
+
+  const getStatusClass = () => {
+    if (isConsentActionRequired) return 'bg-red-100 text-red-800';
+    if (!enabled) return 'bg-gray-100 text-gray-800';
+    if (needsUserAttention) return 'bg-yellow-100 text-yellow-800';
+    if (isConnected) return 'bg-green-100 text-green-800';
+    if (isAvailableForConnection) return 'bg-red-100 text-red-800';
     return 'bg-gray-100 text-gray-800';
   };
 

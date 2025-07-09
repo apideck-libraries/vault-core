@@ -17,7 +17,7 @@ const ResourceList = ({
   return (
     <div className="overflow-hidden bg-white border rounded-md">
       <ul className="divide-y divide-gray-200">
-        {connection?.configurable_resources.map(
+        {connection?.configurable_resources?.map(
           (resource: string, index: number) => {
             const config = resources?.find((r) => r.resource === resource);
             const hasRequiredFieldsWithoutValue = config?.defaults.filter(

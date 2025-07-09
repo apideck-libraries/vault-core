@@ -12,7 +12,7 @@ export const authorizationVariablesRequired = (
   if (!requiredAuthVariables) return null;
 
   const labels = requiredAuthVariables.map((item) => {
-    const field = formFields.find((formField) => {
+    const field = formFields?.find((formField) => {
       if (formField.id === item && !formField?.value) {
         return formField?.label;
       } else {
