@@ -43,10 +43,14 @@ const StatusBadge = ({
   };
 
   const getStatusClass = () => {
-    if (consent_state === 'denied' || consent_state === 'requires_reconsent') {
+    if (
+      consent_state === 'denied' ||
+      consent_state === 'requires_reconsent' ||
+      consent_state === 'revoked'
+    ) {
       return 'bg-red-100 text-red-800';
     }
-    if (consent_state === 'revoked' || !enabled) {
+    if (!enabled) {
       return 'bg-gray-100 text-gray-800';
     }
     if (

@@ -137,19 +137,25 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
   const { t } = useTranslation();
   const { grantConsent, isUpdating } = useConnections();
   const dataScopes = connection.application_data_scopes;
-  const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
   const [showDenyModal, setShowDenyModal] = useState(false);
 
   const filteredResources = useMemo(() => {
-    if (!dataScopes?.resources || !connection.unified_api) {
-      return dataScopes?.resources;
+    if (
+      !dataScopes?.resources ||
+      typeof dataScopes.resources === 'string' ||
+      !connection.unified_api
+    ) {
+      return undefined;
     }
-    return Object.fromEntries(
+    const resources = Object.fromEntries(
       Object.entries(dataScopes.resources).filter(([key]) =>
         key.startsWith(`${connection.unified_api}.`)
       )
     );
+    return Object.keys(resources).length > 0 ? resources : undefined;
   }, [dataScopes?.resources, connection.unified_api]);
+
+  const hasDataScopes = dataScopes?.enabled && !!filteredResources;
 
   const newFields = useMemo(() => {
     if (
@@ -195,11 +201,11 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
         isOpen={showDenyModal}
         onClose={() => setShowDenyModal(false)}
         onConfirm={() => onDeny(filteredResources)}
-        title={t('Deny Access?')}
+        title={t('Deny access?')}
         description={t(
           'If you deny access, you will not be able to use this integration. Are you sure?'
         )}
-        confirmButtonText={t('Yes, Deny Access')}
+        confirmButtonText={t('Yes, deny access')}
       />
       <TopBar
         onClose={onClose}
@@ -223,7 +229,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
               )}
         </p>
 
-        {hasDataScopes && filteredResources ? (
+        {hasDataScopes ? (
           <ScopesList scopes={filteredResources} newFields={newFields} />
         ) : (
           <Alert

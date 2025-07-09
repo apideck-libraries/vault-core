@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { Alert, Button, usePrevious } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../types/Connection';
+import { Connection, ConsentState } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
@@ -61,6 +61,21 @@ const ConnectionDetails = ({
   const { t } = useTranslation();
 
   if (!selectedConnection) return null;
+
+  const hasApplicableScopes = useMemo(() => {
+    const scopes = selectedConnection?.application_data_scopes;
+    if (!scopes?.enabled || !scopes.resources) {
+      return false;
+    }
+
+    if (typeof scopes.resources === 'string') {
+      return scopes.resources === '*';
+    }
+
+    return Object.keys(scopes.resources).some((key) =>
+      key.startsWith(`${selectedConnection.unified_api}.`)
+    );
+  }, [selectedConnection]);
 
   const {
     enabled,
@@ -252,13 +267,13 @@ const ConnectionDetails = ({
   }
 
   const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
-    'pending',
-    'denied',
-    'revoked',
-    'requires_reconsent',
+    ConsentState.Pending,
+    ConsentState.Denied,
+    ConsentState.Revoked,
+    ConsentState.RequiresReconsent,
   ];
   if (
-    (selectedConnection?.application_data_scopes?.enabled &&
+    (hasApplicableScopes &&
       statesRequiringConsent.includes(selectedConnection.consent_state)) ||
     currentView === ConnectionViewType.ConsentScreen
   ) {

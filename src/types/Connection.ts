@@ -4,14 +4,16 @@ import { SessionConsumerMetadata } from './Session';
 export interface ApplicationDataScopes {
   enabled: boolean;
   updatedAt: string;
-  resources: {
-    [apiScopedResourceName: string]: {
-      [dotField: string]: {
-        read: boolean;
-        write: boolean;
+  resources:
+    | '*'
+    | {
+        [apiScopedResourceName: string]: {
+          [dotField: string]: {
+            read: boolean;
+            write: boolean;
+          };
+        };
       };
-    };
-  };
 }
 
 export enum ConsentState {
