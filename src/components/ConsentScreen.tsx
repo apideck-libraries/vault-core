@@ -229,11 +229,10 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
           <Alert
             variant="info"
             title={t('Full Data Access')}
-            className="text-left"
+            className="!text-left"
             description={t(
               'This application is requesting access to all data available through this connection.'
             )}
-            className="!text-left"
           />
         )}
 

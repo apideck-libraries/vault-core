@@ -14,13 +14,14 @@ export interface ApplicationDataScopes {
   };
 }
 
-export type ConsentState =
-  | 'implicit'
-  | 'pending'
-  | 'granted'
-  | 'denied'
-  | 'revoked'
-  | 'requires_reconsent';
+export enum ConsentState {
+  Implicit = 'implicit',
+  Pending = 'pending',
+  Granted = 'granted',
+  Denied = 'denied',
+  Revoked = 'revoked',
+  RequiresReconsent = 'requires_reconsent',
+}
 
 export type ConnectionState =
   | 'available'
