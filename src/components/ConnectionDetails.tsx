@@ -72,9 +72,7 @@ const ConnectionDetails = ({
       return scopes.resources === '*';
     }
 
-    return Object.keys(scopes.resources).some((key) =>
-      key.startsWith(`${selectedConnection.unified_api}.`)
-    );
+    return Object.keys(scopes.resources).length > 0;
   }, [selectedConnection]);
 
   const {

@@ -255,7 +255,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
               className="w-full"
             />
             <Button
-              text={t('Revoke Access')}
+              text={t('Revoke access')}
               variant="danger-outline"
               className="mt-2 w-full"
               onClick={() => setShowRevokeModal(true)}
@@ -279,11 +279,11 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         isOpen={showRevokeModal}
         onClose={() => setShowRevokeModal(false)}
         onConfirm={() => revokeConsent(connection, filteredResources)}
-        title={t('Revoke Access?')}
+        title={t('Revoke access?')}
         description={t(
           'This will stop all data sharing with the application. Are you sure?'
         )}
-        confirmButtonText={t('Yes, Revoke Access')}
+        confirmButtonText={t('Yes, revoke access')}
       />
       <div className="p-6 px-3">
         <h3 className="text-lg font-medium leading-6 text-gray-900 mb-3 px-3">
@@ -442,7 +442,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
             {canRevoke && records.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200 px-3 bg-white relative">
                 <Button
-                  text={t('Revoke Access')}
+                  text={t('Revoke access')}
                   variant="danger"
                   onClick={() => setShowRevokeModal(true)}
                   isLoading={isUpdating}

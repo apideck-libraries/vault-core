@@ -140,20 +140,12 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
   const [showDenyModal, setShowDenyModal] = useState(false);
 
   const filteredResources = useMemo(() => {
-    if (
-      !dataScopes?.resources ||
-      typeof dataScopes.resources === 'string' ||
-      !connection.unified_api
-    ) {
+    if (!dataScopes?.resources || typeof dataScopes.resources === 'string') {
       return undefined;
     }
-    const resources = Object.fromEntries(
-      Object.entries(dataScopes.resources).filter(([key]) =>
-        key.startsWith(`${connection.unified_api}.`)
-      )
-    );
+    const resources = dataScopes.resources;
     return Object.keys(resources).length > 0 ? resources : undefined;
-  }, [dataScopes?.resources, connection.unified_api]);
+  }, [dataScopes?.resources]);
 
   const hasDataScopes = dataScopes?.enabled && !!filteredResources;
 
@@ -167,28 +159,23 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
       return new Set<string>();
     }
 
-    const lastGrantedConsent = connection.latest_consent;
-
     const oldFields = new Set<string>();
-    const unifiedApi = connection.unified_api;
-    if (unifiedApi) {
-      const resources = lastGrantedConsent.resources as Exclude<
-        ConsentRecord['resources'],
-        '*'
-      >;
-      for (const resource in resources) {
-        if (resource.startsWith(`${unifiedApi}.`)) {
-          for (const field in resources[resource]) {
-            oldFields.add(`${resource}.${field}`);
-          }
-        }
+    const resources = connection.latest_consent?.resources as Exclude<
+      ConsentRecord['resources'],
+      '*'
+    >;
+    for (const resource in resources) {
+      for (const field in resources[resource]) {
+        oldFields.add(`${resource}.${field}`);
       }
     }
 
     const currentFields = new Set<string>();
-    for (const resource in filteredResources) {
-      for (const field in filteredResources[resource]) {
-        currentFields.add(`${resource}.${field}`);
+    if (filteredResources) {
+      for (const resource in filteredResources) {
+        for (const field in filteredResources[resource]) {
+          currentFields.add(`${resource}.${field}`);
+        }
       }
     }
 
@@ -253,7 +240,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
               text={t('Accept')}
               isLoading={isUpdating}
               disabled={isUpdating}
-              onClick={() => grantConsent(connection, filteredResources)}
+              onClick={() => grantConsent(connection, dataScopes?.resources)}
               size="large"
               className="w-full !truncate"
             />
