@@ -199,7 +199,8 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
     connection.consent_state === 'implicit' ||
     connection.consent_state === 'granted';
 
-  if (!connection) return <SkeletonLoader className="my-8 mx-4" />;
+  if (!connection || (isLoading && !records?.length))
+    return <SkeletonLoader className="my-8 mx-4" />;
 
   if (!session?.data_scopes?.enabled)
     return (
