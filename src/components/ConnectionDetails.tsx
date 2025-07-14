@@ -266,29 +266,6 @@ const ConnectionDetails = ({
     );
   }
 
-  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
-    ConsentState.Pending,
-    ConsentState.Denied,
-    ConsentState.Revoked,
-    ConsentState.RequiresReconsent,
-  ];
-  if (
-    hasApplicableScopes &&
-    statesRequiringConsent.includes(selectedConnection.consent_state) &&
-    currentView === ConnectionViewType.ConsentScreen
-  ) {
-    return (
-      <ConsentScreen
-        connection={selectedConnection}
-        onClose={() => setSelectedConnection(null)}
-        onDeny={async (resources: any) => {
-          await denyConsent(selectedConnection, resources);
-          setSelectedConnection(null);
-        }}
-      />
-    );
-  }
-
   if (currentView === ConnectionViewType.ConsentHistory) {
     return (
       <>
@@ -315,6 +292,30 @@ const ConnectionDetails = ({
         TopBarComponent={TopBarComponent}
         showConsumer={showConsumer}
         showLanguageSwitch={showLanguageSwitch}
+      />
+    );
+  }
+
+  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
+    ConsentState.Pending,
+    ConsentState.Denied,
+    ConsentState.Revoked,
+    ConsentState.RequiresReconsent,
+  ];
+
+  if (
+    (hasApplicableScopes &&
+      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
+    currentView === ConnectionViewType.ConsentScreen
+  ) {
+    return (
+      <ConsentScreen
+        connection={selectedConnection}
+        onClose={() => setSelectedConnection(null)}
+        onDeny={async (resources: any) => {
+          await denyConsent(selectedConnection, resources);
+          setSelectedConnection(null);
+        }}
       />
     );
   }
