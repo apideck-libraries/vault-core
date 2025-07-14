@@ -273,8 +273,8 @@ const ConnectionDetails = ({
     ConsentState.RequiresReconsent,
   ];
   if (
-    (hasApplicableScopes &&
-      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
+    hasApplicableScopes &&
+    statesRequiringConsent.includes(selectedConnection.consent_state) &&
     currentView === ConnectionViewType.ConsentScreen
   ) {
     return (
@@ -338,8 +338,6 @@ const ConnectionDetails = ({
       </>
     );
   }
-
-  console.log('connection details', selectedConnection);
 
   return (
     <>
