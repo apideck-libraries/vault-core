@@ -229,7 +229,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
               )}
         </p>
 
-        {hasDataScopes ? (
+        {hasDataScopes && filteredResources ? (
           <ScopesList scopes={filteredResources} newFields={newFields} />
         ) : (
           <Alert

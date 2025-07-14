@@ -49,16 +49,16 @@ const ScopeRow: React.FC<{
 };
 
 const ScopesDetail: React.FC<{
-  scopes: NonNullable<Connection['application_data_scopes']>['resources'];
+  scopes?: ConsentRecord['resources'];
 }> = ({ scopes }) => {
   const { t } = useTranslation();
-  const resources = Object.keys(scopes);
+  const resources = Object.keys(scopes || {});
 
   return (
     <div className="space-y-2 pb-2">
       {resources.map((resource) => {
         const resourceName = resource.split('.').pop();
-        const fields = scopes[resource];
+        const fields = scopes?.[resource] || {};
         const fieldNames = Object.keys(fields);
 
         return (
@@ -152,14 +152,19 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
   const dataScopes = connection.application_data_scopes;
 
   const filteredResources = useMemo(() => {
-    if (!dataScopes?.resources || !connection.unified_api) {
-      return dataScopes?.resources;
+    if (
+      !dataScopes?.resources ||
+      typeof dataScopes.resources === 'string' ||
+      !connection.unified_api
+    ) {
+      return undefined;
     }
-    return Object.fromEntries(
+    const resources = Object.fromEntries(
       Object.entries(dataScopes.resources).filter(([key]) =>
         key.startsWith(`${connection.unified_api}.`)
       )
     );
+    return Object.keys(resources).length > 0 ? resources : undefined;
   }, [dataScopes?.resources, connection.unified_api]);
 
   useEffect(() => {
