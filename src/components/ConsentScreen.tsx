@@ -209,7 +209,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
         <p className="text-gray-600 text-sm mb-4">
           {newFields.size > 0
             ? t(
-                'This integration has been updated and requires access to additional data. The new fields are marked as "New" for your review.'
+                'This integration has been updated and requires access to additional data.'
               )
             : t(
                 'The application is requesting permission to access the following data.'

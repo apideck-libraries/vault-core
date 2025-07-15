@@ -107,7 +107,7 @@ const resources = {
       '{{count}} fields': '{{count}} fields',
       'Updated Permissions Requested': 'Updated Permissions Requested',
       'Integration updated with new permissions':
-        'This integration has been updated and requires access to additional data. The new fields are marked as "New" for your review.',
+        'This integration has been updated and requires access to additional data.',
       'Permission required': 'Permission required',
       'Permission denied': 'Permission denied',
       'Permission revoked': 'Permission revoked',

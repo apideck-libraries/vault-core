@@ -199,9 +199,6 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
     connection.consent_state === 'implicit' ||
     connection.consent_state === 'granted';
 
-  if (!connection || (isLoading && !records?.length))
-    return <SkeletonLoader className="my-8 mx-4" />;
-
   if (!session?.data_scopes?.enabled)
     return (
       <div className="text-center py-10 px-6">
@@ -215,6 +212,8 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         </p>
       </div>
     );
+
+  if (!connection) return <SkeletonLoader className="my-8 mx-4" />;
 
   const NoHistory = () => {
     const { t } = useTranslation();
