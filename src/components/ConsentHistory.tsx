@@ -289,7 +289,11 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
           {t('Consent History')}
         </h3>
         {isLoading ? (
-          <SkeletonLoader />
+          <div className="flow-root">
+            <div className="max-h-[340px] overflow-y-auto">
+              <SkeletonLoader />
+            </div>
+          </div>
         ) : (
           <div className="flow-root">
             {records.length > 0 ? (
