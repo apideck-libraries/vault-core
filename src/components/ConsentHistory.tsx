@@ -105,7 +105,7 @@ const ScopesDetail: React.FC<{
 };
 
 const SkeletonLoader = ({ className }: { className?: string }) => (
-  <div className={`flow-root animate-pulse px-3 ${className}`}>
+  <div className={`block animate-pulse px-3 ${className}`}>
     <ul role="list" className="-mb-4">
       {[...Array(4)].map((_, i) => (
         <li key={i}>
@@ -323,7 +323,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         </h3>
         {isValidating && !consentData ? (
           <div className="flow-root">
-            <div className="max-h-[340px] overflow-y-auto">
+            <div className="max-h-[340px] h-full overflow-y-auto">
               <SkeletonLoader />
             </div>
           </div>
