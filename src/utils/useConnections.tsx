@@ -43,7 +43,6 @@ interface ContextProps {
   fetchResourceSchema: (resource: string) => Promise<any>;
   fetchResourceExample: (resource: string) => Promise<any>;
   fetchCustomFields: (resource: string) => Promise<any>;
-  fetchConsentRecords: (connection: Connection) => Promise<any>;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -466,27 +465,6 @@ export const ConnectionsProvider = ({
     }
   };
 
-  const fetchConsentRecords = async (connection: Connection) => {
-    try {
-      const response = await fetch(
-        `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`,
-        { headers }
-      );
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to fetch consent records');
-      }
-      return result.data;
-    } catch (error) {
-      addToast({
-        title: t('Failed to fetch consent records'),
-        description: (error as any)?.message,
-        type: 'error',
-      });
-      return [];
-    }
-  };
-
   const fetchConfig = async (resource: string) => {
     if (!selectedConnection) return;
     const raw = await fetch(
@@ -654,7 +632,6 @@ export const ConnectionsProvider = ({
       denyConsent,
       revokeConsent,
       grantConsent,
-      fetchConsentRecords,
     }),
     [
       isUpdating,
@@ -670,7 +647,6 @@ export const ConnectionsProvider = ({
       denyConsent,
       revokeConsent,
       grantConsent,
-      fetchConsentRecords,
     ]
   );
 

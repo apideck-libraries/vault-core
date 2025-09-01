@@ -1,13 +1,8 @@
 import { Button } from '@apideck/components';
 import { Disclosure } from '@headlessui/react';
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import { Connection, ConsentRecord } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { useConnections } from '../utils/useConnections';
@@ -143,13 +138,31 @@ const SkeletonLoader = ({ className }: { className?: string }) => (
 );
 
 const ConsentHistory = ({ connection, setCurrentView }: Props) => {
-  const [records, setRecords] = useState<ConsentRecord[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { fetchConsentRecords, revokeConsent, isUpdating } = useConnections();
+  const { revokeConsent, isUpdating, unifyBaseUrl, headers } = useConnections();
   const { t } = useTranslation();
   const { session } = useSession();
   const [showRevokeModal, setShowRevokeModal] = useState(false);
   const dataScopes = connection.application_data_scopes;
+
+  const fetcher = async (url: string) => {
+    const response = await fetch(url, { headers });
+    return await response.json();
+  };
+
+  const consentUrl = connection.id
+    ? `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`
+    : null;
+
+  const {
+    data: consentData,
+    error: consentError,
+    isValidating,
+  } = useSWR(consentUrl, fetcher, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+  });
+
+  const records = consentData?.data || [];
 
   const filteredResources = useMemo(() => {
     if (
@@ -166,18 +179,6 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
     );
     return Object.keys(resources).length > 0 ? resources : undefined;
   }, [dataScopes?.resources, connection.unified_api]);
-
-  useEffect(() => {
-    const loadRecords = async () => {
-      setIsLoading(true);
-      const consentRecords = await fetchConsentRecords(connection);
-      setRecords(consentRecords);
-      setIsLoading(false);
-    };
-    if (connection.id) {
-      loadRecords();
-    }
-  }, [connection.id]);
 
   const getScopeSummary = (resources: ConsentRecord['resources']) => {
     if (resources === '*') return t('All data access');
@@ -214,6 +215,38 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
     );
 
   if (!connection) return <SkeletonLoader className="my-8 mx-4" />;
+
+  const ErrorView = () => {
+    const { t } = useTranslation();
+
+    return (
+      <div className="text-center py-10 px-6">
+        <svg
+          className="mx-auto h-12 w-12 text-red-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            vectorEffect="non-scaling-stroke"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+          {t('Unable to load consent history')}
+        </h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {t(
+            'There was an error loading the consent history. Please try again later.'
+          )}
+        </p>
+      </div>
+    );
+  };
 
   const NoHistory = () => {
     const { t } = useTranslation();
@@ -288,12 +321,14 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         <h3 className="text-lg font-medium leading-6 text-gray-900 mb-3 px-3">
           {t('Consent History')}
         </h3>
-        {isLoading ? (
+        {isValidating && !consentData ? (
           <div className="flow-root">
             <div className="max-h-[340px] overflow-y-auto">
               <SkeletonLoader />
             </div>
           </div>
+        ) : consentError && !consentData && !isValidating ? (
+          <ErrorView />
         ) : (
           <div className="flow-root">
             {records.length > 0 ? (
