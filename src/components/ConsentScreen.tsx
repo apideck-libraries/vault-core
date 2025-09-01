@@ -143,8 +143,26 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
     if (!dataScopes?.resources || typeof dataScopes.resources === 'string') {
       return undefined;
     }
+
     const resources = dataScopes.resources;
-    return Object.keys(resources).length > 0 ? resources : undefined;
+    const filtered: typeof resources = {};
+
+    // Only include resources that have fields with actual permissions
+    for (const [resourceName, fields] of Object.entries(resources)) {
+      const validFields: typeof fields = {};
+
+      for (const [fieldName, permissions] of Object.entries(fields)) {
+        if (permissions.read || permissions.write) {
+          validFields[fieldName] = permissions;
+        }
+      }
+
+      if (Object.keys(validFields).length > 0) {
+        filtered[resourceName] = validFields;
+      }
+    }
+
+    return Object.keys(filtered).length > 0 ? filtered : undefined;
   }, [dataScopes?.resources]);
 
   const hasDataScopes = dataScopes?.enabled && !!filteredResources;

@@ -72,7 +72,10 @@ const ConnectionDetails = ({
       return scopes.resources === '*';
     }
 
-    return Object.keys(scopes.resources).length > 0;
+    // Check if any resource has fields with actual permissions
+    return Object.values(scopes.resources).some((resource) =>
+      Object.values(resource).some((field) => field.read || field.write)
+    );
   }, [selectedConnection]);
 
   const {
