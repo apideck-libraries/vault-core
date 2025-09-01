@@ -112,7 +112,7 @@ const SkeletonLoader = ({ className }: { className?: string }) => (
           <div className="relative pb-4">
             {i !== 3 && (
               <span
-                className="absolute top-4 left-3.5 -ml-px h-[80%] w-0.5 bg-gray-200"
+                className="absolute top-4 left-3.5 -ml-px h-20 w-0.5 bg-gray-200"
                 aria-hidden="true"
               ></span>
             )}
@@ -323,7 +323,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         </h3>
         {isValidating && !consentData ? (
           <div className="flow-root">
-            <div className="max-h-[340px] h-full overflow-y-auto">
+            <div className="max-h-80 h-full overflow-y-auto">
               <SkeletonLoader />
             </div>
           </div>
@@ -332,10 +332,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         ) : (
           <div className="flow-root">
             {records.length > 0 ? (
-              <ul
-                role="list"
-                className="-mb-4 max-h-[340px] overflow-y-auto px-3"
-              >
+              <ul role="list" className="-mb-4 max-h-80 overflow-y-auto px-3">
                 {records
                   .sort(
                     (a, b) =>
