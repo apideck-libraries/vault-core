@@ -5,6 +5,21 @@ module.exports = {
     './node_modules/@apideck/components/**/*.js',
     './stories/*',
   ],
+  safelist: [
+    'animate-pulse',
+    'bg-gray-200',
+    'h-4',
+    'h-7',
+    'w-7',
+    'h-20',
+    'w-24',
+    'w-2/4',
+    'w-3/4',
+    'rounded-full',
+    'ring-8',
+    'ring-white',
+    'max-h-80',
+  ],
   darkMode: 'class',
   theme: {
     extend: {

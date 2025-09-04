@@ -10,7 +10,7 @@ import React, {
 import useSWR, { useSWRConfig } from 'swr';
 
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../types/Connection';
+import { Connection, ConsentState } from '../types/Connection';
 import { FormField } from '../types/FormField';
 
 interface ContextProps {
@@ -43,7 +43,6 @@ interface ContextProps {
   fetchResourceSchema: (resource: string) => Promise<any>;
   fetchResourceExample: (resource: string) => Promise<any>;
   fetchCustomFields: (resource: string) => Promise<any>;
-  fetchConsentRecords: (connection: Connection) => Promise<any>;
 }
 
 const ConnectionsContext = createContext<Partial<ContextProps>>({});
@@ -195,7 +194,10 @@ export const ConnectionsProvider = ({
           type: 'warning',
         });
         setSelectedConnection(null);
-        const updatedConnection = { ...connection, consent_state: 'denied' };
+        const updatedConnection = {
+          ...connection,
+          consent_state: ConsentState.Denied,
+        };
         const updatedList = {
           ...data,
           data: data.data.map((c: Connection) =>
@@ -245,7 +247,10 @@ export const ConnectionsProvider = ({
           type: 'success',
         });
         setSelectedConnection(null);
-        const updatedConnection = { ...connection, consent_state: 'revoked' };
+        const updatedConnection = {
+          ...connection,
+          consent_state: ConsentState.Revoked,
+        };
         const updatedList = {
           ...data,
           data: data.data.map((c: Connection) =>
@@ -460,27 +465,6 @@ export const ConnectionsProvider = ({
     }
   };
 
-  const fetchConsentRecords = async (connection: Connection) => {
-    try {
-      const response = await fetch(
-        `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`,
-        { headers }
-      );
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to fetch consent records');
-      }
-      return result.data;
-    } catch (error) {
-      addToast({
-        title: t('Failed to fetch consent records'),
-        description: (error as any)?.message,
-        type: 'error',
-      });
-      return [];
-    }
-  };
-
   const fetchConfig = async (resource: string) => {
     if (!selectedConnection) return;
     const raw = await fetch(
@@ -648,7 +632,6 @@ export const ConnectionsProvider = ({
       denyConsent,
       revokeConsent,
       grantConsent,
-      fetchConsentRecords,
     }),
     [
       isUpdating,
@@ -664,7 +647,6 @@ export const ConnectionsProvider = ({
       denyConsent,
       revokeConsent,
       grantConsent,
-      fetchConsentRecords,
     ]
   );
 

@@ -148,3 +148,12 @@ ButtonLayout.args = {
   // unifiedApi: 'issue-tracking',
   // serviceId: 'xero',
 };
+
+export const ConsetHistory = Template.bind({});
+ConsetHistory.args = {
+  showButtonLayout: true,
+  showLanguageSwitch: true,
+  unifiedApi: 'accounting',
+  serviceId: 'quickbooks',
+  initialView: 'consent-history',
+};

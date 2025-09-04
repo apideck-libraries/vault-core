@@ -2,15 +2,13 @@ import { Alert, Button } from '@apideck/components';
 import { Disclosure } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../types/Connection';
-import { DataScopes } from '../types/Session';
+import { Connection, ConsentRecord } from '../types/Connection';
 import { useConnections } from '../utils/useConnections';
-import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
 import TopBar from './TopBar';
 
 interface ScopeProps {
-  scopes: DataScopes['resources'];
+  scopes: NonNullable<Connection['application_data_scopes']>['resources'];
 }
 
 const ScopeRow: React.FC<{
@@ -24,22 +22,22 @@ const ScopeRow: React.FC<{
         isNew ? 'bg-green-50 dark:bg-green-900/20' : ''
       }`}
     >
-      <span className="text-gray-700 dark:text-gray-300 flex items-center">
+      <span className="text-gray-700 dark:text-gray-300 flex items-center truncate">
         {scope}
         {isNew && (
-          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             New
           </span>
         )}
       </span>
       <div className="flex items-center space-x-1.5">
         {permissions.read && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             Read
           </span>
         )}
         {permissions.write && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             Write
           </span>
         )}
@@ -60,7 +58,18 @@ const ScopesList: React.FC<ScopeProps & { newFields?: Set<string> }> = ({
       {resources.map((resource) => {
         const resourceName = resource.split('.').pop();
         const fields = scopes[resource];
-        const fieldNames = Object.keys(fields);
+        const fieldNames = Object.keys(fields).sort((a, b) => {
+          const aIsNew = newFields?.has(`${resource}.${a}`);
+          const bIsNew = newFields?.has(`${resource}.${b}`);
+
+          if (aIsNew && !bIsNew) return -1;
+          if (!aIsNew && bIsNew) return 1;
+
+          return a.localeCompare(b);
+        });
+        const hasNewFields = fieldNames.some((fieldName) =>
+          newFields?.has(`${resource}.${fieldName}`)
+        );
 
         return (
           <Disclosure
@@ -73,6 +82,11 @@ const ScopesList: React.FC<ScopeProps & { newFields?: Set<string> }> = ({
                 <Disclosure.Button className="flex items-center justify-between w-full px-3 py-2 bg-gray-50 rounded-md hover:bg-gray-100 text-left ring-gray-100 ring-1 ring-inset">
                   <div className="flex items-center">
                     <span className="font-medium">{resourceName}</span>
+                    {hasNewFields && (
+                      <span className="ml-2 fade-in inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        New
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center">
                     <span className="text-sm text-gray-500 mr-2">
@@ -120,57 +134,66 @@ interface Props {
 }
 
 const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
-  const { session } = useSession();
   const { t } = useTranslation();
   const { grantConsent, isUpdating } = useConnections();
-  const dataScopes = session?.data_scopes;
-  const hasDataScopes = dataScopes?.enabled && dataScopes?.resources;
+  const dataScopes = connection.application_data_scopes;
   const [showDenyModal, setShowDenyModal] = useState(false);
 
   const filteredResources = useMemo(() => {
-    if (!dataScopes?.resources || !connection.unified_api) {
-      return dataScopes?.resources;
+    if (!dataScopes?.resources || typeof dataScopes.resources === 'string') {
+      return undefined;
     }
-    return Object.fromEntries(
-      Object.entries(dataScopes.resources).filter(([key]) =>
-        key.startsWith(`${connection.unified_api}.`)
-      )
-    );
-  }, [dataScopes?.resources, connection.unified_api]);
+
+    const resources = dataScopes.resources;
+    const filtered: typeof resources = {};
+
+    // Only include resources that have fields with actual permissions
+    for (const [resourceName, fields] of Object.entries(resources)) {
+      const validFields: typeof fields = {};
+
+      for (const [fieldName, permissions] of Object.entries(fields)) {
+        if (permissions.read || permissions.write) {
+          validFields[fieldName] = permissions;
+        }
+      }
+
+      if (Object.keys(validFields).length > 0) {
+        filtered[resourceName] = validFields;
+      }
+    }
+
+    return Object.keys(filtered).length > 0 ? filtered : undefined;
+  }, [dataScopes?.resources]);
+
+  const hasDataScopes = dataScopes?.enabled && !!filteredResources;
 
   const newFields = useMemo(() => {
     if (
       connection.consent_state !== 'requires_reconsent' ||
-      !connection.consents ||
-      !filteredResources
+      !connection.latest_consent?.granted ||
+      !filteredResources ||
+      connection.latest_consent.resources === '*'
     ) {
       return new Set<string>();
     }
 
-    const lastGrantedConsent = [...connection.consents]
-      .reverse()
-      .find((c) => c.granted);
-
-    if (!lastGrantedConsent || lastGrantedConsent.resources === '*') {
-      return new Set<string>();
-    }
-
     const oldFields = new Set<string>();
-    const unifiedApi = connection.unified_api;
-    if (unifiedApi) {
-      for (const resource in lastGrantedConsent.resources) {
-        if (resource.startsWith(`${unifiedApi}.`)) {
-          for (const field in lastGrantedConsent.resources[resource]) {
-            oldFields.add(`${resource}.${field}`);
-          }
-        }
+    const resources = connection.latest_consent?.resources as Exclude<
+      ConsentRecord['resources'],
+      '*'
+    >;
+    for (const resource in resources) {
+      for (const field in resources[resource]) {
+        oldFields.add(`${resource}.${field}`);
       }
     }
 
     const currentFields = new Set<string>();
-    for (const resource in filteredResources) {
-      for (const field in filteredResources[resource]) {
-        currentFields.add(`${resource}.${field}`);
+    if (filteredResources) {
+      for (const resource in filteredResources) {
+        for (const field in filteredResources[resource]) {
+          currentFields.add(`${resource}.${field}`);
+        }
       }
     }
 
@@ -183,11 +206,11 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
         isOpen={showDenyModal}
         onClose={() => setShowDenyModal(false)}
         onConfirm={() => onDeny(filteredResources)}
-        title={t('Deny Access?')}
+        title={t('Deny access?')}
         description={t(
           'If you deny access, you will not be able to use this integration. Are you sure?'
         )}
-        confirmButtonText={t('Yes, Deny Access')}
+        confirmButtonText={t('Yes, deny access')}
       />
       <TopBar
         onClose={onClose}
@@ -197,23 +220,19 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
       />
       <div className="h-full p-6 text-center fade-in">
         <h2 className="text-lg font-semibold mb-2">
-          {t('Requested Data Access')}
+          {newFields.size > 0
+            ? t('Updated Permissions Requested')
+            : t('Requested Data Access')}
         </h2>
         <p className="text-gray-600 text-sm mb-4">
-          {t(
-            'The application is requesting permission to access the following data.'
-          )}
+          {newFields.size > 0
+            ? t(
+                'This integration has been updated and requires access to additional data.'
+              )
+            : t(
+                'The application is requesting permission to access the following data.'
+              )}
         </p>
-        {newFields.size > 0 && (
-          <Alert
-            variant="info"
-            className="text-left mb-4"
-            title={t('New permissions requested')}
-            description={t(
-              'The developer has updated the integration and requires additional permissions to keep it working.'
-            )}
-          />
-        )}
 
         {hasDataScopes && filteredResources ? (
           <ScopesList scopes={filteredResources} newFields={newFields} />
@@ -221,6 +240,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
           <Alert
             variant="info"
             title={t('Full Data Access')}
+            className="!text-left"
             description={t(
               'This application is requesting access to all data available through this connection.'
             )}
@@ -237,7 +257,8 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
             <Button
               text={t('Accept')}
               isLoading={isUpdating}
-              onClick={() => grantConsent(connection, filteredResources)}
+              disabled={isUpdating}
+              onClick={() => grantConsent(connection, dataScopes?.resources)}
               size="large"
               className="w-full !truncate"
             />
