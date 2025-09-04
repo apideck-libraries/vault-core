@@ -6,3 +6,4 @@ dist
 .env
 storybook-static
 resources
+coverage
