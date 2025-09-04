@@ -89,10 +89,10 @@ const resources = {
       'Authorization denied': 'Authorization denied',
       'Connection disabled': 'Connection disabled',
       'Re-authorization required': 'Re-authorization required',
-      'Deny Access?': 'Deny Access?',
+      'Deny access?': 'Deny access?',
       'If you deny access, you will not be able to use this integration. Are you sure?':
         'If you deny access, you will not be able to use this integration. Are you sure?',
-      'Yes, Deny Access': 'Yes, Deny Access',
+      'Yes, deny access': 'Yes, deny access',
       'Requested Data Access': 'Requested Data Access',
       'The application is requesting permission to access the following data.':
         'The application is requesting permission to access the following data.',
@@ -105,6 +105,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'By authorizing you agree to grant the application access to the data listed above.',
       '{{count}} fields': '{{count}} fields',
+      'Updated Permissions Requested': 'Updated Permissions Requested',
+      'Integration updated with new permissions':
+        'This integration has been updated and requires access to additional data.',
+      'Permission required': 'Permission required',
+      'Permission denied': 'Permission denied',
+      'Permission revoked': 'Permission revoked',
+      'New permissions required': 'New permissions required',
     },
   },
   nl: {
@@ -194,10 +201,10 @@ const resources = {
       'Authorization denied': 'Autorisatie geweigerd',
       'Connection disabled': 'Verbinding uitgeschakeld',
       'Re-authorization required': 'Herautorisatie vereist',
-      'Deny Access?': 'Toegang weigeren?',
+      'Deny access?': 'Toegang weigeren?',
       'If you deny access, you will not be able to use this integration. Are you sure?':
         'Als je de toegang weigert, kun je deze integratie niet gebruiken. Weet je het zeker?',
-      'Yes, Deny Access': 'Ja, toegang weigeren',
+      'Yes, deny access': 'Ja, toegang weigeren',
       'Requested Data Access': 'Gevraagde gegevenstoegang',
       'The application is requesting permission to access the following data.':
         'De applicatie waarmee je verbinding maakt, vraagt toestemming om toegang te krijgen tot de volgende gegevens.',
@@ -210,6 +217,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'Door je te autoriseren, ga je ermee akkoord de applicatie toegang te verlenen tot de hierboven vermelde gegevens.',
       '{{count}} fields': '{{count}} velden',
+      'Updated Permissions Requested': 'Bijgewerkte Toestemmingen Gevraagd',
+      'Integration updated with new permissions':
+        'Deze integratie is bijgewerkt en vereist toegang tot extra gegevens. De nieuwe velden zijn gemarkeerd als "Nieuw" voor uw beoordeling.',
+      'Permission required': 'Toestemming vereist',
+      'Permission denied': 'Toestemming geweigerd',
+      'Permission revoked': 'Toestemming ingetrokken',
+      'New permissions required': 'Nieuwe toestemmingen vereist',
     },
   },
   fr: {
@@ -298,10 +312,10 @@ const resources = {
       'Authorization denied': 'Autorisation refusée',
       'Connection disabled': 'Connexion désactivée',
       'Re-authorization required': 'Réautorisation requise',
-      'Deny Access?': "Refuser l'accès ?",
+      'Deny access?': "Refuser l'accès ?",
       'If you deny access, you will not be able to use this integration. Are you sure?':
         "Si vous refusez l'accès, vous ne pourrez pas utiliser cette intégration. Êtes-vous sûr ?",
-      'Yes, Deny Access': "Oui, refuser l'accès",
+      'Yes, deny access': "Oui, refuser l'accès",
       'Requested Data Access': 'Accès aux données demandé',
       'The application is requesting permission to access the following data.':
         "L'application à laquelle vous vous connectez demande l'autorisation d'accéder aux données suivantes.",
@@ -314,6 +328,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'En autorisant, vous acceptez de donner à l_application l_accès aux données listées ci-dessus.',
       '{{count}} fields': '{{count}} champs',
+      'Updated Permissions Requested': 'Autorisations Mises à Jour Requises',
+      'Integration updated with new permissions':
+        "Cette intégration a été mise à jour et nécessite l'accès à des données supplémentaires. Les nouveaux champs sont marqués comme « Nouveau » pour votre examen.",
+      'Permission required': 'Autorisation requise',
+      'Permission denied': 'Autorisation refusée',
+      'Permission revoked': 'Autorisation révoquée',
+      'New permissions required': 'Nouvelles autorisations requises',
     },
   },
   de: {
@@ -402,10 +423,10 @@ const resources = {
       'Authorization denied': 'Autorisierung verweigert',
       'Connection disabled': 'Verbindung deaktiviert',
       'Re-authorization required': 'Erneute Autorisierung erforderlich',
-      'Deny Access?': 'Zugriff verweigern?',
+      'Deny access?': 'Zugriff verweigern?',
       'If you deny access, you will not be able to use this integration. Are you sure?':
         'Wenn Sie den Zugriff verweigern, können Sie diese Integration nicht verwenden. Sind Sie sicher?',
-      'Yes, Deny Access': 'Ja, Zugriff verweigern',
+      'Yes, deny access': 'Ja, Zugriff verweigern',
       'Requested Data Access': 'Angeforderter Datenzugriff',
       'The application is requesting permission to access the following data.':
         'Die Anwendung, mit der Sie eine Verbindung herstellen, fordert die Berechtigung zum Zugriff auf die folgenden Daten an.',
@@ -418,6 +439,14 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'Wenn Sie sich autorisieren, erteilen Sie der Anwendung die Erlaubnis, auf die oben aufgeführten Daten zuzugreifen.',
       '{{count}} fields': '{{count}} Felder',
+      'Updated Permissions Requested':
+        'Aktualisierte Berechtigungen Angefordert',
+      'Integration updated with new permissions':
+        'Diese Integration wurde aktualisiert und erfordert Zugriff auf zusätzliche Daten. Die neuen Felder sind zur Überprüfung als „Neu“ gekennzeichnet.',
+      'Permission required': 'Berechtigung erforderlich',
+      'Permission denied': 'Berechtigung verweigert',
+      'Permission revoked': 'Berechtigung widerrufen',
+      'New permissions required': 'Neue Berechtigungen erforderlich',
     },
   },
   es: {
@@ -506,10 +535,10 @@ const resources = {
       'Authorization denied': 'Autorización denegada',
       'Connection disabled': 'Conexión deshabilitada',
       'Re-authorization required': 'Se requiere reautorización',
-      'Deny Access?': '¿Denegar acceso?',
+      'Deny access?': '¿Denegar acceso?',
       'If you deny access, you will not be able to use this integration. Are you sure?':
         'Si deniegas el acceso, no podrás utilizar esta integración. ¿Estás seguro?',
-      'Yes, Deny Access': 'Sí, denegar acceso',
+      'Yes, deny access': 'Sí, denegar acceso',
       'Requested Data Access': 'Acceso a datos solicitado',
       'The application is requesting permission to access the following data.':
         'La aplicación a la que te estás conectando solicita permiso para acceder a los siguientes datos.',
@@ -522,6 +551,13 @@ const resources = {
       'By authorizing you agree to grant the application access to the data listed above.':
         'Al autorizar, aceptas conceder a la aplicación acceso a los datos mencionados anteriormente.',
       '{{count}} fields': '{{count}} campos',
+      'Updated Permissions Requested': 'Permisos Actualizados Solicitados',
+      'Integration updated with new permissions':
+        'Esta integración se ha actualizado y requiere acceso a datos adicionales. Los nuevos campos están marcados como "Nuevo" para su revisión.',
+      'Permission required': 'Permiso requerido',
+      'Permission denied': 'Permiso denegado',
+      'Permission revoked': 'Permiso revocado',
+      'New permissions required': 'Nuevos permisos requeridos',
     },
   },
 };

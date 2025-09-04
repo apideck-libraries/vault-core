@@ -25,20 +25,6 @@ export interface SessionConsumerMetadata {
   image?: string;
 }
 
-// TODO: Old interface, update after data scopes resources are implemented on the get connection call
-export interface DataScopes {
-  enabled: boolean;
-  modified: string;
-  resources: {
-    [apiScopedResourceName: string]: {
-      [dotField: string]: {
-        read: boolean;
-        write: boolean;
-      };
-    };
-  };
-}
-
 export interface Session {
   application_id?: string;
   consumer_id?: string;
@@ -47,5 +33,5 @@ export interface Session {
   theme?: SessionTheme;
   consumer_metadata?: SessionConsumerMetadata;
   jwt?: string;
-  data_scopes?: DataScopes; // TODO: Remove this when data scopes resources are implemented on the get connection call
+  data_scopes?: { enabled?: boolean };
 }

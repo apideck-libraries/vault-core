@@ -38,14 +38,14 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
 
   const formFields = connection.form_fields;
   const showGuide = connection.has_guide && !settings?.hide_guides;
-  const initialValues = formFields.reduce((acc: any, formField) => {
+  const initialValues = formFields?.reduce((acc: any, formField) => {
     const { id, value } = formField;
     acc[id] = value;
     return acc;
   }, {}) as Record<string, readonly string[]>;
-  const filteredFormFields = formFields.filter((field) => !field.hidden);
+  const filteredFormFields = formFields?.filter((field) => !field.hidden);
 
-  if (!filteredFormFields.length) return null;
+  if (!filteredFormFields || !filteredFormFields.length) return null;
 
   const formik = useFormik({
     initialValues,

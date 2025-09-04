@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { Alert, Button, usePrevious } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../types/Connection';
+import { Connection, ConsentState } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
@@ -62,6 +62,22 @@ const ConnectionDetails = ({
 
   if (!selectedConnection) return null;
 
+  const hasApplicableScopes = useMemo(() => {
+    const scopes = selectedConnection?.application_data_scopes;
+    if (!scopes?.enabled || !scopes.resources) {
+      return false;
+    }
+
+    if (typeof scopes.resources === 'string') {
+      return scopes.resources === '*';
+    }
+
+    // Check if any resource has fields with actual permissions
+    return Object.values(scopes.resources).some((resource) =>
+      Object.values(resource).some((field) => field.read || field.write)
+    );
+  }, [selectedConnection]);
+
   const {
     enabled,
     state,
@@ -73,7 +89,7 @@ const ConnectionDetails = ({
   } = selectedConnection;
 
   const hasFormFields =
-    form_fields?.filter((field) => !field.hidden)?.length > 0;
+    (form_fields?.filter((field) => !field.hidden)?.length ?? 0) > 0;
 
   const [hasRequiredMappings, setHasRequiredMappings] = useState(false);
   const [currentView, setCurrentView] = useState<
@@ -251,30 +267,6 @@ const ConnectionDetails = ({
     );
   }
 
-  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
-    'pending',
-    'denied',
-    'revoked',
-    'requires_reconsent',
-  ];
-
-  if (
-    (session?.data_scopes?.enabled &&
-      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
-    currentView === ConnectionViewType.ConsentScreen
-  ) {
-    return (
-      <ConsentScreen
-        connection={selectedConnection}
-        onClose={() => setSelectedConnection(null)}
-        onDeny={async (resources: any) => {
-          await denyConsent(selectedConnection, resources);
-          setSelectedConnection(null);
-        }}
-      />
-    );
-  }
-
   if (currentView === ConnectionViewType.ConsentHistory) {
     return (
       <>
@@ -301,6 +293,30 @@ const ConnectionDetails = ({
         TopBarComponent={TopBarComponent}
         showConsumer={showConsumer}
         showLanguageSwitch={showLanguageSwitch}
+      />
+    );
+  }
+
+  const statesRequiringConsent: (Connection['consent_state'] | undefined)[] = [
+    ConsentState.Pending,
+    ConsentState.Denied,
+    ConsentState.Revoked,
+    ConsentState.RequiresReconsent,
+  ];
+
+  if (
+    (hasApplicableScopes &&
+      statesRequiringConsent.includes(selectedConnection.consent_state)) ||
+    currentView === ConnectionViewType.ConsentScreen
+  ) {
+    return (
+      <ConsentScreen
+        connection={selectedConnection}
+        onClose={() => setSelectedConnection(null)}
+        onDeny={async (resources: any) => {
+          await denyConsent(selectedConnection, resources);
+          setSelectedConnection(null);
+        }}
       />
     );
   }

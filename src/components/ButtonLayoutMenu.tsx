@@ -66,7 +66,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
 
     const buttons: ButtonOption[] = [];
     const hasFormFields =
-      form_fields?.filter((field) => !field.hidden)?.length > 0;
+      form_fields && form_fields?.filter((field) => !field.hidden)?.length > 0;
 
     const isActionAllowed = isActionAllowedForSettings(settings);
 
@@ -216,7 +216,11 @@ const ButtonLayoutMenu: React.FC<Props> = ({
     }
 
     // Field Mapping button
-    if (custom_mappings?.length > 0 && state === 'callable') {
+    if (
+      custom_mappings &&
+      custom_mappings?.length > 0 &&
+      state === 'callable'
+    ) {
       buttons.push({
         label: t('Field Mapping'),
         icon: (

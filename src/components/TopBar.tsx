@@ -146,8 +146,8 @@ const TopBar = ({
 
     if (
       session?.data_scopes?.enabled &&
-      (selectedConnection.consent_state === 'implicit' ||
-        selectedConnection.consent_state === 'granted')
+      (selectedConnection?.consent_state === 'implicit' ||
+        selectedConnection?.consent_state === 'granted')
     ) {
       options.push({
         label: (
@@ -177,7 +177,11 @@ const TopBar = ({
       });
     }
 
-    if (custom_mappings?.length > 0 && state === 'callable') {
+    if (
+      custom_mappings &&
+      custom_mappings?.length > 0 &&
+      state === 'callable'
+    ) {
       options.push({
         label: (
           <button className="flex font-medium items-center">

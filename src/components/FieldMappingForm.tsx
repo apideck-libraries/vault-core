@@ -2,7 +2,7 @@ import { Button, useToast } from '@apideck/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { useSWRConfig } from 'swr';
-import { Connection, CustomMapping } from '../types/Connection';
+import { Connection } from '../types/Connection';
 import { extractLastAttribute } from '../utils/extractLastAttribute';
 import { findByDescription } from '../utils/fieldMappingUtils';
 import { useConnections } from '../utils/useConnections';
@@ -273,7 +273,7 @@ const FieldMappingForm = ({
 type OriginFieldCardProps = {
   selectedConnection: Connection | null;
   selectedMapping: any;
-  selectedCustomMapping: CustomMapping;
+  selectedCustomMapping: any;
   open?: boolean;
   responseDataPath?: string;
 };

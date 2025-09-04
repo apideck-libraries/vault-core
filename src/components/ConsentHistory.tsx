@@ -1,13 +1,8 @@
 import { Button } from '@apideck/components';
 import { Disclosure } from '@headlessui/react';
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import { Connection, ConsentRecord } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { useConnections } from '../utils/useConnections';
@@ -29,10 +24,10 @@ const ScopeRow: React.FC<{
     <div
       className={`flex fade-in justify-between items-center py-2 px-3 text-sm border-b border-gray-100 dark:border-gray-800 last:border-b-0`}
     >
-      <span className="text-gray-700 dark:text-gray-300 flex items-center">
+      <span className="text-gray-700 dark:text-gray-300 flex items-center truncate">
         {scope}
       </span>
-      <div className="flex items-center space-x-1.5">
+      <div className="flex items-center space-x-1">
         {permissions.read && (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
             Read
@@ -48,16 +43,17 @@ const ScopeRow: React.FC<{
   );
 };
 
-// TODO: fix types
-const ScopesDetail: React.FC<{ scopes: any }> = ({ scopes }) => {
+const ScopesDetail: React.FC<{
+  scopes?: ConsentRecord['resources'];
+}> = ({ scopes }) => {
   const { t } = useTranslation();
-  const resources = Object.keys(scopes);
+  const resources = Object.keys(scopes || {});
 
   return (
     <div className="space-y-2 pb-2">
       {resources.map((resource) => {
         const resourceName = resource.split('.').pop();
-        const fields = scopes[resource];
+        const fields = scopes?.[resource] || {};
         const fieldNames = Object.keys(fields);
 
         return (
@@ -108,15 +104,15 @@ const ScopesDetail: React.FC<{ scopes: any }> = ({ scopes }) => {
   );
 };
 
-const SkeletonLoader = () => (
-  <div className="flow-root animate-pulse px-3">
+const SkeletonLoader = ({ className }: { className?: string }) => (
+  <div className={`block animate-pulse px-3 ${className}`}>
     <ul role="list" className="-mb-4">
       {[...Array(4)].map((_, i) => (
         <li key={i}>
           <div className="relative pb-4">
             {i !== 3 && (
               <span
-                className="absolute top-4 left-3.5 -ml-px h-[80%] w-0.5 bg-gray-200"
+                className="absolute top-4 left-3.5 -ml-px h-20 w-0.5 bg-gray-200"
                 aria-hidden="true"
               ></span>
             )}
@@ -142,41 +138,54 @@ const SkeletonLoader = () => (
 );
 
 const ConsentHistory = ({ connection, setCurrentView }: Props) => {
-  const [records, setRecords] = useState<ConsentRecord[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { fetchConsentRecords, revokeConsent, isUpdating } = useConnections();
+  const { revokeConsent, isUpdating, unifyBaseUrl, headers } = useConnections();
   const { t } = useTranslation();
-  const [showRevokeModal, setShowRevokeModal] = useState(false);
   const { session } = useSession();
-  const dataScopes = session?.data_scopes;
+  const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const dataScopes = connection.application_data_scopes;
+
+  const fetcher = async (url: string) => {
+    const response = await fetch(url, { headers });
+    return await response.json();
+  };
+
+  const consentUrl = connection.id
+    ? `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}/consent`
+    : null;
+
+  const {
+    data: consentData,
+    error: consentError,
+    isValidating,
+  } = useSWR(consentUrl, fetcher, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+  });
+
+  const records = consentData?.data || [];
 
   const filteredResources = useMemo(() => {
-    if (!dataScopes?.resources || !connection.unified_api) {
-      return dataScopes?.resources;
+    if (
+      !dataScopes?.resources ||
+      typeof dataScopes.resources === 'string' ||
+      !connection.unified_api
+    ) {
+      return undefined;
     }
-    return Object.fromEntries(
+    const resources = Object.fromEntries(
       Object.entries(dataScopes.resources).filter(([key]) =>
         key.startsWith(`${connection.unified_api}.`)
       )
     );
+    return Object.keys(resources).length > 0 ? resources : undefined;
   }, [dataScopes?.resources, connection.unified_api]);
-
-  useEffect(() => {
-    const loadRecords = async () => {
-      setIsLoading(true);
-      const consentRecords = await fetchConsentRecords(connection);
-      setRecords(consentRecords);
-      setIsLoading(false);
-    };
-    loadRecords();
-  }, [connection.id]);
 
   const getScopeSummary = (resources: ConsentRecord['resources']) => {
     if (resources === '*') return t('All data access');
     if (typeof resources === 'object' && resources !== null) {
       const resourceCount = Object.keys(resources).length;
       const fieldCount = Object.values(resources).reduce(
-        (acc, resource) => acc + Object.keys(resource).length,
+        (acc: number, resource: any) => acc + Object.keys(resource).length,
         0
       );
       return t('{{resourceCount}} resources, {{fieldCount}} fields', {
@@ -190,6 +199,54 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
   const canRevoke =
     connection.consent_state === 'implicit' ||
     connection.consent_state === 'granted';
+
+  if (!session?.data_scopes?.enabled)
+    return (
+      <div className="text-center py-10 px-6">
+        <h3 className="text-lg font-medium text-gray-900">
+          {t('Data scopes not enabled')}
+        </h3>
+        <p className="mt-1 text-sm text-gray-500">
+          {t(
+            'Data scopes are not enabled. Please contact the application owner.'
+          )}
+        </p>
+      </div>
+    );
+
+  if (!connection) return <SkeletonLoader className="my-8 mx-4" />;
+
+  const ErrorView = () => {
+    const { t } = useTranslation();
+
+    return (
+      <div className="text-center py-10 px-6">
+        <svg
+          className="mx-auto h-12 w-12 text-red-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            vectorEffect="non-scaling-stroke"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+          {t('Unable to load consent history')}
+        </h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {t(
+            'There was an error loading the consent history. Please try again later.'
+          )}
+        </p>
+      </div>
+    );
+  };
 
   const NoHistory = () => {
     const { t } = useTranslation();
@@ -230,7 +287,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
               className="w-full"
             />
             <Button
-              text={t('Revoke Access')}
+              text={t('Revoke access')}
               variant="danger-outline"
               className="mt-2 w-full"
               onClick={() => setShowRevokeModal(true)}
@@ -254,25 +311,28 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         isOpen={showRevokeModal}
         onClose={() => setShowRevokeModal(false)}
         onConfirm={() => revokeConsent(connection, filteredResources)}
-        title={t('Revoke Access?')}
+        title={t('Revoke access?')}
         description={t(
           'This will stop all data sharing with the application. Are you sure?'
         )}
-        confirmButtonText={t('Yes, Revoke Access')}
+        confirmButtonText={t('Yes, revoke access')}
       />
       <div className="p-6 px-3">
         <h3 className="text-lg font-medium leading-6 text-gray-900 mb-3 px-3">
           {t('Consent History')}
         </h3>
-        {isLoading ? (
-          <SkeletonLoader />
+        {isValidating && !consentData ? (
+          <div className="flow-root">
+            <div className="max-h-80 h-full overflow-y-auto">
+              <SkeletonLoader />
+            </div>
+          </div>
+        ) : consentError && !consentData && !isValidating ? (
+          <ErrorView />
         ) : (
           <div className="flow-root">
             {records.length > 0 ? (
-              <ul
-                role="list"
-                className="-mb-4 max-h-[340px] overflow-y-auto px-3"
-              >
+              <ul role="list" className="-mb-4 max-h-80 overflow-y-auto px-3">
                 {records
                   .sort(
                     (a, b) =>
@@ -280,22 +340,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
                       new Date(a.created_at).getTime()
                   )
                   .map((record, recordIdx) => {
-                    const dummymode = true;
-                    const dummyResources = {
-                      'crm.company': {
-                        name: { read: true, write: false },
-                        number_of_employees: { read: true, write: false },
-                      },
-                      'crm.contact': {
-                        name: { read: true, write: true },
-                        email: { read: true, write: true },
-                        phone_number: { read: true, write: false },
-                      },
-                    };
-                    const resourcesToShow =
-                      dummymode && recordIdx === 0
-                        ? dummyResources
-                        : record.resources;
+                    const resourcesToShow = record.resources;
                     const isExpandable =
                       typeof resourcesToShow === 'object' &&
                       resourcesToShow !== null;
@@ -432,7 +477,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
             {canRevoke && records.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200 px-3 bg-white relative">
                 <Button
-                  text={t('Revoke Access')}
+                  text={t('Revoke access')}
                   variant="danger"
                   onClick={() => setShowRevokeModal(true)}
                   isLoading={isUpdating}
