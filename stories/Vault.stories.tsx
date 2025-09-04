@@ -29,8 +29,8 @@ const Template: Story<Props> = (args) => (
     trigger={<button className="p-2 border rounded shadow">Open modal</button>}
     {...args}
     showConsumer={true}
-    unifyBaseUrl="http://localhost:3050"
-    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiJodHRwczovL3ZhdWx0LmFwaWRlY2suY29tL29hdXRoL2NhbGxiYWNrIiwiY29uc3VtZXJfbWV0YWRhdGEiOnt9LCJ0aGVtZSI6eyJmYXZpY29uIjoiaHR0cHM6Ly9yZXMuY2xvdWRpbmFyeS5jb20vYXBpZGVjay9pbWFnZS91cGxvYWQvdjE1OTQ2NDAxMDYvbWFya2V0cGxhY2VzL3VmYzcwODJhc3p6Z2h0dm5ncWFlLnBuZyIsInByaW1hcnlfY29sb3IiOiIjNUM1MUNFIiwicHJpdmFjeV91cmwiOiJodHRwczovL2NvbXBsaWFuY2UuYXBpZGVjay5jb20vcHJpdmFjeS1wb2xpY3kiLCJzaWRlcGFuZWxfYmFja2dyb3VuZF9jb2xvciI6IiMwRTEyNDQiLCJzaWRlcGFuZWxfdGV4dF9jb2xvciI6IiNGRkZGRkYiLCJ0ZXJtc191cmwiOiJodHRwczovL3d3dy50ZXJtc2ZlZWQuY29tL3Rlcm1zLWNvbmRpdGlvbnMvOTU3Yzg1YzFiMDg5YWU5ZTMyMTljODNlZmY2NTM3N2UiLCJ2YXVsdF9uYW1lIjoiQXBpZGVjayBVbmlmeSBTdGFnaW5nIn0sInNldHRpbmdzIjp7InNlc3Npb25fbGVuZ3RoIjoiMjRoIn0sImNvbnN1bWVyX2lkIjoidGVzdC1jb25zdW1lciIsImFwcGxpY2F0aW9uX2lkIjoiMjIyMiIsInNjb3BlcyI6W10sImRhdGFfc2NvcGVzIjp7ImVuYWJsZWQiOnRydWV9LCJpYXQiOjE3NTE5NjcwNTksImV4cCI6MTc1MjA1MzQ1OX0.IqnstlAe-8ltmcHQX3PNmntEhct2AZDaejC_4_u7B1g"
+    // unifyBaseUrl="http://localhost:3050"
+    token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWRpcmVjdF91cmkiOiI8c3RyaW5nPiIsImNvbnN1bWVyX21ldGFkYXRhIjp7ImFjY291bnRfbmFtZSI6IjxzdHJpbmc-IiwidXNlcl9uYW1lIjoiPHN0cmluZz4iLCJlbWFpbCI6IjxzdHJpbmc-IiwiaW1hZ2UiOiI8c3RyaW5nPiJ9LCJjdXN0b21fY29uc3VtZXJfc2V0dGluZ3MiOnsiZWl1c21vZF8xMSI6NDkwMjI5NiwidmVuaWFtX2MiOmZhbHNlfSwidGhlbWUiOnsiZmF2aWNvbiI6IjxzdHJpbmc-IiwibG9nbyI6IjxzdHJpbmc-IiwicHJpbWFyeV9jb2xvciI6IjxzdHJpbmc-Iiwic2lkZXBhbmVsX2JhY2tncm91bmRfY29sb3IiOiI8c3RyaW5nPiIsInNpZGVwYW5lbF90ZXh0X2NvbG9yIjoiPHN0cmluZz4iLCJ2YXVsdF9uYW1lIjoiPHN0cmluZz4iLCJwcml2YWN5X3VybCI6IjxzdHJpbmc-IiwidGVybXNfdXJsIjoiPHN0cmluZz4ifSwic2V0dGluZ3MiOnsidW5pZmllZF9hcGlzIjpbImVtYWlsIiwiY3VzdG9tZXItc3VwcG9ydCJdLCJoaWRlX3Jlc291cmNlX3NldHRpbmdzIjpmYWxzZSwic2FuZGJveF9tb2RlIjpmYWxzZSwiaXNvbGF0aW9uX21vZGUiOmZhbHNlLCJzZXNzaW9uX2xlbmd0aCI6IjFoIiwic2hvd19sb2dzIjp0cnVlLCJzaG93X3N1Z2dlc3Rpb25zIjpmYWxzZSwic2hvd19zaWRlYmFyIjp0cnVlLCJhdXRvX3JlZGlyZWN0IjpmYWxzZSwiaGlkZV9ndWlkZXMiOmZhbHNlLCJhbGxvd19hY3Rpb25zIjpbImRpc2FibGUiLCJkaXNhYmxlIl19LCJjb25zdW1lcl9pZCI6InRlc3QtY29uc3VtZXItbmV3IiwiYXBwbGljYXRpb25faWQiOiJQSk5NWEdiUG81M2kwN2tmSVZkMzBpbXVCVVEzSlJDbGNRZm5JVmQ0Iiwic2NvcGVzIjpbXSwiZGF0YV9zY29wZXMiOnsiZW5hYmxlZCI6ZmFsc2V9LCJpYXQiOjE3NTY5OTEzMTgsImV4cCI6MTc1Njk5NDkxOH0.mI4tFmyOgWuvQyiDJfEC-sSxvzFSWZTxYK6kx6KdZO0"
   />
 );
 
@@ -86,6 +86,18 @@ CusotmMappingView.args = {
   unifiedApi: 'accounting',
   serviceId: 'quickbooks',
   initialView: 'custom-mapping',
+};
+
+export const AutoStartAuthorization = Template.bind({});
+AutoStartAuthorization.args = {
+  trigger: (
+    <button className="p-2 border rounded shadow">
+      Open auto start authorization
+    </button>
+  ),
+  unifiedApi: 'accounting',
+  serviceId: 'quickbooks',
+  autoStartAuthorization: true,
 };
 
 export const SingleUnifiedApi = Template.bind({});

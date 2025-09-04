@@ -103,6 +103,13 @@ const AuthorizeButton = ({
     }
   };
 
+  // Auto start authorization if the connection is enabled and the autoStartAuthorization flag is true
+  useEffect(() => {
+    if (autoStartAuthorization && isAuthorizationEnabled) {
+      authorizeConnection();
+    }
+  }, []);
+
   if (connection?.service_id === 'google-drive') {
     return (
       <button
@@ -136,13 +143,6 @@ const AuthorizeButton = ({
       </button>
     );
   }
-
-  // Auto start authorization if the connection is enabled and the autoStartAuthorization flag is true
-  useEffect(() => {
-    if (autoStartAuthorization && isAuthorizationEnabled) {
-      authorizeConnection();
-    }
-  }, []);
 
   return (
     <Button
