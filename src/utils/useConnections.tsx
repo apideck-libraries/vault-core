@@ -427,17 +427,19 @@ export const ConnectionsProvider = ({
         }
       );
 
+      const updatedConnection: Connection = {
+        ...connection,
+        enabled: false,
+        state: 'available',
+      };
+
       if (singleConnectionMode) {
         // Clear the specific connection details cache to prevent stale data
         const detailsUrl = `${unifyBaseUrl}/vault/connections/${connection.unified_api}/${connection.service_id}`;
         mutate(detailsUrl, undefined, false);
+        onConnectionDelete?.(updatedConnection);
         onClose();
       } else {
-        const updatedConnection: Connection = {
-          ...connection,
-          enabled: false,
-          state: 'available',
-        };
         const updatedData = {
           ...data,
           data: [
