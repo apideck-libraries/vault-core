@@ -1,6 +1,6 @@
 import { Button } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
@@ -10,6 +10,7 @@ import { useConnectionActions } from '../utils/connectionActions';
 import { getApiName } from '../utils/getApiName';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
+import AuthorizeButton from './AuthorizeButton';
 import ConfirmModal from './ConfirmModal';
 import Divider from './Divider';
 import StatusBadge from './StatusBadge';
@@ -19,6 +20,7 @@ interface ButtonOption {
   icon: JSX.Element;
   onClick: () => void | Promise<void>;
   variant?: 'primary' | 'secondary' | 'outline';
+  customComponent?: JSX.Element;
 }
 
 interface Props {
@@ -97,6 +99,12 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           await handleRedirect(authorizeUrl, onConnectionChange);
         },
         variant: 'primary',
+        customComponent: (
+          <AuthorizeButton
+            connection={connection}
+            onConnectionChange={onConnectionChange}
+          />
+        ),
       });
     }
 
@@ -371,6 +379,60 @@ const ButtonLayoutMenu: React.FC<Props> = ({
 
   const buttonOptions = getButtonOptions();
 
+  const isQuickBooksOrGoogleDrive =
+    connection?.service_id === 'quickbooks' ||
+    connection?.service_id === 'google-drive';
+
+  const layoutInfo = useMemo(() => {
+    const buttonCount = buttonOptions.length;
+    const hasCustomButton = buttonOptions.some(
+      (button) => button.customComponent
+    );
+
+    const firstButton = buttonOptions[0];
+    const firstButtonIsSpecial =
+      (firstButton?.customComponent && isQuickBooksOrGoogleDrive) ||
+      firstButton?.variant === 'primary';
+
+    // Special mixed layout: first button full width, others in grid
+    if ((buttonCount === 3 || buttonCount === 5) && firstButtonIsSpecial) {
+      return {
+        layoutType: 'mixed',
+        gridClassName: 'grid-cols-2', // For the remaining buttons
+      };
+    }
+
+    // QuickBooks or Google Drive: always full width
+    if (isQuickBooksOrGoogleDrive && hasCustomButton) {
+      return {
+        layoutType: 'standard',
+        gridClassName: 'grid-cols-1',
+      };
+    }
+
+    // 3 buttons: always full width (when not special mixed)
+    if (buttonCount === 3) {
+      return {
+        layoutType: 'standard',
+        gridClassName: 'grid-cols-1',
+      };
+    }
+
+    // 4 or 6 buttons: 2x2 grid
+    if (buttonCount === 4 || buttonCount === 6) {
+      return {
+        layoutType: 'standard',
+        gridClassName: 'grid-cols-2',
+      };
+    }
+
+    // Default logic: 1 button = full width, 2+ buttons = grid
+    return {
+      layoutType: 'standard',
+      gridClassName: buttonCount === 1 ? 'grid-cols-1' : 'grid-cols-2',
+    };
+  }, [buttonOptions, isQuickBooksOrGoogleDrive]);
+
   return (
     <div className="h-full rounded-b-xl">
       <ConfirmModal
@@ -405,26 +467,91 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           />
         </div>
 
-        {buttonOptions.length > 0 && (
+        {buttonOptions.length > 0 && layoutInfo.layoutType === 'mixed' && (
           <div className="mt-3">
             <Divider text={t('Actions')} />
-            <div
-              className={`grid gap-3 mt-3 ${
-                buttonOptions.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
-              }`}
-            >
-              {buttonOptions.map((button, index) => (
-                <Button
-                  key={index}
-                  className="flex items-center justify-center p-3 text-sm"
-                  variant={button.variant}
-                  onClick={button.onClick}
-                  disabled={isReAuthorizing}
-                >
-                  <div className="mr-2">{button.icon}</div>
-                  {button.label}
-                </Button>
-              ))}
+
+            {/* First button - full width */}
+            <div className="mt-3">
+              {(() => {
+                const [firstButton] = buttonOptions;
+                return firstButton.customComponent ? (
+                  <div className="flex items-center justify-center">
+                    {firstButton.customComponent}
+                  </div>
+                ) : (
+                  <Button
+                    className="flex items-center justify-center p-3 text-sm w-full"
+                    variant={firstButton.variant}
+                    onClick={firstButton.onClick}
+                    disabled={isReAuthorizing}
+                  >
+                    <div className="mr-2">{firstButton.icon}</div>
+                    {firstButton.label}
+                  </Button>
+                );
+              })()}
+            </div>
+
+            {/* Remaining buttons - in grid */}
+            {buttonOptions.length > 1 && (
+              <div className={`grid gap-3 mt-3 ${layoutInfo.gridClassName}`}>
+                {buttonOptions.slice(1).map((button, index) =>
+                  button.customComponent ? (
+                    <div
+                      key={index + 1}
+                      className="flex items-center justify-center"
+                    >
+                      {button.customComponent}
+                    </div>
+                  ) : (
+                    <Button
+                      key={index + 1}
+                      className="flex items-center justify-center p-3 text-sm"
+                      variant={button.variant}
+                      onClick={button.onClick}
+                      disabled={isReAuthorizing}
+                    >
+                      <div className="mr-2">{button.icon}</div>
+                      {button.label}
+                    </Button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {buttonOptions.length > 0 && layoutInfo.layoutType === 'standard' && (
+          <div className="mt-3">
+            <Divider text={t('Actions')} />
+            <div className={`grid gap-3 mt-3 ${layoutInfo.gridClassName}`}>
+              {buttonOptions.map((button, index) => {
+                const shouldSpanFullWidth =
+                  button.customComponent && isQuickBooksOrGoogleDrive;
+
+                return button.customComponent ? (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-center ${
+                      shouldSpanFullWidth ? 'col-span-full' : ''
+                    }`}
+                  >
+                    {button.customComponent}
+                  </div>
+                ) : (
+                  <Button
+                    key={index}
+                    className="flex items-center justify-center p-3 text-sm"
+                    variant={button.variant}
+                    onClick={button.onClick}
+                    disabled={isReAuthorizing}
+                  >
+                    <div className="mr-2">{button.icon}</div>
+                    {button.label}
+                  </Button>
+                );
+              })}
             </div>
           </div>
         )}

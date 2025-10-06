@@ -100,6 +100,18 @@ const ConnectionDetails = ({
     authorizationVariablesRequired(selectedConnection);
 
   const previousState = usePrevious(selectedConnection.state);
+  const previousConnectionId = usePrevious(selectedConnection.id);
+
+  // Reset currentView when switching between connections
+  useEffect(() => {
+    if (
+      previousConnectionId &&
+      previousConnectionId !== selectedConnection.id &&
+      currentView !== null
+    ) {
+      setCurrentView(null);
+    }
+  }, [selectedConnection.id, previousConnectionId]);
 
   const shouldShowAuthorizeButton =
     enabled &&
@@ -116,9 +128,17 @@ const ConnectionDetails = ({
       hasFormFields &&
       (!shouldShowAuthorizeButton ||
         state === 'authorized' ||
-        state === 'invalid')
+        state === 'invalid' ||
+        requiredAuthVariables)
     );
-  }, [currentView, enabled, state, hasFormFields, shouldShowAuthorizeButton]);
+  }, [
+    currentView,
+    enabled,
+    state,
+    hasFormFields,
+    shouldShowAuthorizeButton,
+    requiredAuthVariables,
+  ]);
 
   useEffect(() => {
     // Open specific view when provided as prop
@@ -352,7 +372,7 @@ const ConnectionDetails = ({
         }
       />
       <div className="h-full rounded-b-xl">
-        <div className="text-center p-5 md:p-6">
+        <div className="text-center p-5 md:p-6 overflow-y-auto max-h-[700px]">
           <Dialog.Title
             as="h3"
             className="text-lg font-semibold leading-6 text-gray-900 mb-1"
