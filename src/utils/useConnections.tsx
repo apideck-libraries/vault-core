@@ -295,7 +295,7 @@ export const ConnectionsProvider = ({
       if (response.ok && result.data) {
         const updatedConnection = {
           ...connection,
-          consent_state: 'granted',
+          consent_state: ConsentState.Granted,
         };
         const updatedList = {
           ...data,
@@ -305,6 +305,7 @@ export const ConnectionsProvider = ({
         };
         mutate(listUrl, updatedList, { revalidate: false });
         mutate(detailsUrl, { data: updatedConnection }, { revalidate: false });
+        setSelectedConnection(updatedConnection);
         addToast({
           title: t('Consent granted'),
           description: t('You can now authorize the connection.'),

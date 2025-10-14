@@ -177,7 +177,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         key.startsWith(`${connection.unified_api}.`)
       )
     );
-    return Object.keys(resources).length > 0 ? resources : undefined;
+    return resources;
   }, [dataScopes?.resources, connection.unified_api]);
 
   const getScopeSummary = (resources: ConsentRecord['resources']) => {
