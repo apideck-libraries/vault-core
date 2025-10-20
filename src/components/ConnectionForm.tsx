@@ -130,6 +130,36 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
         />
       )}
 
+      {showGuide && validationState !== 'invalid' && (
+        <div className="text-left mb-3 rounded-md border border-blue-100 bg-blue-50/40 px-3.5 py-2.5">
+          <p className="text-sm text-gray-600 whitespace-nowrap overflow-x-auto">
+            {t('Need help?')}{' '}
+            <a
+              className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium underline decoration-blue-600/30 hover:decoration-blue-600 transition-colors"
+              target="_blank"
+              rel="noreferrer"
+              href={`https://developers.apideck.com/connectors/${connection.service_id}/docs/consumer+connection`}
+            >
+              {t('View our Connection Guide')}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-3.5 h-3.5 ml-0.5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                />
+              </svg>
+            </a>
+          </p>
+        </div>
+      )}
+
       <form
         className="space-y-3 text-left"
         onSubmit={formik.handleSubmit}
@@ -239,50 +269,6 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
           }
         />
       </form>
-      {showGuide && (
-        <div className="flex text-sm items-center text-gray-600 rounded-b-xl py-3 px-5 md:px-6 bg-gray-100 -mx-5 md:-mx-6 -mb-5 md:-mb-6 mt-3 border-t border-gray-200">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            className="w-5 h-5 mr-1"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
-            />
-          </svg>
-
-          <span>
-            {t('Need help? View our')}{' '}
-            <a
-              className="inline-flex items-center text-main hover:text-main underline font-semibold hover:text-primary-600 transition"
-              target="_blank"
-              rel="noreferrer"
-              href={`https://developers.apideck.com/connectors/${connection.service_id}/docs/consumer+connection`}
-            >
-              {t('Connection Guide')}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                className="w-4 h-4 ml-1"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                />
-              </svg>
-            </a>
-          </span>
-        </div>
-      )}
     </>
   );
 };
