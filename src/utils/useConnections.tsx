@@ -87,21 +87,16 @@ export const ConnectionsProvider = ({
   const singleConnectionMode =
     unifiedApi?.length && serviceId?.length ? true : false;
 
-  const headers = useMemo(() => {
-    const baseHeaders: Record<string, string> = {
+  const headers = useMemo(
+    () => ({
       Authorization: `Bearer ${token}`,
       'X-APIDECK-APP-ID': appId,
       'X-APIDECK-CONSUMER-ID': consumerId,
       'X-APIDECK-AUTH-TYPE': 'JWT',
       'Content-Type': 'application/json',
-    };
-
-    if (unifyBaseUrl.includes('localhost')) {
-      baseHeaders['Access-Control-Request-Private-Network'] = 'true';
-    }
-
-    return baseHeaders;
-  }, [token, appId, consumerId, unifyBaseUrl]);
+    }),
+    [token, appId, consumerId]
+  );
 
   const fetcher = async (url: string) => {
     const response = await fetch(url, { headers });
