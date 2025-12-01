@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection } from '../types/Connection';
+import { hasApplicableScopes } from '../utils/hasApplicableScopes';
 
 interface Props {
   connection: Connection;
@@ -16,18 +17,13 @@ const StatusBadge = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const {
-    state,
-    integration_state,
-    enabled,
-    consent_state,
-    application_data_scopes,
-  } = connection;
+  const { state, integration_state, enabled, consent_state } = connection;
 
-  const scopesEnabled = application_data_scopes?.enabled;
+  const applicableScopes = hasApplicableScopes(connection);
 
   const statusText = () => {
-    if (scopesEnabled) {
+    // Only show consent-related states if there are actually applicable scopes
+    if (applicableScopes) {
       switch (consent_state) {
         case 'pending':
           return t('Permission required');
@@ -53,7 +49,7 @@ const StatusBadge = ({
   };
 
   const isConsentActionRequired =
-    scopesEnabled &&
+    applicableScopes &&
     (consent_state === 'denied' ||
       consent_state === 'requires_reconsent' ||
       consent_state === 'revoked');
@@ -63,7 +59,7 @@ const StatusBadge = ({
     (state === 'added' ||
       state === 'authorized' ||
       state === 'invalid' ||
-      (scopesEnabled && consent_state === 'pending'));
+      (applicableScopes && consent_state === 'pending'));
 
   const isConnected = enabled && state === 'callable';
   const isAvailableForConnection = state === 'available';
