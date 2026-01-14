@@ -186,6 +186,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
           isOpen={token && token?.length > 0 && isOpen}
           onClose={() => onCloseModal()}
           showAttribution={showAttribution}
+          applicationId={session?.application_id}
         >
           <ToastProvider>
             <ConnectionsProvider
