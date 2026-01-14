@@ -24,9 +24,9 @@ const ApideckIcon = () => (
   <img
     src="https://www.apideck.com/apideck-icon.png"
     alt="Apideck Logo"
-    width={20}
-    height={20}
-    className="flex-shrink-0 rounded"
+    width={22}
+    height={22}
+    className="flex-shrink-0 rounded-full"
     style={{ display: 'inline-block' }}
     loading="eager"
   />
@@ -124,7 +124,7 @@ const Modal: any = ({
               leaveTo="opacity-0 scale-95"
             >
               <div
-                className="inline-block w-full text-left max-w-sm p-6 my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-lg ring-1 ring-gray-200/50"
+                className="inline-block w-full text-left max-w-sm p-6 my-12 lg:my-16 align-middle transition-all transform bg-white shadow-xl rounded-lg"
                 id="react-vault-modal"
               >
                 {children}
@@ -141,7 +141,7 @@ const Modal: any = ({
               leaveTo="opacity-0 translate-y-4"
             >
               <a
-                className="fixed bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 xl:bottom-6 2xl:bottom-8 group inline-flex items-center gap-1.5 px-3 py-2 bg-white/95 backdrop-blur-sm rounded-full shadow-lg ring-1 ring-gray-200/50 text-gray-700 text-sm font-medium transition-shadow duration-200 ease-out hover:shadow-xl"
+                className="fixed bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 xl:bottom-6 group/attribution inline-flex items-center gap-1.5 px-2 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-lg ring-1 ring-gray-200/50 text-gray-700 text-sm font-medium transition-shadow duration-200 ease-out hover:shadow-xl focus:outline-none"
                 href={`https://apideck.com?utm_source=vault&utm_medium=referral&utm_campaign=powered_by${
                   applicationId ? `&customer_ref=${applicationId}` : ''
                 }`}
@@ -150,7 +150,7 @@ const Modal: any = ({
               >
                 <ApideckIcon />
                 <span className="text-gray-500">Powered by</span>
-                <ApideckLogoText className="-ml-0.5 group-hover:text-primary-600 transition-colors duration-200 ease-out" />
+                <ApideckLogoText className="-ml-0.5 group-hover/attribution:text-primary-600 transition-colors duration-200 ease-out" />
               </a>
             </Transition>
           </div>
