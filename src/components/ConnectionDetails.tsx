@@ -8,6 +8,7 @@ import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { authorizationVariablesRequired } from '../utils/authorizationVariablesRequired';
 import { getApiName } from '../utils/getApiName';
+import { hasApplicableScopes } from '../utils/hasApplicableScopes';
 import { hasMissingRequiredFields } from '../utils/hasMissingRequiredFields';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
@@ -62,21 +63,7 @@ const ConnectionDetails = ({
 
   if (!selectedConnection) return null;
 
-  const hasApplicableScopes = useMemo(() => {
-    const scopes = selectedConnection?.application_data_scopes;
-    if (!scopes?.enabled || !scopes.resources) {
-      return false;
-    }
-
-    if (typeof scopes.resources === 'string') {
-      return scopes.resources === '*';
-    }
-
-    // Check if any resource has fields with actual permissions
-    return Object.values(scopes.resources).some((resource) =>
-      Object.values(resource).some((field) => field.read || field.write)
-    );
-  }, [selectedConnection]);
+  const applicableScopes = hasApplicableScopes(selectedConnection);
 
   const {
     enabled,
@@ -325,7 +312,7 @@ const ConnectionDetails = ({
   ];
 
   if (
-    (hasApplicableScopes &&
+    (applicableScopes &&
       statesRequiringConsent.includes(selectedConnection.consent_state)) ||
     currentView === ConnectionViewType.ConsentScreen
   ) {
