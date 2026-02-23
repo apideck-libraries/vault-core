@@ -1,0 +1,736 @@
+{
+  "generated": "2026-02-20",
+  "repo": "apideck-libraries/vault-core",
+  "total_open_prs": 12,
+  "total_open_alerts": 62,
+  "production": [
+    {
+      "pr": 121,
+      "package": "lodash",
+      "current": "4.17.21",
+      "target": "4.17.23",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "formik -> lodash (also @storybook/csf, @testing-library/jest-dom, source-map-explorer, telejson, etc.)",
+      "alerts_covered": [
+        {
+          "alert": 122,
+          "cve": "CVE-2025-13465",
+          "severity": "medium",
+          "summary": "Prototype Pollution in _.unset and _.omit"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/121"
+    },
+    {
+      "pr": 120,
+      "package": "lodash-es",
+      "current": "4.17.21",
+      "target": "4.17.23",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "formik -> lodash-es",
+      "alerts_covered": [
+        {
+          "alert": 121,
+          "cve": "CVE-2025-13465",
+          "severity": "medium",
+          "summary": "Prototype Pollution in _.unset and _.omit"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/120"
+    },
+    {
+      "pr": 109,
+      "package": "@babel/runtime",
+      "current": "7.16.7",
+      "target": "7.27.1",
+      "bump": "minor",
+      "transitive": true,
+      "parent_chain": "react-select -> @babel/runtime (also @testing-library/react, polished, history, etc.)",
+      "alerts_covered": [
+        {
+          "alert": 100,
+          "cve": "CVE-2025-27789",
+          "severity": "medium",
+          "summary": "Inefficient RegExp complexity in generated code with .replace when transpiling named capturing groups"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/109"
+    }
+  ],
+  "development": [
+    {
+      "pr": 124,
+      "package": "pbkdf2",
+      "current": "3.1.2",
+      "target": "3.1.5",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "webpack -> node-libs-browser -> crypto-browserify -> pbkdf2",
+      "alerts_covered": [
+        {
+          "alert": 132,
+          "cve": "CVE-2025-6547",
+          "severity": "critical",
+          "summary": "pbkdf2 silently disregards Uint8Array input, returning static keys"
+        },
+        {
+          "alert": 105,
+          "cve": "CVE-2025-6545",
+          "severity": "critical",
+          "summary": "pbkdf2 returns predictable uninitialized/zero-filled memory for non-normalized or unimplemented algos"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/124"
+    },
+    {
+      "pr": 119,
+      "package": "min-document",
+      "current": "2.19.0",
+      "target": "2.19.2",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "@storybook/addon-info -> global -> min-document",
+      "alerts_covered": [
+        {
+          "alert": 112,
+          "cve": "CVE-2025-57352",
+          "severity": "low",
+          "summary": "min-document vulnerable to prototype pollution"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/119"
+    },
+    {
+      "pr": 117,
+      "package": "js-yaml",
+      "current": "3.14.1",
+      "target": "3.14.2",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "tsdx -> eslint -> js-yaml (also @jest/transform -> babel-plugin-istanbul -> @istanbuljs/load-nyc-config -> js-yaml)",
+      "alerts_covered": [
+        {
+          "alert": 114,
+          "cve": "CVE-2025-64718",
+          "severity": "medium",
+          "summary": "js-yaml has prototype pollution in merge (<<)"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/117"
+    },
+    {
+      "pr": 115,
+      "package": "form-data",
+      "current": "3.0.1",
+      "target": "3.0.4",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "@storybook/react -> @storybook/core -> @storybook/core-server -> @types/node-fetch -> form-data (also tsdx -> jest -> jsdom -> form-data)",
+      "alerts_covered": [
+        {
+          "alert": 108,
+          "cve": "CVE-2025-7783",
+          "severity": "critical",
+          "summary": "form-data uses unsafe random function for choosing boundary"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/115"
+    },
+    {
+      "pr": 114,
+      "package": "sha.js",
+      "current": "2.4.11",
+      "target": "2.4.12",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "webpack -> node-libs-browser -> crypto-browserify -> create-hash -> sha.js (also create-hmac, pbkdf2)",
+      "alerts_covered": [
+        {
+          "alert": 111,
+          "cve": "CVE-2025-9288",
+          "severity": "critical",
+          "summary": "sha.js missing type checks leading to hash rewind and passing on crafted data"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/114"
+    },
+    {
+      "pr": 113,
+      "package": "cipher-base",
+      "current": "1.0.4",
+      "target": "1.0.6",
+      "bump": "patch",
+      "transitive": true,
+      "parent_chain": "webpack -> node-libs-browser -> crypto-browserify -> create-hash -> cipher-base (also create-hmac, browserify-aes, browserify-des)",
+      "alerts_covered": [
+        {
+          "alert": 110,
+          "cve": "CVE-2025-9287",
+          "severity": "critical",
+          "summary": "cipher-base missing type checks leading to hash rewind and passing on crafted data"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/113"
+    },
+    {
+      "pr": 108,
+      "package": "elliptic",
+      "current": "6.5.4",
+      "target": "6.6.1",
+      "bump": "minor",
+      "transitive": true,
+      "parent_chain": "webpack -> node-libs-browser -> crypto-browserify -> create-ecdh -> elliptic (also browserify-sign)",
+      "alerts_covered": [
+        {
+          "alert": 118,
+          "cve": "CVE-2025-14505",
+          "severity": "low",
+          "summary": "Elliptic Uses a Cryptographic Primitive with a Risky Implementation"
+        },
+        {
+          "alert": 95,
+          "cve": null,
+          "severity": "critical",
+          "summary": "Elliptic's private key extraction in ECDSA upon signing a malformed input"
+        },
+        {
+          "alert": 86,
+          "cve": "CVE-2024-48948",
+          "severity": "low",
+          "summary": "Valid ECDSA signatures erroneously rejected"
+        },
+        {
+          "alert": 82,
+          "cve": "CVE-2024-48949",
+          "severity": "low",
+          "summary": "Elliptic's verify function omits uniqueness validation"
+        },
+        {
+          "alert": 71,
+          "cve": "CVE-2024-42460",
+          "severity": "low",
+          "summary": "ECDSA missing check for whether leading bit of r and s is zero"
+        },
+        {
+          "alert": 70,
+          "cve": "CVE-2024-42461",
+          "severity": "low",
+          "summary": "Elliptic allows BER-encoded signatures"
+        },
+        {
+          "alert": 69,
+          "cve": "CVE-2024-42459",
+          "severity": "low",
+          "summary": "EDDSA missing signature length check"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/108"
+    },
+    {
+      "pr": 107,
+      "package": "store2",
+      "current": "2.13.1",
+      "target": "2.14.4",
+      "bump": "minor",
+      "transitive": true,
+      "parent_chain": "@storybook/api -> store2 (also @storybook/client-api, @storybook/ui)",
+      "alerts_covered": [
+        {
+          "alert": 92,
+          "cve": "CVE-2024-57556",
+          "severity": "medium",
+          "summary": "Cross Site Scripting vulnerability in store2"
+        }
+      ],
+      "url": "https://github.com/apideck-libraries/vault-core/pull/107"
+    }
+  ],
+  "stale": [
+    {
+      "pr": 106,
+      "package": "markdown-to-jsx",
+      "reason": "PR targets storybook's transitive copy (^7.1.3 resolved to 7.1.6 -> 7.4.0), but the direct production dependency is ^7.7.6 (resolved to 7.7.15) which already includes the security fix from 7.4.0 (CVE-2024-21535). The storybook copy is dev-only and the XSS fix applies to rendered markdown output, making this PR low-priority.",
+      "current_storybook_version": "7.1.6",
+      "pr_target_version": "7.4.0",
+      "direct_dep_version": "7.7.15",
+      "url": "https://github.com/apideck-libraries/vault-core/pull/106"
+    }
+  ],
+  "actions": [],
+  "python": [],
+  "uncovered_alerts": [
+    {
+      "alert": 136,
+      "package": "minimatch",
+      "fix": "10.2.1",
+      "severity": "high",
+      "cve": "CVE-2026-26996",
+      "direct": false,
+      "parent": "tsdx -> eslint -> minimatch (also rimraf -> glob, @storybook, source-map-explorer, @jest/transform)",
+      "summary": "ReDoS via repeated wildcards with non-matching literal in pattern",
+      "note": "Fix requires minimatch >=10.2.1 which is a major version jump from 3.1.2. Not feasible without upgrading tsdx/eslint."
+    },
+    {
+      "alert": 135,
+      "package": "jsonpath",
+      "fix": "unknown",
+      "severity": "high",
+      "cve": "CVE-2026-1615",
+      "direct": false,
+      "parent": "@apideck/wayfinder -> jsonpath",
+      "summary": "Arbitrary Code Injection via Unsafe Evaluation of JSON Path Expressions",
+      "note": "No fix version available. Requires upstream @apideck/wayfinder to migrate away from jsonpath."
+    },
+    {
+      "alert": 134,
+      "package": "tar",
+      "fix": "7.5.8",
+      "severity": "high",
+      "cve": "CVE-2026-26960",
+      "direct": false,
+      "parent": "terser-webpack-plugin -> cacache -> tar",
+      "summary": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+      "note": "Current version 6.2.1. Fix requires tar >=7.5.3 (major). Multiple CVEs: CVE-2026-26960, CVE-2026-24842, CVE-2026-23950, CVE-2026-23745."
+    },
+    {
+      "alert": 131,
+      "package": "qs",
+      "fix": "6.14.2",
+      "severity": "low",
+      "cve": "CVE-2026-2391",
+      "direct": false,
+      "parent": "dev transitive (express/body-parser chain)",
+      "summary": "qs arrayLimit bypass in comma parsing allows denial of service"
+    },
+    {
+      "alert": 128,
+      "package": "webpack",
+      "fix": "5.104.0",
+      "severity": "low",
+      "cve": "CVE-2025-68157",
+      "direct": false,
+      "parent": "storybook/tsdx -> webpack (webpack 4.x installed, fix requires 5.x)",
+      "summary": "webpack buildHttp HttpUriPlugin allowedUris bypass via HTTP redirects",
+      "note": "Multiple webpack CVEs (also #127, #74, #46). All require webpack 5.x but storybook/tsdx use webpack 4.x. Not feasible without major toolchain upgrade."
+    },
+    {
+      "alert": 127,
+      "package": "webpack",
+      "fix": "5.104.1",
+      "severity": "low",
+      "cve": "CVE-2025-68458",
+      "direct": false,
+      "parent": "storybook/tsdx -> webpack 4.x",
+      "summary": "webpack buildHttp: allowedUris allow-list bypass via URL userinfo (@) leading to build-time SSRF behavior"
+    },
+    {
+      "alert": 123,
+      "package": "tar",
+      "fix": "7.5.7",
+      "severity": "high",
+      "cve": "CVE-2026-24842",
+      "direct": false,
+      "parent": "terser-webpack-plugin -> cacache -> tar",
+      "summary": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal"
+    },
+    {
+      "alert": 120,
+      "package": "tar",
+      "fix": "7.5.4",
+      "severity": "high",
+      "cve": "CVE-2026-23950",
+      "direct": false,
+      "parent": "terser-webpack-plugin -> cacache -> tar",
+      "summary": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS"
+    },
+    {
+      "alert": 119,
+      "package": "tar",
+      "fix": "7.5.3",
+      "severity": "high",
+      "cve": "CVE-2026-23745",
+      "direct": false,
+      "parent": "terser-webpack-plugin -> cacache -> tar",
+      "summary": "node-tar Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization"
+    },
+    {
+      "alert": 117,
+      "package": "react-router",
+      "fix": "6.30.2",
+      "severity": "medium",
+      "cve": "CVE-2025-68470",
+      "direct": false,
+      "parent": "storybook -> react-router (dev transitive)",
+      "summary": "React Router has unexpected external redirect via untrusted paths"
+    },
+    {
+      "alert": 116,
+      "package": "qs",
+      "fix": "6.14.1",
+      "severity": "high",
+      "cve": "CVE-2025-15284",
+      "direct": false,
+      "parent": "dev transitive (express/body-parser chain)",
+      "summary": "qs arrayLimit bypass in bracket notation allows DoS via memory exhaustion"
+    },
+    {
+      "alert": 109,
+      "package": "tmp",
+      "fix": "0.2.4",
+      "severity": "low",
+      "cve": "CVE-2025-54798",
+      "direct": false,
+      "parent": "@apideck/components -> patch-package -> tmp (also tsdx -> eslint -> inquirer -> external-editor -> tmp)",
+      "summary": "tmp allows arbitrary temporary file/directory write via symbolic link dir parameter"
+    },
+    {
+      "alert": 107,
+      "package": "on-headers",
+      "fix": "1.1.0",
+      "severity": "low",
+      "cve": "CVE-2025-7339",
+      "direct": false,
+      "parent": "dev transitive (express chain)",
+      "summary": "on-headers is vulnerable to http response header manipulation"
+    },
+    {
+      "alert": 106,
+      "package": "brace-expansion",
+      "fix": "1.1.12",
+      "severity": "low",
+      "cve": "CVE-2025-5889",
+      "direct": false,
+      "parent": "minimatch -> brace-expansion",
+      "summary": "brace-expansion Regular Expression Denial of Service vulnerability"
+    },
+    {
+      "alert": 98,
+      "package": "prismjs",
+      "fix": "1.30.0",
+      "severity": "medium",
+      "cve": "CVE-2024-53382",
+      "direct": false,
+      "parent": "storybook -> prismjs (dev transitive)",
+      "summary": "PrismJS DOM Clobbering vulnerability"
+    },
+    {
+      "alert": 96,
+      "package": "serialize-javascript",
+      "fix": "6.0.2",
+      "severity": "medium",
+      "cve": "CVE-2024-11831",
+      "direct": false,
+      "parent": "terser-webpack-plugin -> serialize-javascript (dev transitive)",
+      "summary": "Cross-site Scripting (XSS) in serialize-javascript"
+    },
+    {
+      "alert": 93,
+      "package": "esbuild",
+      "fix": "0.25.0",
+      "severity": "medium",
+      "cve": null,
+      "direct": false,
+      "parent": "dev transitive",
+      "summary": "esbuild enables any website to send any requests to the development server and read the response"
+    },
+    {
+      "alert": 89,
+      "package": "cross-spawn",
+      "fix": "6.0.6",
+      "severity": "high",
+      "cve": "CVE-2024-21538",
+      "direct": false,
+      "parent": "tsdx -> eslint -> cross-spawn (also @apideck/components -> patch-package, jest-haste-map -> sane -> execa)",
+      "summary": "Regular Expression Denial of Service (ReDoS) in cross-spawn"
+    },
+    {
+      "alert": 84,
+      "package": "markdown-to-jsx",
+      "fix": "7.4.0",
+      "severity": "medium",
+      "cve": "CVE-2024-21535",
+      "direct": false,
+      "parent": "@storybook/components -> markdown-to-jsx (^7.1.3 resolved to 7.1.6, dev-only copy)",
+      "summary": "Cross site scripting in markdown-to-jsx",
+      "note": "Direct production dep is already at 7.7.15 (safe). This alert only affects the storybook transitive copy. PR #106 covers this but is marked stale."
+    },
+    {
+      "alert": 83,
+      "package": "cookie",
+      "fix": "0.7.0",
+      "severity": "low",
+      "cve": "CVE-2024-47764",
+      "direct": false,
+      "parent": "express -> cookie (dev transitive)",
+      "summary": "cookie accepts cookie name, path, and domain with out of bounds characters"
+    },
+    {
+      "alert": 82,
+      "package": "elliptic",
+      "fix": "6.5.6",
+      "severity": "low",
+      "cve": "CVE-2024-48949",
+      "direct": false,
+      "parent": "webpack -> node-libs-browser -> crypto-browserify -> elliptic",
+      "summary": "Elliptic's verify function omits uniqueness validation",
+      "note": "Covered by PR #108 (elliptic -> 6.6.1)"
+    },
+    {
+      "alert": 81,
+      "package": "rollup",
+      "fix": "2.79.2",
+      "severity": "high",
+      "cve": "CVE-2024-47068",
+      "direct": false,
+      "parent": "dev transitive (build toolchain)",
+      "summary": "DOM Clobbering Gadget found in rollup bundled scripts that leads to XSS"
+    },
+    {
+      "alert": 79,
+      "package": "send",
+      "fix": "0.19.0",
+      "severity": "low",
+      "cve": "CVE-2024-43799",
+      "direct": false,
+      "parent": "express -> send (dev transitive, storybook dev server)",
+      "summary": "send vulnerable to template injection that can lead to XSS"
+    },
+    {
+      "alert": 78,
+      "package": "serve-static",
+      "fix": "1.16.0",
+      "severity": "low",
+      "cve": "CVE-2024-43800",
+      "direct": false,
+      "parent": "express -> serve-static (dev transitive, storybook dev server)",
+      "summary": "serve-static vulnerable to template injection that can lead to XSS"
+    },
+    {
+      "alert": 77,
+      "package": "express",
+      "fix": "4.20.0",
+      "severity": "low",
+      "cve": "CVE-2024-43796",
+      "direct": false,
+      "parent": "storybook -> express (dev transitive)",
+      "summary": "express vulnerable to XSS via response.redirect()"
+    },
+    {
+      "alert": 76,
+      "package": "body-parser",
+      "fix": "1.20.3",
+      "severity": "high",
+      "cve": "CVE-2024-45590",
+      "direct": false,
+      "parent": "express -> body-parser (dev transitive, storybook dev server)",
+      "summary": "body-parser vulnerable to denial of service when url encoding is enabled"
+    },
+    {
+      "alert": 74,
+      "package": "webpack",
+      "fix": "5.94.0",
+      "severity": "medium",
+      "cve": "CVE-2024-43788",
+      "direct": false,
+      "parent": "storybook/tsdx -> webpack 4.x",
+      "summary": "Webpack's AutoPublicPathRuntimeModule has a DOM Clobbering Gadget that leads to XSS"
+    },
+    {
+      "alert": 72,
+      "package": "micromatch",
+      "fix": "4.0.8",
+      "severity": "medium",
+      "cve": "CVE-2024-4067",
+      "direct": false,
+      "parent": "@jest/transform -> micromatch (also jest-haste-map, fast-glob, tsdx -> ts-jest)",
+      "summary": "Regular Expression Denial of Service (ReDoS) in micromatch"
+    },
+    {
+      "alert": 68,
+      "package": "ws",
+      "fix": "8.17.1",
+      "severity": "high",
+      "cve": "CVE-2024-37890",
+      "direct": false,
+      "parent": "storybook -> ws (dev transitive)",
+      "summary": "ws affected by a DoS when handling a request with many HTTP headers"
+    },
+    {
+      "alert": 67,
+      "package": "ws",
+      "fix": "7.5.10",
+      "severity": "high",
+      "cve": "CVE-2024-37890",
+      "direct": false,
+      "parent": "storybook -> ws (dev transitive, different major version range)",
+      "summary": "ws affected by a DoS when handling a request with many HTTP headers"
+    },
+    {
+      "alert": 66,
+      "package": "braces",
+      "fix": "3.0.3",
+      "severity": "high",
+      "cve": "CVE-2024-4068",
+      "direct": false,
+      "parent": "webpack -> micromatch -> braces (also chokidar, jest-haste-map -> sane)",
+      "summary": "Uncontrolled resource consumption in braces"
+    },
+    {
+      "alert": 65,
+      "package": "ip",
+      "fix": "unknown",
+      "severity": "high",
+      "cve": "CVE-2024-29415",
+      "direct": false,
+      "parent": "dev transitive (webpack-dev-server chain)",
+      "summary": "ip SSRF improper categorization in isPublic"
+    },
+    {
+      "alert": 61,
+      "package": "webpack-dev-middleware",
+      "fix": "5.3.4",
+      "severity": "high",
+      "cve": "CVE-2024-29180",
+      "direct": false,
+      "parent": "storybook -> webpack-dev-middleware (dev transitive)",
+      "summary": "Path traversal in webpack-dev-middleware"
+    },
+    {
+      "alert": 55,
+      "package": "postcss",
+      "fix": "8.4.31",
+      "severity": "medium",
+      "cve": "CVE-2023-44270",
+      "direct": false,
+      "parent": "dev transitive (postcss is also a direct dev dep at ^8.4.31 which should be safe; transitive copies may differ)",
+      "summary": "PostCSS line return parsing error"
+    },
+    {
+      "alert": 46,
+      "package": "webpack",
+      "fix": "5.76.0",
+      "severity": "critical",
+      "cve": "CVE-2023-28154",
+      "direct": false,
+      "parent": "storybook/tsdx -> webpack 4.x",
+      "summary": "Cross-realm object access in Webpack 5",
+      "note": "Affects webpack 5 only. Storybook and tsdx use webpack 4. May not be applicable."
+    },
+    {
+      "alert": 43,
+      "package": "json5",
+      "fix": "2.2.2",
+      "severity": "high",
+      "cve": "CVE-2022-46175",
+      "direct": false,
+      "parent": "dev transitive via tsconfig/babel config parsing",
+      "summary": "Prototype Pollution in JSON5 via Parse Method"
+    },
+    {
+      "alert": 28,
+      "package": "loader-utils",
+      "fix": "2.0.3",
+      "severity": "critical",
+      "cve": "CVE-2022-37601",
+      "direct": false,
+      "parent": "babel-loader -> loader-utils, style-loader -> loader-utils",
+      "summary": "Prototype pollution in webpack loader-utils"
+    },
+    {
+      "alert": 20,
+      "package": "ansi-regex",
+      "fix": "3.0.1",
+      "severity": "high",
+      "cve": "CVE-2021-3807",
+      "direct": false,
+      "parent": "dev transitive (strip-ansi chain)",
+      "summary": "Inefficient Regular Expression Complexity in chalk/ansi-regex"
+    },
+    {
+      "alert": 19,
+      "package": "ansi-regex",
+      "fix": "4.1.1",
+      "severity": "high",
+      "cve": "CVE-2021-3807",
+      "direct": false,
+      "parent": "dev transitive (strip-ansi chain, different version range)",
+      "summary": "Inefficient Regular Expression Complexity in chalk/ansi-regex"
+    },
+    {
+      "alert": 17,
+      "package": "prismjs",
+      "fix": "1.27.0",
+      "severity": "high",
+      "cve": "CVE-2022-23647",
+      "direct": false,
+      "parent": "storybook -> prismjs (dev transitive)",
+      "summary": "Cross-site Scripting in Prism"
+    },
+    {
+      "alert": 16,
+      "package": "node-fetch",
+      "fix": "2.6.7",
+      "severity": "high",
+      "cve": "CVE-2022-0235",
+      "direct": false,
+      "parent": "dev transitive",
+      "summary": "node-fetch forwards secure headers to untrusted sites"
+    },
+    {
+      "alert": 5,
+      "package": "node-notifier",
+      "fix": "8.0.1",
+      "severity": "medium",
+      "cve": "CVE-2020-7789",
+      "direct": false,
+      "parent": "dev transitive (jest notification chain)",
+      "summary": "OS Command Injection in node-notifier"
+    },
+    {
+      "alert": 4,
+      "package": "highlight.js",
+      "fix": "10.4.1",
+      "severity": "medium",
+      "cve": null,
+      "direct": false,
+      "parent": "storybook -> highlight.js (dev transitive)",
+      "summary": "ReDOS vulnerabilities: multiple grammars"
+    },
+    {
+      "alert": 3,
+      "package": "highlight.js",
+      "fix": "9.18.2",
+      "severity": "medium",
+      "cve": "CVE-2020-26237",
+      "direct": false,
+      "parent": "storybook -> highlight.js (dev transitive)",
+      "summary": "Prototype Pollution in highlight.js"
+    },
+    {
+      "alert": 1,
+      "package": "prismjs",
+      "fix": "1.21.0",
+      "severity": "high",
+      "cve": "CVE-2020-15138",
+      "direct": false,
+      "parent": "storybook -> prismjs (dev transitive)",
+      "summary": "Cross-Site Scripting in Prism"
+    }
+  ],
+  "major_bumps": [],
+  "resolutions": {
+    "jest-environment-jsdom": "^26.0.1"
+  },
+  "notes": [
+    "All 12 Dependabot PRs target transitive dependencies in yarn.lock, not direct dependencies in package.json.",
+    "No GitHub Actions or Python Dependabot PRs are open.",
+    "The markdown-to-jsx PR (#106) is effectively stale: it upgrades the storybook transitive copy from 7.1.6 to 7.4.0, but the direct production dep is already at 7.7.15.",
+    "Many uncovered alerts trace back to storybook (next channel) and tsdx, which are deeply nested dev toolchain dependencies. Upgrading storybook and tsdx would resolve many of these.",
+    "The jsonpath alert (#135) is in the production dependency chain (@apideck/wayfinder -> jsonpath) with no known fix version. This is a high-severity issue requiring upstream action.",
+    "The single resolutions entry (jest-environment-jsdom) does not conflict with any current Dependabot PRs.",
+    "No PRs involve major version bumps, so no breaking change research was needed.",
+    "The repo uses storybook 'next' channel and tsdx 0.14.x, both of which pull in webpack 4 and many outdated transitive deps. A storybook + tsdx upgrade would resolve the majority of uncovered alerts."
+  ]
+}
