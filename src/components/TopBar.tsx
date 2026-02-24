@@ -62,6 +62,7 @@ const TopBar = ({
       enabled,
       form_fields,
       auth_type,
+      oauth_grant_type,
       configurable_resources,
       authorize_url,
       revoke_url,
@@ -210,7 +211,7 @@ const TopBar = ({
 
     if (
       (state === 'authorized' || state === 'callable') &&
-      auth_type === 'oauth2' &&
+      (auth_type === 'oauth2' || !!oauth_grant_type) &&
       isActionAllowed('reauthorize')
     ) {
       options.push({
