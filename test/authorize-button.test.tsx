@@ -11,10 +11,7 @@ import { Vault } from '../src/components/Vault';
 import { act } from 'react-dom/test-utils';
 import { CONFIG } from './responses/config';
 
-const makeConnection = (
-  serviceId: string,
-  overrides: Record<string, any>
-) => ({
+const makeConnection = (serviceId: string, overrides: Record<string, any>) => ({
   id: `ecommerce+${serviceId}`,
   name: 'Test Connector',
   tag_line: 'Test connector for authorize button tests',

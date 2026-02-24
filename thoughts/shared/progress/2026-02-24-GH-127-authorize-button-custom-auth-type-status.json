@@ -5,6 +5,6 @@
   "phases": [
     {"id": 1, "name": "Type Update — Add OAuthGrantType to Connection Interface", "status": "complete"},
     {"id": 2, "name": "Write Tests for Widened Authorize Gate (TDD - RED)", "status": "complete"},
-    {"id": 3, "name": "Widen Authorize Gates (TDD - GREEN)", "status": "in_progress"}
+    {"id": 3, "name": "Widen Authorize Gates (TDD - GREEN)", "status": "complete"}
   ]
 }
