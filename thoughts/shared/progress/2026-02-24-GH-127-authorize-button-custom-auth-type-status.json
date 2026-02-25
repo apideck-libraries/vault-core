@@ -1,0 +1,10 @@
+{
+  "plan": "2026-02-24-GH-127-authorize-button-custom-auth-type.md",
+  "current_phase": 3,
+  "total_phases": 3,
+  "phases": [
+    {"id": 1, "name": "Type Update — Add OAuthGrantType to Connection Interface", "status": "complete"},
+    {"id": 2, "name": "Write Tests for Widened Authorize Gate (TDD - RED)", "status": "complete"},
+    {"id": 3, "name": "Widen Authorize Gates (TDD - GREEN)", "status": "complete"}
+  ]
+}

@@ -60,6 +60,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
       enabled,
       form_fields,
       auth_type,
+      oauth_grant_type,
       configurable_resources,
       custom_mappings,
       authorize_url,
@@ -255,7 +256,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
     // Re-authorize button
     if (
       (state === 'authorized' || state === 'callable') &&
-      auth_type === 'oauth2' &&
+      (auth_type === 'oauth2' || !!oauth_grant_type) &&
       isActionAllowed('reauthorize')
     ) {
       buttons.push({

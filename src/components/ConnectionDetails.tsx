@@ -69,6 +69,7 @@ const ConnectionDetails = ({
     enabled,
     state,
     auth_type,
+    oauth_grant_type,
     name,
     form_fields,
     unified_api,
@@ -103,7 +104,7 @@ const ConnectionDetails = ({
   const shouldShowAuthorizeButton =
     enabled &&
     state !== 'callable' &&
-    auth_type === 'oauth2' &&
+    (auth_type === 'oauth2' || !!oauth_grant_type) &&
     !requiredAuthVariables &&
     !(state === 'authorized' && hasFormFields); // Don't show authorize if already authorized with form fields - they need to configure instead
 

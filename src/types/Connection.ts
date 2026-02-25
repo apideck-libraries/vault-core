@@ -35,6 +35,11 @@ export type IntegrationState =
   | 'disabled'
   | 'configured';
 
+export type OAuthGrantType =
+  | 'authorization_code'
+  | 'client_credentials'
+  | 'password';
+
 export interface Connection {
   id: string;
   service_id: string;
@@ -45,6 +50,7 @@ export interface Connection {
   website?: string;
   tag_line?: string;
   auth_type?: 'oauth2' | 'apiKey' | 'basic' | 'custom' | 'none';
+  oauth_grant_type?: OAuthGrantType;
   enabled?: boolean;
   state: ConnectionState;
   integration_state?: IntegrationState;
