@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
-import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
+import { generateNonce, storeNonce, retrieveAndClearNonce } from '../utils/oauthNonce';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 
@@ -23,17 +23,13 @@ const AuthorizeButton = ({
   const { connectionsUrl, headers } = useConnections();
   const { addToast } = useToast();
   const {
-    session: { theme, redirect_uri },
+    session: { theme },
   } = useSession();
   const { mutate } = useSWRConfig();
   const { t } = useTranslation();
 
   const isAuthorizationEnabled =
     connection.integration_state !== 'needs_configuration' && !isLoading;
-
-  const authorizeUrl = `${connection.authorize_url}&redirect_uri=${
-    redirect_uri ?? REDIRECT_URL
-  }`;
 
   const handleChildWindowClose = () => {
     mutate(
@@ -89,17 +85,57 @@ const AuthorizeButton = ({
         setIsLoading(false);
       }
     } else {
-      const child = window.open(
-        authorizeUrl,
-        '_blank',
-        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-      );
-      const timer = setInterval(() => {
-        if (child?.closed) {
-          clearInterval(timer);
-          handleChildWindowClose();
+      const serviceId = connection.service_id;
+      const nonce = generateNonce();
+      storeNonce(serviceId, nonce);
+
+      try {
+        const response: any = await fetch(
+          `${connectionsUrl}/${connection.unified_api}/${serviceId}/authorize`,
+          {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ nonce }),
+          }
+        );
+        const data = await response.json();
+        if (data.error) {
+          retrieveAndClearNonce(serviceId);
+          addToast({
+            title: t('Something went wrong'),
+            description: data.message,
+            type: 'error',
+            autoClose: true,
+          });
+          setIsLoading(false);
+          return;
         }
-      }, 500);
+
+        const child = window.open(
+          data.data?.authorize_url,
+          '_blank',
+          'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+        );
+        const timer = setInterval(() => {
+          if (child?.closed) {
+            clearInterval(timer);
+            // If nonce is still in sessionStorage, postMessage was never received
+            retrieveAndClearNonce(serviceId);
+            handleChildWindowClose();
+          }
+        }, 500);
+      } catch (error) {
+        retrieveAndClearNonce(serviceId);
+        addToast({
+          title: t('Something went wrong'),
+          description: t(
+            'The integration could not be authorized. Please make sure your settings are correct and try again.'
+          ),
+          type: 'error',
+          autoClose: true,
+        });
+        setIsLoading(false);
+      }
     }
   };
 

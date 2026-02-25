@@ -5,6 +5,7 @@ import { useSWRConfig } from 'swr';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings, VaultAction } from '../types/Session';
+import { generateNonce, storeNonce, retrieveAndClearNonce } from './oauthNonce';
 import { useConnections } from './useConnections';
 
 export const useConnectionActions = () => {
@@ -92,6 +93,71 @@ export const useConnectionActions = () => {
     }
   };
 
+  const handleAuthorize = async (
+    onConnectionChange?: (connection: Connection) => any
+  ) => {
+    if (!selectedConnection) return;
+
+    const { unified_api, service_id } = selectedConnection;
+    setIsReAuthorizing(true);
+    const nonce = generateNonce();
+    storeNonce(service_id, nonce);
+
+    try {
+      const response: any = await fetch(
+        `${connectionsUrl}/${unified_api}/${service_id}/authorize`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ nonce }),
+        }
+      );
+      const data = await response.json();
+      if (data.error) {
+        retrieveAndClearNonce(service_id);
+        addToast({
+          title: t('Something went wrong'),
+          description: data.message,
+          type: 'error',
+          autoClose: true,
+        });
+        setIsReAuthorizing(false);
+        return;
+      }
+
+      const child = window.open(
+        data.data?.authorize_url,
+        '_blank',
+        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+      );
+      const checkChild = () => {
+        if (child?.closed) {
+          clearInterval(timer);
+          // If nonce is still in sessionStorage, postMessage was never received
+          retrieveAndClearNonce(service_id);
+          mutate(
+            `${connectionsUrl}/${unified_api}/${service_id}`
+          ).then((result) => {
+            onConnectionChange?.(result.data);
+          });
+          setIsReAuthorizing(false);
+        }
+      };
+      const timer = setInterval(checkChild, 500);
+    } catch (error) {
+      retrieveAndClearNonce(service_id);
+      addToast({
+        title: t('Something went wrong'),
+        description: t(
+          'The integration could not be authorized. Please make sure your settings are correct and try again.'
+        ),
+        type: 'error',
+        autoClose: true,
+      });
+      setIsReAuthorizing(false);
+    }
+  };
+
   const handleDisable = async (
     setCurrentView?: (view: ConnectionViewType | undefined | null) => void,
     showButtonLayout?: boolean
@@ -137,6 +203,7 @@ export const useConnectionActions = () => {
   return {
     isReAuthorizing,
     handleRedirect,
+    handleAuthorize,
     handleDisable,
     handleEnable,
     isActionAllowedForSettings,
