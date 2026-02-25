@@ -12,6 +12,7 @@ import { ConnectionsProvider } from '../utils/useConnections';
 import { SessionProvider } from '../utils/useSession';
 import Modal from './Modal';
 import { ModalContent } from './ModalContent';
+import OAuthMessageHandler from './OAuthMessageHandler';
 
 export interface Props {
   /**
@@ -201,6 +202,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               serviceId={serviceId}
               unifyBaseUrl={unifyBaseUrl}
             >
+              <OAuthMessageHandler />
               <SessionProvider session={session}>
                 <ModalContent
                   onClose={onCloseModal}

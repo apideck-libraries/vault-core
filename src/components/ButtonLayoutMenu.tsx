@@ -47,6 +47,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
   const {
     isReAuthorizing,
     handleRedirect,
+    handleAuthorize,
     handleDisable,
     handleEnable,
     isActionAllowedForSettings,
@@ -94,10 +95,17 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const authorizeUrl = `${authorize_url}&redirect_uri=${
-            session?.redirect_uri ?? REDIRECT_URL
-          }`;
-          await handleRedirect(authorizeUrl, onConnectionChange);
+          if (
+            oauth_grant_type === 'client_credentials' ||
+            oauth_grant_type === 'password'
+          ) {
+            const authorizeUrl = `${authorize_url}&redirect_uri=${
+              session?.redirect_uri ?? REDIRECT_URL
+            }`;
+            await handleRedirect(authorizeUrl, onConnectionChange);
+          } else {
+            await handleAuthorize(onConnectionChange);
+          }
         },
         variant: 'primary',
         customComponent: (
@@ -278,10 +286,17 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const authorizeUrl = `${authorize_url}&redirect_uri=${
-            session?.redirect_uri ?? REDIRECT_URL
-          }`;
-          await handleRedirect(authorizeUrl, onConnectionChange);
+          if (
+            oauth_grant_type === 'client_credentials' ||
+            oauth_grant_type === 'password'
+          ) {
+            const authorizeUrl = `${authorize_url}&redirect_uri=${
+              session?.redirect_uri ?? REDIRECT_URL
+            }`;
+            await handleRedirect(authorizeUrl, onConnectionChange);
+          } else {
+            await handleAuthorize(onConnectionChange);
+          }
         },
         variant: 'outline',
       });
