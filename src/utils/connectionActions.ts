@@ -72,6 +72,44 @@ export const useConnectionActions = () => {
         setIsReAuthorizing(false);
       }
     } else {
+      const handleConfirmMessage = async (event: MessageEvent) => {
+        if (event.data?.type === 'oauth-confirm' && event.data.confirmToken) {
+          if (!connectionsUrl) return;
+          const confirmUrl = connectionsUrl.replace(
+            '/vault/connections',
+            '/vault/oauth/confirm'
+          );
+          try {
+            const response = await fetch(confirmUrl, {
+              method: 'POST',
+              headers: { ...headers, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                confirm_token: event.data.confirmToken,
+              }),
+            });
+            if (!response.ok) {
+              addToast({
+                title: t('authorizationFailed'),
+                type: 'error',
+                autoClose: true,
+              });
+              if (response.status === 403) {
+                mutate(
+                  `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
+                );
+              }
+            }
+          } catch (error) {
+            addToast({
+              title: t('authorizationFailed'),
+              type: 'error',
+              autoClose: true,
+            });
+          }
+        }
+      };
+      window.addEventListener('message', handleConfirmMessage);
+
       const child = window.open(
         url,
         '_blank',
@@ -80,6 +118,7 @@ export const useConnectionActions = () => {
       const checkChild = () => {
         if (child?.closed) {
           clearInterval(timer);
+          window.removeEventListener('message', handleConfirmMessage);
           mutate(
             `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
           ).then((result) => {
