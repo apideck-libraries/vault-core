@@ -49,6 +49,7 @@ const TopBar = ({
   const {
     isReAuthorizing,
     handleRedirect,
+    handleAuthorize,
     handleDisable,
     handleEnable,
     isActionAllowedForSettings,
@@ -64,13 +65,9 @@ const TopBar = ({
       auth_type,
       oauth_grant_type,
       configurable_resources,
-      authorize_url,
       revoke_url,
       custom_mappings,
     } = selectedConnection;
-    const authorizeUrl = `${authorize_url}&redirect_uri=${
-      session?.redirect_uri ?? REDIRECT_URL
-    }`;
     const revokeUrl = `${revoke_url}&redirect_uri=${
       session?.redirect_uri ?? REDIRECT_URL
     }`;
@@ -236,7 +233,7 @@ const TopBar = ({
             {t('Re-authorize')}
           </button>
         ),
-        onClick: () => handleRedirect(authorizeUrl, onConnectionChange),
+        onClick: () => handleAuthorize(onConnectionChange),
       });
     }
 

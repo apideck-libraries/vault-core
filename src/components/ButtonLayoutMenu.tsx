@@ -47,6 +47,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
   const {
     isReAuthorizing,
     handleRedirect,
+    handleAuthorize,
     handleDisable,
     handleEnable,
     isActionAllowedForSettings,
@@ -63,7 +64,6 @@ const ButtonLayoutMenu: React.FC<Props> = ({
       oauth_grant_type,
       configurable_resources,
       custom_mappings,
-      authorize_url,
       revoke_url,
     } = connection;
 
@@ -94,10 +94,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const authorizeUrl = `${authorize_url}&redirect_uri=${
-            session?.redirect_uri ?? REDIRECT_URL
-          }`;
-          await handleRedirect(authorizeUrl, onConnectionChange);
+          await handleAuthorize(onConnectionChange);
         },
         variant: 'primary',
         customComponent: (
@@ -278,10 +275,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const authorizeUrl = `${authorize_url}&redirect_uri=${
-            session?.redirect_uri ?? REDIRECT_URL
-          }`;
-          await handleRedirect(authorizeUrl, onConnectionChange);
+          await handleAuthorize(onConnectionChange);
         },
         variant: 'outline',
       });
