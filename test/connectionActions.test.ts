@@ -109,10 +109,12 @@ const makeTokenResponse = () => ({
 const dispatchOAuthComplete = (
   nonce: string,
   confirmToken = 'confirm-token-123',
-  serviceId = 'test-service'
+  serviceId = 'test-service',
+  origin = 'https://vault.apideck.com'
 ) => {
   window.dispatchEvent(
     new MessageEvent('message', {
+      origin,
       data: {
         type: 'oauth_complete',
         nonce,
@@ -180,7 +182,7 @@ describe('handleAuthorize', () => {
           Authorization: 'Bearer token123',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ nonce: 'test-nonce-uuid' }),
+        body: JSON.stringify({ nonce: 'test-nonce-uuid', redirect_uri: 'https://vault.apideck.com/oauth/callback' }),
       });
     });
 
@@ -491,7 +493,7 @@ describe('handleAuthorize', () => {
       });
     });
 
-    it('does not include redirect_uri when session has none', async () => {
+    it('sends default REDIRECT_URL as redirect_uri when session has none', async () => {
       mockSession = {};
 
       fetchSpy.mockImplementation((url: string) => {
@@ -514,8 +516,84 @@ describe('handleAuthorize', () => {
           Authorization: 'Bearer token123',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ nonce: 'test-nonce-uuid' }),
+        body: JSON.stringify({ nonce: 'test-nonce-uuid', redirect_uri: 'https://vault.apideck.com/oauth/callback' }),
       });
+    });
+  });
+
+  describe('security - event.origin validation', () => {
+    it('ignores postMessage from untrusted origin', async () => {
+      fetchSpy.mockImplementation((url: string) => {
+        if (url === AUTHORIZE_URL) return Promise.resolve(makeAuthorizeResponse());
+        if (url === CONFIRM_URL) return Promise.resolve(makeConfirmResponse());
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      });
+
+      await act(async () => {
+        render(React.createElement(TestComponent));
+      });
+
+      await act(async () => {
+        hookResult.handleAuthorize(mockOnConnectionChange);
+      });
+
+      await act(async () => {
+        dispatchOAuthComplete('test-nonce-uuid', 'confirm-token-123', 'test-service', 'https://evil.example.com');
+        await new Promise((r) => setTimeout(r, 0));
+      });
+
+      const confirmCalls = fetchSpy.mock.calls.filter(
+        (call: any[]) => call[0] === CONFIRM_URL
+      );
+      expect(confirmCalls).toHaveLength(0);
+    });
+
+    it('processes postMessage from default vault origin', async () => {
+      fetchSpy.mockImplementation((url: string) => {
+        if (url === AUTHORIZE_URL) return Promise.resolve(makeAuthorizeResponse());
+        if (url === CONFIRM_URL) return Promise.resolve(makeConfirmResponse());
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      });
+
+      await act(async () => {
+        render(React.createElement(TestComponent));
+      });
+
+      await act(async () => {
+        hookResult.handleAuthorize(mockOnConnectionChange);
+      });
+
+      await act(async () => {
+        dispatchOAuthComplete('test-nonce-uuid', 'confirm-token-123', 'test-service', 'https://vault.apideck.com');
+        await new Promise((r) => setTimeout(r, 0));
+      });
+
+      expect(fetchSpy).toHaveBeenCalledWith(CONFIRM_URL, expect.anything());
+    });
+
+    it('processes postMessage from custom session redirect_uri origin', async () => {
+      mockSession = { redirect_uri: 'https://custom.example.com/callback' };
+
+      fetchSpy.mockImplementation((url: string) => {
+        if (url === AUTHORIZE_URL) return Promise.resolve(makeAuthorizeResponse());
+        if (url === CONFIRM_URL) return Promise.resolve(makeConfirmResponse());
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      });
+
+      await act(async () => {
+        render(React.createElement(TestComponent));
+      });
+
+      await act(async () => {
+        hookResult.handleAuthorize(mockOnConnectionChange);
+      });
+
+      await act(async () => {
+        dispatchOAuthComplete('test-nonce-uuid', 'confirm-token-123', 'test-service', 'https://custom.example.com');
+        await new Promise((r) => setTimeout(r, 0));
+      });
+
+      expect(fetchSpy).toHaveBeenCalledWith(CONFIRM_URL, expect.anything());
     });
   });
 });
