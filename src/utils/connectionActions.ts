@@ -12,6 +12,7 @@ import {
   verifyAndClearNonce,
   clearNonce,
 } from './oauthCsrf';
+import { REDIRECT_URL } from '../constants/urls';
 
 export const useConnectionActions = () => {
   const { selectedConnection, updateConnection, connectionsUrl, headers } =
@@ -195,10 +196,10 @@ export const useConnectionActions = () => {
     const unifiedApi = selectedConnection!.unified_api;
     const nonce = generateAndStoreNonce(serviceId);
 
-    const authorizeBody: Record<string, string> = { nonce };
-    if (session?.redirect_uri) {
-      authorizeBody.redirect_uri = session.redirect_uri;
-    }
+    const authorizeBody: Record<string, string> = {
+      nonce,
+      redirect_uri: session?.redirect_uri ?? REDIRECT_URL,
+    };
 
     try {
       const authorizeResponse = await fetch(
@@ -254,7 +255,10 @@ export const useConnectionActions = () => {
         setIsReAuthorizing(false);
       };
 
+      const trustedOrigin = new URL(session?.redirect_uri ?? REDIRECT_URL).origin;
+
       const messageHandler = async (event: MessageEvent) => {
+        if (event.origin !== trustedOrigin) return;
         const { data } = event;
 
         if (
