@@ -12,11 +12,14 @@ import {
   verifyAndClearNonce,
   clearNonce,
 } from './oauthCsrf';
-import { REDIRECT_URL } from '../constants/urls';
-
 export const useConnectionActions = () => {
-  const { selectedConnection, updateConnection, connectionsUrl, headers } =
-    useConnections();
+  const {
+    selectedConnection,
+    updateConnection,
+    connectionsUrl,
+    headers,
+    redirectUrl
+  } = useConnections();
   const { session } = useSession();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
@@ -198,7 +201,7 @@ export const useConnectionActions = () => {
 
     const authorizeBody: Record<string, string> = {
       nonce,
-      redirect_uri: session?.redirect_uri ?? REDIRECT_URL,
+      redirect_uri: session?.redirect_uri ?? redirectUrl,
     };
 
     try {

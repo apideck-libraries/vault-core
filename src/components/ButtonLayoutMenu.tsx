@@ -2,7 +2,6 @@ import { Button } from '@apideck/components';
 import { Dialog } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
@@ -52,7 +51,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
     handleEnable,
     isActionAllowedForSettings,
   } = useConnectionActions();
-  const { deleteConnection } = useConnections();
+  const { deleteConnection, redirectUrl } = useConnections();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const getButtonOptions = (): ButtonOption[] => {
@@ -334,7 +333,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
         ),
         onClick: async () => {
           const revokeUrl = `${revoke_url}&redirect_uri=${
-            session?.redirect_uri ?? REDIRECT_URL
+            session?.redirect_uri ?? redirectUrl
           }`;
           await handleRedirect(revokeUrl, onConnectionChange);
         },

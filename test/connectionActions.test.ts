@@ -26,6 +26,8 @@ jest.mock('../src/utils/useConnections', () => ({
     updateConnection: jest.fn(),
     connectionsUrl: 'https://unify.apideck.com/vault/connections',
     headers: { Authorization: 'Bearer token123' },
+    unifyBaseUrl: 'https://unify.apideck.com',
+    redirectUrl: 'https://vault.apideck.com/oauth/callback',
   }),
 }));
 
@@ -552,7 +554,7 @@ describe('handleAuthorize', () => {
       });
     });
 
-    it('sends default REDIRECT_URL as redirect_uri when session has none', async () => {
+    it('sends redirectBaseUrl as redirect_uri when session has none', async () => {
       mockSession = {};
 
       fetchSpy.mockImplementation((url: string) => {

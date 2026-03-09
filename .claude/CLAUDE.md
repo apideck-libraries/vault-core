@@ -1,6 +1,6 @@
 # Vault Core
 
-React component library (`@apideck/react-vault`) for embedding Apideck Vault in React applications. Built with React 17, TypeScript, Tailwind CSS, and tsdx.
+React component library (`@apideck/react-vault`) for embedding Apideck Vault in React applications. Built with React 17, TypeScript, Tailwind CSS, and tsdx. Depends on vault being deployed first — vault-core uses vault's `oauth/callback` path for OAuth flows.
 
 ## Project Structure
 

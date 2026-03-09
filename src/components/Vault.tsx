@@ -3,7 +3,7 @@ import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
 import { useTranslation } from 'react-i18next';
-import { BASE_URL } from '../constants/urls';
+import { BASE_URL, REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { Session } from '../types/Session';
@@ -57,6 +57,12 @@ export interface Props {
    * Should only be used for local development or in a staging environment
    */
   unifyBaseUrl?: string;
+
+  /**
+   * Optionally you can give a redirectUrl for changing the redirect URL used in OAuth flows
+   * Defaults to the REDIRECT_URL constant
+   */
+  redirectUrl?: string;
 
   /**
    * Optionally you can show the consumer metadata information in the modal
@@ -115,6 +121,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     unifiedApi,
     serviceId,
     unifyBaseUrl = BASE_URL,
+    redirectUrl = REDIRECT_URL,
     showConsumer = false,
     initialView,
     locale = 'en',
@@ -200,6 +207,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               unifiedApi={unifiedApi}
               serviceId={serviceId}
               unifyBaseUrl={unifyBaseUrl}
+              redirectUrl={redirectUrl}
             >
               <SessionProvider session={session}>
                 <ModalContent
