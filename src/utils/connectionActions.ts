@@ -255,10 +255,7 @@ export const useConnectionActions = () => {
         setIsReAuthorizing(false);
       };
 
-      const trustedOrigin = new URL(session?.redirect_uri ?? REDIRECT_URL).origin;
-
       const messageHandler = async (event: MessageEvent) => {
-        if (event.origin !== trustedOrigin) return;
         const { data } = event;
 
         if (
