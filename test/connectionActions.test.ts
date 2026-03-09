@@ -302,6 +302,59 @@ describe('handleAuthorize', () => {
     });
   });
 
+  describe('race condition - postMessage arrives after popup closes', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('still calls confirm endpoint when postMessage arrives during grace period', async () => {
+      jest.useFakeTimers();
+
+      fetchSpy.mockImplementation((url: string) => {
+        if (url === AUTHORIZE_URL) return Promise.resolve(makeAuthorizeResponse());
+        if (url === CONFIRM_URL) return Promise.resolve(makeConfirmResponse());
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      });
+
+      const mockChild = { closed: false };
+      openSpy.mockReturnValue(mockChild);
+
+      await act(async () => {
+        render(React.createElement(TestComponent));
+      });
+
+      await act(async () => {
+        hookResult.handleAuthorize(mockOnConnectionChange);
+      });
+
+      // Simulate popup closing BEFORE postMessage arrives
+      mockChild.closed = true;
+
+      // checkChild fires and detects popup closed
+      await act(async () => {
+        jest.advanceTimersByTime(500);
+      });
+
+      // postMessage arrives during grace period (before cleanup)
+      await act(async () => {
+        dispatchOAuthComplete('test-nonce-uuid');
+        // Flush microtasks with fake timers by advancing by 0
+        jest.advanceTimersByTime(0);
+      });
+
+      // Advance past grace period
+      await act(async () => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      // Confirm endpoint SHOULD have been called via messageHandler
+      const confirmCalls = fetchSpy.mock.calls.filter(
+        (call: any[]) => call[0] === CONFIRM_URL
+      );
+      expect(confirmCalls).toHaveLength(1);
+    });
+  });
+
   describe('security - wrong nonce in postMessage', () => {
     it('does NOT call confirm endpoint when nonce does not match', async () => {
       fetchSpy.mockImplementation((url: string) => {
