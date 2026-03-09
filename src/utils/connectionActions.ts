@@ -339,14 +339,19 @@ export const useConnectionActions = () => {
 
       const checkChild = () => {
         if (child.closed) {
-          if (!messageReceived) {
-            mutate(
-              `${connectionsUrl}/${unifiedApi}/${serviceId}`
-            ).then((result) => {
-              onConnectionChange?.(result.data);
-            });
-          }
-          doCleanup();
+          clearInterval(timer);
+          // Grace period: allow queued postMessage events to fire
+          // before running fallback cleanup
+          setTimeout(() => {
+            if (!messageReceived) {
+              mutate(
+                `${connectionsUrl}/${unifiedApi}/${serviceId}`
+              ).then((result) => {
+                onConnectionChange?.(result.data);
+              });
+            }
+            doCleanup();
+          }, 1000);
         }
       };
 

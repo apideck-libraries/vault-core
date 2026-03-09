@@ -290,8 +290,14 @@ describe('handleAuthorize', () => {
       // Simulate popup closing
       mockChild.closed = true;
 
+      // Advance 500ms for checkChild to detect popup closed
       await act(async () => {
         jest.advanceTimersByTime(500);
+      });
+
+      // Advance 1000ms for grace period to complete
+      await act(async () => {
+        jest.advanceTimersByTime(1000);
       });
 
       expect(mockMutate).toHaveBeenCalledWith(
