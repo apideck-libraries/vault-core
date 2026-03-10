@@ -204,6 +204,7 @@ const SearchSelect = ({
       IndicatorSeparator: null,
     },
     styles: customStyles,
+    getOptionValue: (option: OptionType) => `${option.value}||${option.label}`,
     ...rest,
   };
 
