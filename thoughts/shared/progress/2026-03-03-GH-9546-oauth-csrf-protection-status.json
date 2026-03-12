@@ -1,0 +1,15 @@
+{
+  "plan": "2026-03-03-GH-9546-oauth-csrf-protection.md",
+  "current_phase": 9,
+  "total_phases": 8,
+  "phases": [
+    {"id": 1, "name": "Type Updates", "status": "complete"},
+    {"id": 2, "name": "Write Tests for OAuth CSRF Utility (TDD - RED)", "status": "complete"},
+    {"id": 3, "name": "Implement OAuth CSRF Utility (TDD - GREEN)", "status": "complete"},
+    {"id": 4, "name": "Write Tests for handleAuthorize (TDD - RED)", "status": "complete"},
+    {"id": 5, "name": "Implement handleAuthorize + Update Callers (TDD - GREEN)", "status": "complete"},
+    {"id": 6, "name": "Refactor AuthorizeButton to use handleAuthorize", "status": "complete"},
+    {"id": 7, "name": "Verify All Tests Pass (TDD - GREEN verification)", "status": "complete"},
+    {"id": 8, "name": "Refactor (TDD - REFACTOR)", "status": "complete"}
+  ]
+}

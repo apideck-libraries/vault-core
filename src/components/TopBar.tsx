@@ -3,7 +3,6 @@ import { Option } from '@apideck/components/dist/components/Dropdown';
 import classNames from 'classnames';
 import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
@@ -42,13 +41,14 @@ const TopBar = ({
   currentView,
   showButtonLayout,
 }: Props) => {
-  const { selectedConnection, deleteConnection } = useConnections();
+  const { selectedConnection, deleteConnection, redirectUrl } = useConnections();
   const { session } = useSession();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { t } = useTranslation();
   const {
     isReAuthorizing,
     handleRedirect,
+    handleAuthorize,
     handleDisable,
     handleEnable,
     isActionAllowedForSettings,
@@ -64,15 +64,11 @@ const TopBar = ({
       auth_type,
       oauth_grant_type,
       configurable_resources,
-      authorize_url,
       revoke_url,
       custom_mappings,
     } = selectedConnection;
-    const authorizeUrl = `${authorize_url}&redirect_uri=${
-      session?.redirect_uri ?? REDIRECT_URL
-    }`;
     const revokeUrl = `${revoke_url}&redirect_uri=${
-      session?.redirect_uri ?? REDIRECT_URL
+      session?.redirect_uri ?? redirectUrl
     }`;
     const options: Option[] = [];
 
@@ -236,7 +232,7 @@ const TopBar = ({
             {t('Re-authorize')}
           </button>
         ),
-        onClick: () => handleRedirect(authorizeUrl, onConnectionChange),
+        onClick: () => handleAuthorize(onConnectionChange),
       });
     }
 

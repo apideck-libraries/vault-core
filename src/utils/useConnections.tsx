@@ -30,6 +30,7 @@ interface ContextProps {
   singleConnectionMode: boolean;
   sessionExpired: boolean;
   unifyBaseUrl: string;
+  redirectUrl: string;
   headers: any;
   token?: string;
   connectionsUrl?: string;
@@ -59,6 +60,7 @@ interface Props {
   onConnectionChange?: (connection: Connection) => any;
   onConnectionDelete?: (connection: Connection) => any;
   unifyBaseUrl: string;
+  redirectUrl: string;
 }
 
 export const ConnectionsProvider = ({
@@ -69,6 +71,7 @@ export const ConnectionsProvider = ({
   unifiedApi,
   serviceId,
   unifyBaseUrl,
+  redirectUrl,
   children,
   onConnectionChange,
   onConnectionDelete,
@@ -631,6 +634,7 @@ export const ConnectionsProvider = ({
       fetchCustomMapping,
       fetcher,
       unifyBaseUrl,
+      redirectUrl,
       connectionsUrl: `${unifyBaseUrl}/vault/connections`,
       denyConsent,
       revokeConsent,
