@@ -1,9 +1,11 @@
-import { Button } from '@apideck/components';
-import React, { useEffect } from 'react';
+import { Button, useToast } from '@apideck/components';
+import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { useSWRConfig } from 'swr';
+import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
-import { useConnectionActions } from '../utils/connectionActions';
+import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 
 interface Props {
@@ -17,17 +19,88 @@ const AuthorizeButton = ({
   onConnectionChange,
   autoStartAuthorization,
 }: Props) => {
-  const { handleAuthorize, isReAuthorizing } = useConnectionActions();
+  const [isLoading, setIsLoading] = useState(false);
+  const { connectionsUrl, headers } = useConnections();
+  const { addToast } = useToast();
   const {
-    session: { theme },
+    session: { theme, redirect_uri },
   } = useSession();
+  const { mutate } = useSWRConfig();
   const { t } = useTranslation();
 
   const isAuthorizationEnabled =
-    connection.integration_state !== 'needs_configuration' && !isReAuthorizing;
+    connection.integration_state !== 'needs_configuration' && !isLoading;
 
-  const authorizeConnection = () => {
-    handleAuthorize(onConnectionChange);
+  const authorizeUrl = `${connection.authorize_url}&redirect_uri=${
+    redirect_uri ?? REDIRECT_URL
+  }`;
+
+  const handleChildWindowClose = () => {
+    mutate(
+      `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
+    ).then((result) => {
+      onConnectionChange?.(result.data);
+    });
+    setIsLoading(false);
+  };
+
+  const authorizeConnection = async () => {
+    setIsLoading(true);
+    if (
+      connection.oauth_grant_type === 'client_credentials' ||
+      connection.oauth_grant_type === 'password'
+    ) {
+      try {
+        const response: any = await fetch(
+          `${connectionsUrl}/${connection.unified_api}/${connection.service_id}/token`,
+          { method: 'POST', headers }
+        );
+        const data = await response.json();
+        if (data.error) {
+          addToast({
+            title: t('Something went wrong'),
+            description: data.message,
+            type: 'error',
+            autoClose: true,
+          });
+          return;
+        }
+        addToast({
+          title: `Authorized ${connection.name}`,
+          type: 'success',
+          autoClose: true,
+        });
+        mutate(
+          `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
+        ).then((result) => {
+          onConnectionChange?.(result.data);
+        });
+        mutate('/vault/connections');
+      } catch (error) {
+        addToast({
+          title: t('Something went wrong'),
+          description: t(
+            'The integration could not be authorized. Please make sure your settings are correct and try again.'
+          ),
+          type: 'error',
+          autoClose: true,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      const child = window.open(
+        authorizeUrl,
+        '_blank',
+        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+      );
+      const timer = setInterval(() => {
+        if (child?.closed) {
+          clearInterval(timer);
+          handleChildWindowClose();
+        }
+      }, 500);
+    }
   };
 
   // Auto start authorization if the connection is enabled and the autoStartAuthorization flag is true
@@ -42,10 +115,9 @@ const AuthorizeButton = ({
       <button
         onClick={authorizeConnection}
         disabled={
-          connection.integration_state === 'needs_configuration' ||
-          isReAuthorizing
+          connection.integration_state === 'needs_configuration' || isLoading
         }
-        className={`h-[58px] ${isReAuthorizing ? 'animate-pulse' : ''}`}
+        className={`h-[58px] ${isLoading ? 'animate-pulse' : ''}`}
       >
         <img
           src="https://vault.apideck.com/img/google-button.png"
@@ -60,10 +132,9 @@ const AuthorizeButton = ({
       <button
         onClick={authorizeConnection}
         disabled={
-          connection.integration_state === 'needs_configuration' ||
-          isReAuthorizing
+          connection.integration_state === 'needs_configuration' || isLoading
         }
-        className={`h-[40px] ${isReAuthorizing ? 'animate-pulse' : ''}`}
+        className={`h-[40px] ${isLoading ? 'animate-pulse' : ''}`}
       >
         <img
           src="https://vault.apideck.com/img/quickbooks-button.png"
@@ -76,7 +147,7 @@ const AuthorizeButton = ({
   return (
     <Button
       text={t('Authorize')}
-      isLoading={isReAuthorizing}
+      isLoading={isLoading}
       disabled={!isAuthorizationEnabled}
       size="large"
       className="w-full !truncate"
