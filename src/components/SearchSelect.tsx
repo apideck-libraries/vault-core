@@ -147,6 +147,10 @@ const SearchSelect = ({
       borderRadius: theme?.borderRadius.md,
       boxShadow: theme?.boxShadow.lg,
     }),
+    menuPortal: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
     option: (
       provided: CSSObjectWithLabel,
       state: { isSelected: boolean; isFocused: boolean }
@@ -204,6 +208,8 @@ const SearchSelect = ({
       IndicatorSeparator: null,
     },
     styles: customStyles,
+    menuPortalTarget: document.body,
+    menuPosition: 'fixed' as const,
     getOptionValue: (option: OptionType) => `${option.value}||${option.label}`,
     ...rest,
   };
