@@ -20,6 +20,8 @@ export interface FormField {
     | 'date'
     | 'password'
     | 'datetime'
+    | 'copy'
+    | 'info'
     | unknown;
   required: boolean;
   description?: string;
