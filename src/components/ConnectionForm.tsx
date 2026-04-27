@@ -261,7 +261,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
                   />
                 )}
                 {type === 'info' && description && (
-                  <div className="markdown text-sm text-gray-600 overflow-x-auto w-full">
+                  <div className="markdown markdown-info">
                     <Markdown>
                       {interpolateDescription(description, formFields)}
                     </Markdown>
