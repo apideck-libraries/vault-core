@@ -17,6 +17,15 @@ import { useSession } from '../utils/useSession';
 import { Markdown } from './Markdown';
 import SearchSelect from './SearchSelect';
 
+const interpolateDescription = (
+  description: string,
+  fields: Connection['form_fields']
+): string =>
+  description.replace(/\{\{(\w+)\}\}/g, (_, id) => {
+    const value = fields?.find((f) => f.id === id)?.value;
+    return value == null ? '' : String(value);
+  });
+
 interface Props {
   connection: Connection;
   setCurrentView: Dispatch<
@@ -216,6 +225,16 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
                     sensitive={type === 'password' || sensitive}
                   />
                 )}
+                {type === 'copy' && (
+                  <TextInput
+                    name={id}
+                    type="text"
+                    disabled
+                    canBeCopied
+                    value={(formik.values[id] as any) ?? ''}
+                    data-testid={id}
+                  />
+                )}
                 {type === 'textarea' && (
                   <TextArea
                     name={id}
@@ -241,9 +260,18 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
                     isMulti={type === 'multi-select'}
                   />
                 )}
-                {description && (
+                {type === 'info' && description && (
+                  <div className="markdown text-sm text-gray-600 overflow-x-auto w-full">
+                    <Markdown>
+                      {interpolateDescription(description, formFields)}
+                    </Markdown>
+                  </div>
+                )}
+                {type !== 'info' && description && (
                   <small className="markdown inline-block mt-2 text-gray-500 overflow-x-auto w-full">
-                    <Markdown>{description}</Markdown>
+                    <Markdown>
+                      {interpolateDescription(description, formFields)}
+                    </Markdown>
                   </small>
                 )}
               </div>

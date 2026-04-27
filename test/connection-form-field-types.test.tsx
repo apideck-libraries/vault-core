@@ -77,9 +77,10 @@ describe('ConnectionForm - type: "copy" field', () => {
 
   it('renders a copy button next to the input', async () => {
     const screen = await renderForm([copyField]);
-    // canBeCopied renders a button with title "Copy" inside @apideck/components TextInput
-    const copyButton = screen.getByTestId('qbd_password-copy-button');
+    // @apideck/components renders the canBeCopied button with data-testid="copy-button"
+    const copyButton = screen.getByTestId('copy-button');
     expect(copyButton).toBeInTheDocument();
+    expect(copyButton.tagName.toLowerCase()).toBe('button');
   });
 
   it('renders the field label', async () => {
@@ -194,7 +195,11 @@ describe('ConnectionForm - {{field_id}} description interpolation', () => {
         description: 'Visit {{url}}',
       },
     ]);
-    expect(screen.getByText(/Visit https:\/\/example\.com/)).toBeInTheDocument();
+    // markdown-to-jsx autolinks bare URLs, splitting "Visit " from the link text
+    expect(screen.getByText(/Visit/)).toBeInTheDocument();
+    const link = screen.getByText('https://example.com') as HTMLAnchorElement;
+    expect(link.tagName.toLowerCase()).toBe('a');
+    expect(link.getAttribute('href')).toBe('https://example.com');
   });
 
   it('resolves multiple tokens', async () => {
