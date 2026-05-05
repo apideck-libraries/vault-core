@@ -17,7 +17,8 @@ const StatusBadge = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const { state, integration_state, enabled, consent_state } = connection;
+  const { state, integration_state, enabled, consent_state, health } =
+    connection;
 
   const applicableScopes = hasApplicableScopes(connection);
 
@@ -35,6 +36,8 @@ const StatusBadge = ({
           return t('New permissions required');
       }
     }
+
+    if (health === 'pending_confirmation') return t('Pending confirmation');
 
     if (integration_state === 'needs_configuration')
       return t('Needs configuration');
@@ -59,6 +62,7 @@ const StatusBadge = ({
     (state === 'added' ||
       state === 'authorized' ||
       state === 'invalid' ||
+      health === 'pending_confirmation' ||
       (applicableScopes && consent_state === 'pending'));
 
   const isConnected = enabled && state === 'callable';

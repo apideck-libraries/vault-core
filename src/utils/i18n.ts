@@ -112,6 +112,7 @@ const resources = {
       'Permission denied': 'Permission denied',
       'Permission revoked': 'Permission revoked',
       'New permissions required': 'New permissions required',
+      'Pending confirmation': 'Pending confirmation',
     },
   },
   nl: {
@@ -224,6 +225,7 @@ const resources = {
       'Permission denied': 'Toestemming geweigerd',
       'Permission revoked': 'Toestemming ingetrokken',
       'New permissions required': 'Nieuwe toestemmingen vereist',
+      'Pending confirmation': 'Bevestiging in afwachting',
     },
   },
   fr: {
@@ -335,6 +337,7 @@ const resources = {
       'Permission denied': 'Autorisation refusée',
       'Permission revoked': 'Autorisation révoquée',
       'New permissions required': 'Nouvelles autorisations requises',
+      'Pending confirmation': 'Confirmation en attente',
     },
   },
   de: {
@@ -447,6 +450,7 @@ const resources = {
       'Permission denied': 'Berechtigung verweigert',
       'Permission revoked': 'Berechtigung widerrufen',
       'New permissions required': 'Neue Berechtigungen erforderlich',
+      'Pending confirmation': 'Bestätigung ausstehend',
     },
   },
   es: {
@@ -558,6 +562,7 @@ const resources = {
       'Permission denied': 'Permiso denegado',
       'Permission revoked': 'Permiso revocado',
       'New permissions required': 'Nuevos permisos requeridos',
+      'Pending confirmation': 'Confirmación pendiente',
     },
   },
 };
