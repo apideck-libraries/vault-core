@@ -124,8 +124,8 @@ const AuthorizeButton = ({
         setIsLoading(false);
       };
 
-      const handler = async (event: MessageEvent<OAuthPostMessage>) => {
-        const data = event.data;
+      const handler = async (event: MessageEvent) => {
+        const data = event.data as OAuthPostMessage | undefined;
         if (
           !data ||
           (data.type !== 'oauth_complete' && data.type !== 'oauth_error')
@@ -164,12 +164,12 @@ const AuthorizeButton = ({
             connectionsUrl: connectionsUrl ?? '',
             headers,
           });
-        } catch (error: any) {
+        } catch (error) {
           // eslint-disable-next-line no-console
           console.warn('[oauthCsrf] confirm failed', error);
           addToast({
             title: t('Could not confirm authorization'),
-            description: error?.message,
+            description: (error as Error)?.message,
             type: 'error',
             autoClose: true,
           });
