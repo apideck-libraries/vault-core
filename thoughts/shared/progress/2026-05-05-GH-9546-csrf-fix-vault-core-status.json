@@ -1,12 +1,12 @@
 {
   "plan": "2026-05-05-GH-9546-csrf-fix-vault-core.md",
-  "current_phase": 3,
+  "current_phase": 4,
   "total_phases": 11,
   "phases": [
     { "id": 1, "name": "Type / Interface Updates", "status": "complete" },
     { "id": 2, "name": "Write Tests for oauthCsrf Utilities (TDD - RED)", "status": "complete" },
-    { "id": 3, "name": "Implement oauthCsrf Utilities (TDD - GREEN)", "status": "in_progress" },
-    { "id": 4, "name": "Write Tests for StatusBadge pending_confirmation Branch (TDD - RED)", "status": "pending" },
+    { "id": 3, "name": "Implement oauthCsrf Utilities (TDD - GREEN)", "status": "complete" },
+    { "id": 4, "name": "Write Tests for StatusBadge pending_confirmation Branch (TDD - RED)", "status": "in_progress" },
     { "id": 5, "name": "Implement StatusBadge pending_confirmation Branch (TDD - GREEN)", "status": "pending" },
     { "id": 6, "name": "Write Tests for AuthorizeButton Popup Flow (TDD - RED)", "status": "pending" },
     { "id": 7, "name": "Implement AuthorizeButton Popup Flow (TDD - GREEN)", "status": "pending" },
