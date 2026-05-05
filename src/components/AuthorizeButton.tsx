@@ -1,10 +1,17 @@
 import { Button, useToast } from '@apideck/components';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
+import { OAuthPostMessage } from '../types/OAuthCsrf';
+import {
+  callConfirmEndpoint,
+  clearNonce,
+  generateAndStoreNonce,
+  verifyAndClearNonce,
+} from '../utils/oauthCsrf';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 
@@ -34,6 +41,14 @@ const AuthorizeButton = ({
   const authorizeUrl = `${connection.authorize_url}&redirect_uri=${
     redirect_uri ?? REDIRECT_URL
   }`;
+
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    return () => {
+      cleanupRef.current?.();
+    };
+  }, []);
 
   const handleChildWindowClose = () => {
     mutate(
@@ -89,15 +104,107 @@ const AuthorizeButton = ({
         setIsLoading(false);
       }
     } else {
+      const serviceId = connection.service_id;
+      const unifiedApi = connection.unified_api;
+      const nonce = generateAndStoreNonce(serviceId);
+
+      const url = new URL(authorizeUrl);
+      url.searchParams.append('nonce', nonce);
+
+      let completed = false;
+      let timer: ReturnType<typeof setInterval> | undefined;
+      let graceTimeout: ReturnType<typeof setTimeout> | undefined;
+
+      const cleanup = () => {
+        completed = true;
+        window.removeEventListener('message', handler);
+        if (timer) clearInterval(timer);
+        if (graceTimeout) clearTimeout(graceTimeout);
+        cleanupRef.current = null;
+        setIsLoading(false);
+      };
+
+      const handler = async (event: MessageEvent<OAuthPostMessage>) => {
+        const data = event.data;
+        if (
+          !data ||
+          (data.type !== 'oauth_complete' && data.type !== 'oauth_error')
+        ) {
+          return;
+        }
+        if (data.serviceId !== serviceId) return;
+
+        if (data.type === 'oauth_error') {
+          addToast({
+            title: t('Authorization failed'),
+            description: data.errorDescription || data.error,
+            type: 'error',
+            autoClose: true,
+          });
+          clearNonce(serviceId);
+          cleanup();
+          return;
+        }
+
+        if (!verifyAndClearNonce(serviceId, data.nonce)) {
+          addToast({
+            title: t('Could not confirm authorization'),
+            type: 'error',
+            autoClose: true,
+          });
+          cleanup();
+          return;
+        }
+
+        try {
+          await callConfirmEndpoint({
+            unifiedApi,
+            serviceId,
+            confirmToken: data.confirmToken,
+            connectionsUrl: connectionsUrl ?? '',
+            headers,
+          });
+        } catch (error: any) {
+          // eslint-disable-next-line no-console
+          console.warn('[oauthCsrf] confirm failed', error);
+          addToast({
+            title: t('Could not confirm authorization'),
+            description: error?.message,
+            type: 'error',
+            autoClose: true,
+          });
+          cleanup();
+          return;
+        }
+
+        mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
+          (result) => {
+            onConnectionChange?.(result?.data);
+          }
+        );
+        mutate('/vault/connections');
+        cleanup();
+      };
+
+      window.addEventListener('message', handler);
+      cleanupRef.current = cleanup;
+
       const child = window.open(
-        authorizeUrl,
+        url.href,
         '_blank',
         'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
       );
-      const timer = setInterval(() => {
+
+      timer = setInterval(() => {
         if (child?.closed) {
-          clearInterval(timer);
-          handleChildWindowClose();
+          if (timer) clearInterval(timer);
+          timer = undefined;
+          graceTimeout = setTimeout(() => {
+            if (!completed) {
+              handleChildWindowClose();
+              cleanup();
+            }
+          }, 1000);
         }
       }, 500);
     }

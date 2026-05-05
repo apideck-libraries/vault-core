@@ -1,6 +1,6 @@
 {
   "plan": "2026-05-05-GH-9546-csrf-fix-vault-core.md",
-  "current_phase": 7,
+  "current_phase": 8,
   "total_phases": 11,
   "phases": [
     { "id": 1, "name": "Type / Interface Updates", "status": "complete" },
@@ -9,8 +9,8 @@
     { "id": 4, "name": "Write Tests for StatusBadge pending_confirmation Branch (TDD - RED)", "status": "complete" },
     { "id": 5, "name": "Implement StatusBadge pending_confirmation Branch (TDD - GREEN)", "status": "complete" },
     { "id": 6, "name": "Write Tests for AuthorizeButton Popup Flow (TDD - RED)", "status": "complete" },
-    { "id": 7, "name": "Implement AuthorizeButton Popup Flow (TDD - GREEN)", "status": "in_progress" },
-    { "id": 8, "name": "Write Tests for handleRedirect + TopBar/ButtonLayoutMenu Nonce Append (TDD - RED)", "status": "pending" },
+    { "id": 7, "name": "Implement AuthorizeButton Popup Flow (TDD - GREEN)", "status": "complete" },
+    { "id": 8, "name": "Write Tests for handleRedirect + TopBar/ButtonLayoutMenu Nonce Append (TDD - RED)", "status": "in_progress" },
     { "id": 9, "name": "Implement handleRedirect Popup Flow + TopBar/ButtonLayoutMenu Nonce Append (TDD - GREEN)", "status": "pending" },
     { "id": 10, "name": "Verify All Tests Pass + Lint + Build (TDD - GREEN Verification)", "status": "pending" },
     { "id": 11, "name": "Refactor (TDD - REFACTOR)", "status": "pending" }
