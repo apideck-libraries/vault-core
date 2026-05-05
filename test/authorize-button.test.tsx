@@ -5,7 +5,7 @@ import 'whatwg-fetch';
 import * as React from 'react';
 
 import { setupIntersectionObserverMock } from './mock';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { Vault } from '../src/components/Vault';
 import { act } from 'react-dom/test-utils';
@@ -142,5 +142,343 @@ describe('Authorize button visibility', () => {
     await waitFor(() => {
       expect(screen.getByText('Authorize')).toBeInTheDocument();
     });
+  });
+});
+
+const STORAGE_PREFIX = 'apideck_oauth_nonce_';
+const SERVICE_ID = 'shopify';
+const UNIFIED_API = 'ecommerce';
+const CONNECTIONS_URL = 'https://unify.apideck.com/vault/connections';
+
+const setupOAuthFetchMock = (
+  serviceId: string,
+  overrides: Record<string, any> = {}
+) => {
+  const connection = makeConnection(serviceId, {
+    auth_type: 'oauth2',
+    enabled: true,
+    state: 'added',
+    ...overrides,
+  });
+  const listResponse = { status_code: 200, status: 'OK', data: [connection] };
+  const detailResponse = { status_code: 200, status: 'OK', data: connection };
+  const confirmResponse = {
+    status_code: 200,
+    status: 'OK',
+    data: { confirmed: true },
+  };
+
+  const calls: { url: string; init?: any }[] = [];
+  (window.fetch as any).mockImplementation((url: string, init?: any) => {
+    calls.push({ url, init });
+    if (url.endsWith('/confirm') && init?.method === 'POST') {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => confirmResponse,
+      };
+    }
+    if (url === `${CONNECTIONS_URL}/ecommerce/${serviceId}`) {
+      return { ok: true, status: 200, json: async () => detailResponse };
+    }
+    if (url.includes('/config')) {
+      return { ok: true, status: 200, json: async () => CONFIG };
+    }
+    return { ok: true, status: 200, json: async () => listResponse };
+  });
+
+  return { calls };
+};
+
+describe('Authorize button OAuth CSRF flow', () => {
+  let fakeChild: { closed: boolean; close: jest.Mock };
+  let openSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.spyOn(window, 'fetch');
+    setupIntersectionObserverMock();
+    sessionStorage.clear();
+    fakeChild = { closed: false, close: jest.fn() };
+    openSpy = jest
+      .spyOn(window, 'open')
+      .mockImplementation(() => fakeChild as unknown as Window);
+  });
+
+  afterEach(() => {
+    cleanup();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  const renderAndClickAuthorize = async (
+    overrides: Record<string, any> = {}
+  ) => {
+    const mockData = setupOAuthFetchMock(SERVICE_ID, overrides);
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <Vault
+          token="token123"
+          open
+          unifiedApi={UNIFIED_API}
+          serviceId={SERVICE_ID}
+        />
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Authorize')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+
+    return { screen, mockData };
+  };
+
+  it('appends &nonce= to the authorize URL and stores nonce in sessionStorage', async () => {
+    await renderAndClickAuthorize();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const openedUrl = openSpy.mock.calls[0][0] as string;
+    expect(openedUrl).toContain('nonce=');
+
+    const url = new URL(openedUrl);
+    const nonceFromUrl = url.searchParams.get('nonce');
+    expect(nonceFromUrl).toBeTruthy();
+
+    const stored = sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`);
+    expect(stored).toBe(nonceFromUrl);
+  });
+
+  it('on oauth_complete with valid nonce: POSTs to /confirm and clears the nonce', async () => {
+    const { mockData } = await renderAndClickAuthorize();
+
+    const openedUrl = openSpy.mock.calls[0][0] as string;
+    const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce,
+            confirmToken: 'token-xyz',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      const confirmCall = mockData.calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(confirmCall).toBeDefined();
+      expect(confirmCall?.init?.method).toBe('POST');
+      expect(JSON.parse(confirmCall?.init?.body as string)).toEqual({
+        confirm_token: 'token-xyz',
+      });
+    });
+
+    expect(sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`)).toBeNull();
+  });
+
+  it('on oauth_error: shows toast and does NOT call /confirm', async () => {
+    const { screen, mockData } = await renderAndClickAuthorize();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_error',
+            error: 'access_denied',
+            errorDescription: 'User denied consent',
+            serviceId: SERVICE_ID,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('User denied consent')).toBeInTheDocument();
+    });
+
+    const confirmCall = mockData.calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+  it('ignores postMessage with foreign serviceId', async () => {
+    const { mockData } = await renderAndClickAuthorize();
+
+    const openedUrl = openSpy.mock.calls[0][0] as string;
+    const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce,
+            confirmToken: 'token-xyz',
+            serviceId: 'some-other-service',
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    // Allow microtasks to flush
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const confirmCall = mockData.calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+  it('on nonce mismatch: skips /confirm and surfaces an error toast', async () => {
+    const { screen, mockData } = await renderAndClickAuthorize();
+
+    // Stored nonce is now whatever was generated. Send a different nonce.
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce: 'attacker-nonce',
+            confirmToken: 'token-xyz',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Could not confirm authorization')
+      ).toBeInTheDocument();
+    });
+
+    const confirmCall = mockData.calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+  it('falls back to mutate after 1000ms grace when child closes with no postMessage', async () => {
+    jest.useFakeTimers();
+    const mockData = setupOAuthFetchMock(SERVICE_ID);
+
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <Vault
+          token="token123"
+          open
+          unifiedApi={UNIFIED_API}
+          serviceId={SERVICE_ID}
+        />
+      );
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(0);
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Authorize')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+
+    // child closes
+    fakeChild.closed = true;
+
+    // Advance past 500ms poll
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+
+    // No /confirm yet; we are within grace period
+    let confirmCall = mockData.calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+
+    // Advance past 1000ms grace
+    await act(async () => {
+      jest.advanceTimersByTime(1100);
+    });
+
+    // Still no /confirm because no postMessage arrived; fallback mutate ran instead
+    confirmCall = mockData.calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+  it('does not call /confirm twice when child closes after a successful postMessage', async () => {
+    jest.useFakeTimers();
+    const mockData = setupOAuthFetchMock(SERVICE_ID);
+
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <Vault
+          token="token123"
+          open
+          unifiedApi={UNIFIED_API}
+          serviceId={SERVICE_ID}
+        />
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Authorize')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+
+    const openedUrl = openSpy.mock.calls[0][0] as string;
+    const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce,
+            confirmToken: 'token-xyz',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      const c = mockData.calls.find((c) => c.url.endsWith('/confirm'));
+      expect(c).toBeDefined();
+    });
+
+    const confirmCallsBefore = mockData.calls.filter((c) =>
+      c.url.endsWith('/confirm')
+    ).length;
+
+    fakeChild.closed = true;
+    await act(async () => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    const confirmCallsAfter = mockData.calls.filter((c) =>
+      c.url.endsWith('/confirm')
+    ).length;
+    expect(confirmCallsAfter).toBe(confirmCallsBefore);
   });
 });
