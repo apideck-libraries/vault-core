@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Vault } from '../.';
+import '../dist/styles.css';
 
 // Configure via example/.env (see .env.example):
 //   VITE_VAULT_TOKEN, VITE_VAULT_UNIFIED_API, VITE_VAULT_SERVICE_ID,
