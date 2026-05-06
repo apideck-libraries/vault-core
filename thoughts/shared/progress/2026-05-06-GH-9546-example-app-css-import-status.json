@@ -1,0 +1,8 @@
+{
+  "plan": "2026-05-06-GH-9546-example-app-css-import.md",
+  "current_phase": 1,
+  "total_phases": 1,
+  "phases": [
+    {"id": 1, "name": "Add dist/styles.css import to example app", "status": "pending"}
+  ]
+}
