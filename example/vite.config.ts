@@ -17,6 +17,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom'],
   },
+  css: { postcss: { plugins: [] } },
   server: {
     port: 1234,
     open: false,
