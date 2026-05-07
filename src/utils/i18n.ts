@@ -112,6 +112,9 @@ const resources = {
       'Permission denied': 'Permission denied',
       'Permission revoked': 'Permission revoked',
       'New permissions required': 'New permissions required',
+      'Pending confirmation': 'Pending confirmation',
+      'Could not confirm authorization': 'Could not confirm authorization',
+      'Authorization failed': 'Authorization failed',
     },
   },
   nl: {
@@ -224,6 +227,9 @@ const resources = {
       'Permission denied': 'Toestemming geweigerd',
       'Permission revoked': 'Toestemming ingetrokken',
       'New permissions required': 'Nieuwe toestemmingen vereist',
+      'Pending confirmation': 'Bevestiging in afwachting',
+      'Could not confirm authorization': 'Kon autorisatie niet bevestigen',
+      'Authorization failed': 'Autorisatie mislukt',
     },
   },
   fr: {
@@ -335,6 +341,9 @@ const resources = {
       'Permission denied': 'Autorisation refusée',
       'Permission revoked': 'Autorisation révoquée',
       'New permissions required': 'Nouvelles autorisations requises',
+      'Pending confirmation': 'Confirmation en attente',
+      'Could not confirm authorization': "Impossible de confirmer l'autorisation",
+      'Authorization failed': 'Échec de l’autorisation',
     },
   },
   de: {
@@ -447,6 +456,10 @@ const resources = {
       'Permission denied': 'Berechtigung verweigert',
       'Permission revoked': 'Berechtigung widerrufen',
       'New permissions required': 'Neue Berechtigungen erforderlich',
+      'Pending confirmation': 'Bestätigung ausstehend',
+      'Could not confirm authorization':
+        'Autorisierung konnte nicht bestätigt werden',
+      'Authorization failed': 'Autorisierung fehlgeschlagen',
     },
   },
   es: {
@@ -558,6 +571,9 @@ const resources = {
       'Permission denied': 'Permiso denegado',
       'Permission revoked': 'Permiso revocado',
       'New permissions required': 'Nuevos permisos requeridos',
+      'Pending confirmation': 'Confirmación pendiente',
+      'Could not confirm authorization': 'No se pudo confirmar la autorización',
+      'Authorization failed': 'Autorización fallida',
     },
   },
 };

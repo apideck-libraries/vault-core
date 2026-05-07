@@ -1,0 +1,18 @@
+{
+  "plan": "2026-05-05-GH-9546-csrf-fix-vault-core.md",
+  "current_phase": 11,
+  "total_phases": 11,
+  "phases": [
+    { "id": 1, "name": "Type / Interface Updates", "status": "complete" },
+    { "id": 2, "name": "Write Tests for oauthCsrf Utilities (TDD - RED)", "status": "complete" },
+    { "id": 3, "name": "Implement oauthCsrf Utilities (TDD - GREEN)", "status": "complete" },
+    { "id": 4, "name": "Write Tests for StatusBadge pending_confirmation Branch (TDD - RED)", "status": "complete" },
+    { "id": 5, "name": "Implement StatusBadge pending_confirmation Branch (TDD - GREEN)", "status": "complete" },
+    { "id": 6, "name": "Write Tests for AuthorizeButton Popup Flow (TDD - RED)", "status": "complete" },
+    { "id": 7, "name": "Implement AuthorizeButton Popup Flow (TDD - GREEN)", "status": "complete" },
+    { "id": 8, "name": "Write Tests for handleRedirect + TopBar/ButtonLayoutMenu Nonce Append (TDD - RED)", "status": "complete" },
+    { "id": 9, "name": "Implement handleRedirect Popup Flow + TopBar/ButtonLayoutMenu Nonce Append (TDD - GREEN)", "status": "complete" },
+    { "id": 10, "name": "Verify All Tests Pass + Lint + Build (TDD - GREEN Verification)", "status": "complete" },
+    { "id": 11, "name": "Refactor (TDD - REFACTOR)", "status": "complete", "notes": "Refactor abandoned per plan bail criteria: extracted hook would still need separate setLoading callbacks for AuthorizeButton vs handleRedirect, and the differing connection-source ownership (prop vs context) means the duplication is genuinely structural. Trade-off favoured shipping the validated security fix unchanged." }
+  ]
+}

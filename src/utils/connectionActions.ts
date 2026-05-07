@@ -1,10 +1,16 @@
 import { useToast } from '@apideck/components';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
+import { OAuthPostMessage } from '../types/OAuthCsrf';
 import { SessionSettings, VaultAction } from '../types/Session';
+import {
+  callConfirmEndpoint,
+  clearNonce,
+  verifyAndClearNonce,
+} from './oauthCsrf';
 import { useConnections } from './useConnections';
 
 export const useConnectionActions = () => {
@@ -14,6 +20,13 @@ export const useConnectionActions = () => {
   const { mutate } = useSWRConfig();
   const { addToast } = useToast();
   const { t } = useTranslation();
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    return () => {
+      cleanupRef.current?.();
+    };
+  }, []);
 
   const isActionAllowedForSettings =
     (settings?: SessionSettings) =>
@@ -72,23 +85,114 @@ export const useConnectionActions = () => {
         setIsReAuthorizing(false);
       }
     } else {
+      const serviceId = selectedConnection?.service_id;
+      const unifiedApi = selectedConnection?.unified_api;
+
+      let completed = false;
+      let timer: ReturnType<typeof setInterval> | undefined;
+      let graceTimeout: ReturnType<typeof setTimeout> | undefined;
+
+      const handleChildWindowClose = () => {
+        mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
+          (result) => {
+            onConnectionChange?.(result?.data);
+          }
+        );
+        setIsReAuthorizing(false);
+      };
+
+      const cleanup = () => {
+        completed = true;
+        window.removeEventListener('message', handler);
+        if (timer) clearInterval(timer);
+        if (graceTimeout) clearTimeout(graceTimeout);
+        cleanupRef.current = null;
+        setIsReAuthorizing(false);
+      };
+
+      const handler = async (event: MessageEvent) => {
+        const data = event.data as OAuthPostMessage | undefined;
+        if (
+          !data ||
+          (data.type !== 'oauth_complete' && data.type !== 'oauth_error')
+        ) {
+          return;
+        }
+        if (!serviceId || data.serviceId !== serviceId) return;
+
+        if (data.type === 'oauth_error') {
+          addToast({
+            title: t('Authorization failed'),
+            description: data.errorDescription || data.error,
+            type: 'error',
+            autoClose: true,
+          });
+          clearNonce(serviceId);
+          cleanup();
+          return;
+        }
+
+        if (!verifyAndClearNonce(serviceId, data.nonce)) {
+          addToast({
+            title: t('Could not confirm authorization'),
+            type: 'error',
+            autoClose: true,
+          });
+          cleanup();
+          return;
+        }
+
+        try {
+          await callConfirmEndpoint({
+            unifiedApi: unifiedApi as string,
+            serviceId,
+            confirmToken: data.confirmToken,
+            connectionsUrl: connectionsUrl ?? '',
+            headers,
+          });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.warn('[oauthCsrf] confirm failed', error);
+          addToast({
+            title: t('Could not confirm authorization'),
+            description: (error as Error)?.message,
+            type: 'error',
+            autoClose: true,
+          });
+          cleanup();
+          return;
+        }
+
+        mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
+          (result) => {
+            onConnectionChange?.(result?.data);
+          }
+        );
+        mutate('/vault/connections');
+        cleanup();
+      };
+
+      window.addEventListener('message', handler);
+      cleanupRef.current = cleanup;
+
       const child = window.open(
         url,
         '_blank',
         'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
       );
-      const checkChild = () => {
+
+      timer = setInterval(() => {
         if (child?.closed) {
-          clearInterval(timer);
-          mutate(
-            `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
-          ).then((result) => {
-            onConnectionChange?.(result.data);
-          });
-          setIsReAuthorizing(false);
+          if (timer) clearInterval(timer);
+          timer = undefined;
+          graceTimeout = setTimeout(() => {
+            if (!completed) {
+              handleChildWindowClose();
+              cleanup();
+            }
+          }, 1000);
         }
-      };
-      const timer = setInterval(checkChild, 500);
+      }, 500);
     }
   };
 

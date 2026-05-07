@@ -1,0 +1,326 @@
+import '@testing-library/jest-dom/extend-expect';
+import 'jest-location-mock';
+import 'whatwg-fetch';
+
+import * as React from 'react';
+import { ToastProvider } from '@apideck/components';
+import { act } from 'react-dom/test-utils';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+} from '@testing-library/react';
+
+import { ConnectionsProvider } from '../src/utils/useConnections';
+import { useConnectionActions } from '../src/utils/connectionActions';
+import { generateAndStoreNonce } from '../src/utils/oauthCsrf';
+import '../src/utils/i18n';
+
+const STORAGE_PREFIX = 'apideck_oauth_nonce_';
+const SERVICE_ID = 'shopify';
+const UNIFIED_API = 'ecommerce';
+const UNIFY_BASE_URL = 'https://unify.apideck.com';
+const CONNECTIONS_URL = `${UNIFY_BASE_URL}/vault/connections`;
+const AUTHORIZE_URL_BASE = `${CONNECTIONS_URL}/authorize/${SERVICE_ID}/abc?redirect_uri=http://localhost:3000`;
+
+const makeConnection = (overrides: Record<string, any> = {}) => ({
+  id: `${UNIFIED_API}+${SERVICE_ID}`,
+  service_id: SERVICE_ID,
+  unified_api: UNIFIED_API,
+  name: 'Shopify',
+  icon: 'https://example.com/icon.png',
+  enabled: true,
+  state: 'callable',
+  auth_type: 'oauth2',
+  authorize_url: AUTHORIZE_URL_BASE,
+  revoke_url: null,
+  form_fields: [],
+  configurable_resources: [],
+  resource_schema_support: [],
+  resource_settings_support: [],
+  settings_required_for_authorization: [],
+  ...overrides,
+});
+
+interface HostProps {
+  url: string;
+  buildUrlAtClick?: (serviceId: string, base: string) => string;
+}
+
+const Host = ({ url, buildUrlAtClick }: HostProps) => {
+  const { handleRedirect } = useConnectionActions();
+  return (
+    <button
+      onClick={() => {
+        const finalUrl = buildUrlAtClick
+          ? buildUrlAtClick(SERVICE_ID, url)
+          : url;
+        handleRedirect(finalUrl);
+      }}
+    >
+      Trigger
+    </button>
+  );
+};
+
+const renderHost = (
+  hostProps: HostProps,
+  connectionOverrides: Record<string, any> = {}
+) => {
+  const connection = makeConnection(connectionOverrides);
+  const listResponse = { status_code: 200, status: 'OK', data: [connection] };
+  const detailResponse = { status_code: 200, status: 'OK', data: connection };
+  const tokenResponse = {
+    status_code: 200,
+    status: 'OK',
+    data: { token: 'tok' },
+  };
+  const confirmResponse = {
+    status_code: 200,
+    status: 'OK',
+    data: { confirmed: true },
+  };
+
+  const calls: { url: string; init?: any }[] = [];
+  (window.fetch as any).mockImplementation((url: string, init?: any) => {
+    calls.push({ url, init });
+    if (url.endsWith('/confirm') && init?.method === 'POST') {
+      return { ok: true, status: 200, json: async () => confirmResponse };
+    }
+    if (url.endsWith('/token') && init?.method === 'POST') {
+      return { ok: true, status: 200, json: async () => tokenResponse };
+    }
+    if (url === `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`) {
+      return { ok: true, status: 200, json: async () => detailResponse };
+    }
+    return { ok: true, status: 200, json: async () => listResponse };
+  });
+
+  return {
+    calls,
+    ...render(
+      <ToastProvider>
+        <ConnectionsProvider
+          appId="app-id"
+          consumerId="consumer-id"
+          token="jwt-token"
+          isOpen
+          unifiedApi={UNIFIED_API}
+          serviceId={SERVICE_ID}
+          unifyBaseUrl={UNIFY_BASE_URL}
+          onClose={() => undefined}
+        >
+          <Host {...hostProps} />
+        </ConnectionsProvider>
+      </ToastProvider>
+    ),
+  };
+};
+
+describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
+  let fakeChild: { closed: boolean; close: jest.Mock };
+  let openSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.spyOn(window, 'fetch');
+    sessionStorage.clear();
+    fakeChild = { closed: false, close: jest.fn() };
+    openSpy = jest
+      .spyOn(window, 'open')
+      .mockImplementation(() => fakeChild as unknown as Window);
+  });
+
+  afterEach(() => {
+    cleanup();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  const triggerAndOpen = async () => {
+    const result = renderHost({
+      url: AUTHORIZE_URL_BASE,
+      buildUrlAtClick: (serviceId, base) => {
+        const nonce = generateAndStoreNonce(serviceId);
+        const u = new URL(base);
+        u.searchParams.append('nonce', nonce);
+        return u.href;
+      },
+    });
+
+    await act(async () => {
+      fireEvent.click(result.getByText('Trigger'));
+    });
+
+    // Allow effects (selectedConnection auto-set in single-connection mode) to flush
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    return result;
+  };
+
+  it('appends &nonce= to the authorize URL and stores nonce in sessionStorage', async () => {
+    await triggerAndOpen();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const openedUrl = openSpy.mock.calls[0][0] as string;
+    expect(openedUrl).toContain('nonce=');
+    const nonceFromUrl = new URL(openedUrl).searchParams.get('nonce');
+    expect(nonceFromUrl).toBeTruthy();
+    expect(sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`)).toBe(
+      nonceFromUrl
+    );
+  });
+
+  it('on oauth_complete with valid nonce: POSTs to /confirm and clears the nonce', async () => {
+    const { calls } = await triggerAndOpen();
+
+    const openedUrl = openSpy.mock.calls[0][0] as string;
+    const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce,
+            confirmToken: 'token-xyz',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      const c = calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(c).toBeDefined();
+      expect(c?.init?.method).toBe('POST');
+      expect(JSON.parse(c?.init?.body as string)).toEqual({
+        confirm_token: 'token-xyz',
+      });
+    });
+
+    expect(sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`)).toBeNull();
+  });
+
+  it('on oauth_error: shows toast and does NOT call /confirm', async () => {
+    const result = await triggerAndOpen();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_error',
+            error: 'access_denied',
+            errorDescription: 'User denied consent',
+            serviceId: SERVICE_ID,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.queryByText('User denied consent')).toBeInTheDocument();
+    });
+
+    const confirmCall = result.calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+  it('ignores postMessage with foreign serviceId', async () => {
+    const { calls } = await triggerAndOpen();
+
+    const openedUrl = openSpy.mock.calls[0][0] as string;
+    const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce,
+            confirmToken: 'token-xyz',
+            serviceId: 'some-other-service',
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const confirmCall = calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+  it('on nonce mismatch: skips /confirm and surfaces an error toast', async () => {
+    const result = await triggerAndOpen();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce: 'attacker-nonce',
+            confirmToken: 'token-xyz',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        result.queryByText('Could not confirm authorization')
+      ).toBeInTheDocument();
+    });
+
+    const confirmCall = result.calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+  it('falls back to mutate after 1000ms grace when child closes with no postMessage', async () => {
+    jest.useFakeTimers();
+    const { calls, getByText } = renderHost({
+      url: AUTHORIZE_URL_BASE,
+      buildUrlAtClick: (serviceId, base) => {
+        const nonce = generateAndStoreNonce(serviceId);
+        const u = new URL(base);
+        u.searchParams.append('nonce', nonce);
+        return u.href;
+      },
+    });
+
+    await act(async () => {
+      fireEvent.click(getByText('Trigger'));
+    });
+
+    fakeChild.closed = true;
+
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+
+    let confirmCall = calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+
+    await act(async () => {
+      jest.advanceTimersByTime(1100);
+    });
+
+    confirmCall = calls.find((c) => c.url.endsWith('/confirm'));
+    expect(confirmCall).toBeUndefined();
+  });
+
+});

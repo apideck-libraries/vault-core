@@ -30,6 +30,15 @@ export type ConnectionState =
   | 'callable'
   | 'invalid';
 
+export type ConnectionHealth =
+  | 'ok'
+  | 'pending_refresh'
+  | 'needs_auth'
+  | 'needs_consent'
+  | 'revoked'
+  | 'missing_settings'
+  | 'pending_confirmation';
+
 export type IntegrationState =
   | 'needs_configuration'
   | 'disabled'
@@ -53,6 +62,7 @@ export interface Connection {
   oauth_grant_type?: OAuthGrantType;
   enabled?: boolean;
   state: ConnectionState;
+  health?: ConnectionHealth;
   integration_state?: IntegrationState;
   form_fields?: FormField[];
   authorize_url?: string | null;

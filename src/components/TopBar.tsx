@@ -8,6 +8,7 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { useConnectionActions } from '../utils/connectionActions';
+import { generateAndStoreNonce } from '../utils/oauthCsrf';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
@@ -236,7 +237,12 @@ const TopBar = ({
             {t('Re-authorize')}
           </button>
         ),
-        onClick: () => handleRedirect(authorizeUrl, onConnectionChange),
+        onClick: () => {
+          const nonce = generateAndStoreNonce(selectedConnection.service_id);
+          const url = new URL(authorizeUrl);
+          url.searchParams.append('nonce', nonce);
+          handleRedirect(url.href, onConnectionChange);
+        },
       });
     }
 
