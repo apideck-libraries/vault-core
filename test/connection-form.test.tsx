@@ -87,3 +87,80 @@ describe('Connection form - Invalid session', () => {
     });
   });
 });
+
+describe('Connection form - Save button variant', () => {
+  beforeEach(() => jest.spyOn(window, 'fetch'));
+  beforeEach(() => fetchMock(INVALID_SESSION_RESPONSE));
+  beforeEach(() => setupIntersectionObserverMock());
+
+  it('renders Save as the primary CTA by default', async () => {
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <ConnectionForm
+          connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
+          setCurrentView={() => {}}
+          settings={{}}
+        />
+      );
+    });
+
+    const submit = screen.getByText('Save').closest('button');
+    expect(submit).toHaveClass('bg-primary-600');
+    expect(submit).not.toHaveClass('border-gray-300');
+  });
+
+  it('renders Save as the primary CTA when isPrimaryAction is true', async () => {
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <ConnectionForm
+          connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
+          setCurrentView={() => {}}
+          settings={{}}
+          isPrimaryAction={true}
+        />
+      );
+    });
+
+    const submit = screen.getByText('Save').closest('button');
+    expect(submit).toHaveClass('bg-primary-600');
+  });
+
+  it('renders Save as a secondary (outline) CTA when isPrimaryAction is false', async () => {
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <ConnectionForm
+          connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
+          setCurrentView={() => {}}
+          settings={{}}
+          isPrimaryAction={false}
+        />
+      );
+    });
+
+    const submit = screen.getByText('Save').closest('button');
+    expect(submit).toHaveClass('border-gray-300');
+    expect(submit).not.toHaveClass('bg-primary-600');
+  });
+
+  it('does not apply the theme primary_color background when not the primary action', async () => {
+    // Even if a theme color were set, an outline Save button must remain neutral
+    // so it does not visually compete with the Authorize button above it.
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <ConnectionForm
+          connection={ADDED_CONNECTIONS_RESPONSE.data[0] as Connection}
+          setCurrentView={() => {}}
+          settings={{}}
+          isPrimaryAction={false}
+        />
+      );
+    });
+
+    const submit = screen.getByText('Save').closest('button') as HTMLElement;
+    expect(submit.style.backgroundColor).toBe('');
+  });
+});

@@ -32,11 +32,17 @@ interface Props {
     SetStateAction<ConnectionViewType | undefined | null>
   >;
   settings: SessionSettings;
+  isPrimaryAction?: boolean;
 }
 
 type ValidationState = 'idle' | 'invalid' | 'valid' | 'validating';
 
-const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
+const ConnectionForm = ({
+  connection,
+  setCurrentView,
+  settings,
+  isPrimaryAction = true,
+}: Props) => {
   const { updateConnection } = useConnections();
   const { addToast } = useToast();
   const { session } = useSession();
@@ -281,6 +287,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
 
         <Button
           type="submit"
+          variant={isPrimaryAction ? 'primary' : 'outline'}
           text={
             validationState === 'validating'
               ? t('Trying to connect...')
@@ -291,7 +298,7 @@ const ConnectionForm = ({ connection, setCurrentView, settings }: Props) => {
           className="w-full"
           disabled={hasSingleDisabledField}
           style={
-            session?.theme?.primary_color
+            isPrimaryAction && session?.theme?.primary_color
               ? { backgroundColor: session?.theme.primary_color }
               : {}
           }
