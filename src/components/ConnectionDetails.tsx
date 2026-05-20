@@ -501,6 +501,7 @@ const ConnectionDetails = ({
                 connection={selectedConnection}
                 setCurrentView={setCurrentView}
                 settings={settings}
+                isPrimaryAction={!shouldShowAuthorizeButton}
               />
             </Fragment>
           ) : null}
