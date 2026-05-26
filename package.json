@@ -115,6 +115,7 @@
     "autoprefixer": "^10.4.2",
     "babel-loader": "^8.2.3",
     "dotenv": "^16.0.3",
+    "eslint-plugin-prettier": "^3.4.1",
     "husky": "^7.0.4",
     "jest-location-mock": "^1.0.9",
     "node-fetch-commonjs": "^3.2.4",
