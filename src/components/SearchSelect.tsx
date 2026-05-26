@@ -186,7 +186,7 @@ const SearchSelect = ({
     ref: selectRef,
     id: field,
     name: field,
-    ['data-testid']: field,
+    'data-testid': field,
     value: selectedOption,
     isDisabled: disabled,
     onChange: patchedOnChange,

@@ -139,16 +139,15 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
   const dataScopes = connection.application_data_scopes;
   const [showDenyModal, setShowDenyModal] = useState(false);
 
+  const dataScopeResources = dataScopes?.resources;
   const filteredResources = useMemo(() => {
-    if (!dataScopes?.resources || typeof dataScopes.resources === 'string') {
+    if (!dataScopeResources || typeof dataScopeResources === 'string') {
       return undefined;
     }
 
-    const resources = dataScopes.resources;
-    const filtered: typeof resources = {};
+    const filtered: typeof dataScopeResources = {};
 
-    // Only include resources that have fields with actual permissions
-    for (const [resourceName, fields] of Object.entries(resources)) {
+    for (const [resourceName, fields] of Object.entries(dataScopeResources)) {
       const validFields: typeof fields = {};
 
       for (const [fieldName, permissions] of Object.entries(fields)) {
@@ -163,7 +162,7 @@ const ConsentScreen: React.FC<Props> = ({ connection, onClose, onDeny }) => {
     }
 
     return Object.keys(filtered).length > 0 ? filtered : undefined;
-  }, [dataScopes?.resources]);
+  }, [dataScopeResources]);
 
   const hasDataScopes = dataScopes?.enabled && !!filteredResources;
 

@@ -106,7 +106,7 @@ const ScopesDetail: React.FC<{
 
 const SkeletonLoader = ({ className }: { className?: string }) => (
   <div className={`block animate-pulse px-3 ${className}`}>
-    <ul role="list" className="-mb-4">
+    <ul className="-mb-4">
       {[...Array(4)].map((_, i) => (
         <li key={i}>
           <div className="relative pb-4">
@@ -164,21 +164,22 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
 
   const records = consentData?.data || [];
 
+  const dataScopeResources = dataScopes?.resources;
   const filteredResources = useMemo(() => {
     if (
-      !dataScopes?.resources ||
-      typeof dataScopes.resources === 'string' ||
+      !dataScopeResources ||
+      typeof dataScopeResources === 'string' ||
       !connection.unified_api
     ) {
       return undefined;
     }
     const resources = Object.fromEntries(
-      Object.entries(dataScopes.resources).filter(([key]) =>
+      Object.entries(dataScopeResources).filter(([key]) =>
         key.startsWith(`${connection.unified_api}.`)
       )
     );
     return resources;
-  }, [dataScopes?.resources, connection.unified_api]);
+  }, [dataScopeResources, connection.unified_api]);
 
   const getScopeSummary = (resources: ConsentRecord['resources']) => {
     if (resources === '*') return t('All data access');
@@ -332,7 +333,7 @@ const ConsentHistory = ({ connection, setCurrentView }: Props) => {
         ) : (
           <div className="flow-root">
             {records.length > 0 ? (
-              <ul role="list" className="-mb-4 max-h-80 overflow-y-auto px-3">
+              <ul className="-mb-4 max-h-80 overflow-y-auto px-3">
                 {records
                   .sort(
                     (a, b) =>

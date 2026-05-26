@@ -384,9 +384,11 @@ const TopBar = ({
     return options;
   };
 
+  const connectionIcon = selectedConnection?.icon;
+  const themeLogo = session?.theme?.logo;
   const showLogo = useMemo(
-    () => selectedConnection?.icon || session?.theme?.logo,
-    [selectedConnection?.icon, session?.theme?.logo]
+    () => connectionIcon || themeLogo,
+    [connectionIcon, themeLogo]
   );
 
   if (!showLogo && !selectedConnection?.name) return null;
@@ -479,6 +481,7 @@ const TopBar = ({
               src={selectedConnection?.icon ?? session?.theme?.logo}
               id="react-vault-icon"
               className="object-fit w-full h-full"
+              alt={selectedConnection?.name ?? ''}
             />
           </div>
         ) : null}

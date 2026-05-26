@@ -38,7 +38,9 @@ const renderForm = async (formFields: any[]) => {
   await act(async () => {
     screen = render(
       <ConnectionForm
-        connection={{ ...baseConnection, form_fields: formFields } as Connection}
+        connection={
+          { ...baseConnection, form_fields: formFields } as Connection
+        }
         setCurrentView={() => {}}
         settings={{}}
       />
@@ -134,9 +136,7 @@ describe('ConnectionForm - type: "info" field', () => {
   });
 
   it('renders the label when present', async () => {
-    const screen = await renderForm([
-      { ...baseInfoField, description: 'Hi' },
-    ]);
+    const screen = await renderForm([{ ...baseInfoField, description: 'Hi' }]);
     expect(screen.getByText('Setup Instructions')).toBeInTheDocument();
   });
 
@@ -150,9 +150,7 @@ describe('ConnectionForm - type: "info" field', () => {
   it('renders complex Markdown (lists, links, bold)', async () => {
     const description =
       '1. **Step one**\n2. Visit [Apideck](https://apideck.com)\n';
-    const screen = await renderForm([
-      { ...baseInfoField, description },
-    ]);
+    const screen = await renderForm([{ ...baseInfoField, description }]);
     expect(screen.getByText('Step one')).toBeInTheDocument();
     const link = screen.getByText('Apideck') as HTMLAnchorElement;
     expect(link.tagName.toLowerCase()).toBe('a');
@@ -322,8 +320,6 @@ describe('ConnectionForm - {{field_id}} description interpolation', () => {
     ]);
     const link = screen.getByText('Download') as HTMLAnchorElement;
     expect(link.tagName.toLowerCase()).toBe('a');
-    expect(link.getAttribute('href')).toBe(
-      'https://files.example.com/foo.qwc'
-    );
+    expect(link.getAttribute('href')).toBe('https://files.example.com/foo.qwc');
   });
 });

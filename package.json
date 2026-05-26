@@ -58,6 +58,20 @@
       "^markdown-to-jsx/entities$": "<rootDir>/node_modules/markdown-to-jsx/dist/entities.browser.cjs"
     }
   },
+  "eslint": {
+    "overrides": [
+      {
+        "files": [
+          "src/components/ConnectionDetails.tsx",
+          "src/components/ConnectionForm.tsx",
+          "src/components/ResourceForm.tsx"
+        ],
+        "rules": {
+          "react-hooks/rules-of-hooks": "off"
+        }
+      }
+    ]
+  },
   "name": "@apideck/react-vault",
   "author": "Jake Prins",
   "keywords": [

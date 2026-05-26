@@ -24,7 +24,7 @@ interface ContextProps {
   isLoading: boolean;
   isLoadingDetails: boolean;
   isUpdating: boolean;
-  resources: { resource: string; defaults: FormField[] }[] | [];
+  resources: { resource: string; defaults: FormField[] }[];
   selectedConnection: Connection | null;
   setSelectedConnection: (connection: Connection | null) => void;
   singleConnectionMode: boolean;
@@ -161,7 +161,7 @@ export const ConnectionsProvider = ({
     const isReAuthorized = state === 'authorized' || state === 'callable';
 
     if (
-      (configurable_resources ?? []).length > 0 &&
+      (configurable_resources || []).length > 0 &&
       isReAuthorized &&
       !resources.length &&
       !isUpdating &&
