@@ -95,13 +95,11 @@ describe('oauthCsrf utilities', () => {
         status: 'OK',
         data: { confirmed: true },
       };
-      const fetchSpy = jest
-        .spyOn(window, 'fetch')
-        .mockResolvedValue({
-          ok: true,
-          status: 200,
-          json: async () => successResponse,
-        } as any);
+      const fetchSpy = jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => successResponse,
+      } as any);
 
       const result = await callConfirmEndpoint(baseParams);
 

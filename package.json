@@ -1,5 +1,5 @@
 {
-  "version": "0.19.1",
+  "version": "0.20.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -7,7 +7,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=18"
   },
   "scripts": {
     "start": "tsdx watch",
@@ -37,7 +37,7 @@
     "fuse.js": "^6.5.3",
     "i18next": "^23.7.18",
     "jwt-decode": "^3.1.2",
-    "markdown-to-jsx": "^7.7.6",
+    "markdown-to-jsx": "^9.8.1",
     "react-i18next": "^14.0.1",
     "react-select": "^5.2.2",
     "swr": "^1.0.1"
@@ -52,6 +52,25 @@
     "semi": true,
     "singleQuote": true,
     "trailingComma": "es5"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^markdown-to-jsx/entities$": "<rootDir>/node_modules/markdown-to-jsx/dist/entities.browser.cjs"
+    }
+  },
+  "eslint": {
+    "overrides": [
+      {
+        "files": [
+          "src/components/ConnectionDetails.tsx",
+          "src/components/ConnectionForm.tsx",
+          "src/components/ResourceForm.tsx"
+        ],
+        "rules": {
+          "react-hooks/rules-of-hooks": "off"
+        }
+      }
+    ]
   },
   "name": "@apideck/react-vault",
   "author": "Jake Prins",
@@ -110,6 +129,7 @@
     "autoprefixer": "^10.4.2",
     "babel-loader": "^8.2.3",
     "dotenv": "^16.0.3",
+    "eslint-plugin-prettier": "^3.4.1",
     "husky": "^7.0.4",
     "jest-location-mock": "^1.0.9",
     "node-fetch-commonjs": "^3.2.4",

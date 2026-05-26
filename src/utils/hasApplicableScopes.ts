@@ -25,4 +25,3 @@ export const hasApplicableScopes = (
     Object.values(resource).some((field) => field.read || field.write)
   );
 };
-

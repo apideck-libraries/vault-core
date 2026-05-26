@@ -342,7 +342,8 @@ const resources = {
       'Permission revoked': 'Autorisation révoquée',
       'New permissions required': 'Nouvelles autorisations requises',
       'Pending confirmation': 'Confirmation en attente',
-      'Could not confirm authorization': "Impossible de confirmer l'autorisation",
+      'Could not confirm authorization':
+        "Impossible de confirmer l'autorisation",
       'Authorization failed': 'Échec de l’autorisation',
     },
   },

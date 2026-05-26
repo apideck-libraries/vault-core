@@ -229,6 +229,7 @@ const AuthorizeButton = ({
         <img
           src="https://vault.apideck.com/img/google-button.png"
           className="h-full"
+          alt="Sign in with Google"
         />
       </button>
     );
@@ -246,6 +247,7 @@ const AuthorizeButton = ({
         <img
           src="https://vault.apideck.com/img/quickbooks-button.png"
           className="h-full"
+          alt="Connect to QuickBooks"
         />
       </button>
     );

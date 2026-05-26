@@ -5,12 +5,7 @@ import 'whatwg-fetch';
 import * as React from 'react';
 import { ToastProvider } from '@apideck/components';
 import { act } from 'react-dom/test-utils';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { ConnectionsProvider } from '../src/utils/useConnections';
 import { useConnectionActions } from '../src/utils/connectionActions';
@@ -322,5 +317,4 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     confirmCall = calls.find((c) => c.url.endsWith('/confirm'));
     expect(confirmCall).toBeUndefined();
   });
-
 });
