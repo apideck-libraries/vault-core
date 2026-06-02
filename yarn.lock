@@ -13,16 +13,16 @@
     postinstall-postinstall "^2.1.0"
     use-clipboard-copy "^0.2.0"
 
-"@apideck/wayfinder@^0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@apideck/wayfinder/-/wayfinder-0.2.3.tgz#639ccdeb2a7826b19fbac845c8fdb0fb0e691217"
-  integrity sha512-65h2oLYM7hQdZHrHyoBR5XMEWKNUf3xo2jnVikp1GeFCV1e5q/pES6E1GS1oLsf71nlwGMUHWFfasX+dUUZUKA==
+"@apideck/wayfinder@^0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@apideck/wayfinder/-/wayfinder-0.2.6.tgz#371073c4092f687644ecdc40d098a49ce288b8b8"
+  integrity sha512-tw2CXB7Qb39oLABB8k090nPJVXmm1H85G/fbsEY6AyA6vrk1zyfb4mJzOjYmHRBJ+Q6pG44fRoZElvQ0XrV0zA==
   dependencies:
     "@monaco-editor/react" "^4.6.0"
     classnames "2.3.2"
     json-to-ast "^2.1.0"
     jsonc-parser "^3.2.0"
-    jsonpath "^1.1.1"
+    jsonpath "^1.3.0"
     monaco-editor "^0.44.0"
     use-clipboard-copy "0.2.0"
 
@@ -9476,10 +9476,10 @@ jsonfile@^6.0.1:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-jsonpath@^1.1.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/jsonpath/-/jsonpath-1.2.1.tgz#2b74a4bcc78948e43e33ac971138ce0c68bce701"
-  integrity sha512-Jl6Jhk0jG+kP3yk59SSeGq7LFPR4JQz1DU0K+kXTysUhMostbhU3qh5mjTuf0PqFcXpAT7kvmMt9WxV10NyIgQ==
+jsonpath@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/jsonpath/-/jsonpath-1.3.0.tgz#623197970fb433845c68024bf9e2b864f5376ab2"
+  integrity sha512-0kjkYHJBkAy50Z5QzArZ7udmvxrJzkpKYW27fiF//BrMY7TQibYLl+FYIXN2BiYmwMIVzSfD8aDRj6IzgBX2/w==
   dependencies:
     esprima "1.2.5"
     static-eval "2.1.1"
