@@ -63,6 +63,22 @@ const Modal: any = ({
     setMounted(true);
   }, []);
 
+  // Close on Escape regardless of where focus currently sits. Headless UI's own
+  // Escape handler only fires once focus is inside the dialog, which the portal
+  // doesn't guarantee when the host app's focus is elsewhere. We stop
+  // propagation so Headless's window-level handler doesn't also call onClose.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   const modalComponent = (
     <Transition.Root appear show={isOpen} as={Fragment}>
       <Dialog
@@ -79,20 +95,28 @@ const Modal: any = ({
             className
           )}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-8 h-8 absolute right-6 top-6 lg:w-10 lg:h-10 xl:top-8 xl:right-8 cursor-pointer text-gray-100 hover:text-white"
+          <button
+            type="button"
+            aria-label="Close"
+            data-testid="modal-close"
+            onClick={onClose}
+            className="absolute z-50 flex items-center justify-center p-2 text-white transition-colors rounded-full cursor-pointer right-6 top-6 bg-black/10 hover:bg-black/20 lg:right-8 xl:top-8 xl:right-8 focus:outline-none"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-6 h-6 lg:w-7 lg:h-7"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
 
           <div className="min-h-screen px-4 text-center">
             <Transition.Child
