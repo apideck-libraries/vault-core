@@ -64,16 +64,21 @@ const Modal: any = ({
   }, []);
 
   // Close on Escape regardless of where focus currently sits. Headless UI's own
-  // Escape handler only fires once focus is inside the dialog, which the portal
-  // doesn't guarantee when the host app's focus is elsewhere. We stop
-  // propagation so Headless's window-level handler doesn't also call onClose.
+  // Escape handler can fail to fire when the host app's focus is outside the
+  // portal, leaving users unable to dismiss with the keyboard.
+  //
+  // If a nested dialog is open (delete confirmation, field-mapping WayFinder),
+  // we must NOT handle Escape ourselves — Headless UI's nesting-aware handler
+  // should close just that innermost dialog. Each open Headless dialog renders
+  // a [role="dialog"] element, so more than one means we're not the topmost
+  // layer; in that case we bail and let the event bubble to Headless.
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.stopPropagation();
-        onClose();
-      }
+      if (event.key !== 'Escape') return;
+      if (document.querySelectorAll('[role="dialog"]').length > 1) return;
+      event.stopPropagation();
+      onClose();
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -100,7 +105,7 @@ const Modal: any = ({
             aria-label="Close"
             data-testid="modal-close"
             onClick={onClose}
-            className="absolute z-50 flex items-center justify-center p-2 text-white transition-colors rounded-full cursor-pointer right-6 top-6 bg-black/10 hover:bg-black/20 lg:right-8 xl:top-8 xl:right-8 focus:outline-none"
+            className="absolute z-50 flex items-center justify-center p-2 text-gray-600 transition duration-150 rounded-full cursor-pointer right-6 top-6 bg-white shadow-md ring-1 ring-black/5 hover:bg-gray-100 hover:text-gray-900 active:scale-95 lg:right-8 xl:top-8 xl:right-8 focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

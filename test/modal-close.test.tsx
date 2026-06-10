@@ -9,6 +9,8 @@ import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import { NO_ADDED_CONNECTIONS_RESPONSE } from './responses/no-added-connections';
 import { Vault } from '../src/components/Vault';
+import Modal from '../src/components/Modal';
+import { Dialog } from '@headlessui/react';
 import { act } from 'react-dom/test-utils';
 
 describe('Vault - Modal close affordances', () => {
@@ -54,5 +56,29 @@ describe('Vault - Modal close affordances', () => {
     await waitFor(() => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('on Escape closes only the nested dialog, not the whole vault', async () => {
+    const onCloseVault = jest.fn();
+    const onCloseNested = jest.fn();
+
+    // A real nested Headless dialog (like the delete confirmation or the
+    // field-mapping WayFinder) open on top of the vault modal.
+    await act(async () => {
+      render(
+        <Modal isOpen onClose={onCloseVault}>
+          <Dialog open onClose={onCloseNested}>
+            <Dialog.Panel>Nested dialog</Dialog.Panel>
+          </Dialog>
+        </Modal>
+      );
+    });
+
+    await act(async () => {
+      fireEvent.keyDown(document, { key: 'Escape' });
+    });
+
+    expect(onCloseNested).toHaveBeenCalledTimes(1);
+    expect(onCloseVault).not.toHaveBeenCalled();
   });
 });
