@@ -1,78 +1,25 @@
 import 'whatwg-fetch';
 
-import {
-  callConfirmEndpoint,
-  clearNonce,
-  generateAndStoreNonce,
-  verifyAndClearNonce,
-} from '../src/utils/oauthCsrf';
-
-const STORAGE_PREFIX = 'apideck_oauth_nonce_';
+import { callConfirmEndpoint, generateNonce } from '../src/utils/oauthCsrf';
 
 describe('oauthCsrf utilities', () => {
-  beforeEach(() => {
-    sessionStorage.clear();
-  });
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  describe('generateAndStoreNonce', () => {
-    it('returns a non-empty string and stores it under the prefixed key', () => {
-      const nonce = generateAndStoreNonce('shopify');
+  describe('generateNonce', () => {
+    it('returns a non-empty string', () => {
+      const nonce = generateNonce();
 
       expect(typeof nonce).toBe('string');
       expect(nonce.length).toBeGreaterThan(0);
-      expect(sessionStorage.getItem(`${STORAGE_PREFIX}shopify`)).toBe(nonce);
     });
 
-    it('overwrites a previous nonce for the same serviceId', () => {
-      const first = generateAndStoreNonce('shopify');
-      const second = generateAndStoreNonce('shopify');
+    it('returns a different value on each call', () => {
+      const first = generateNonce();
+      const second = generateNonce();
 
       expect(second).not.toBe(first);
-      expect(sessionStorage.getItem(`${STORAGE_PREFIX}shopify`)).toBe(second);
-    });
-  });
-
-  describe('verifyAndClearNonce', () => {
-    it('returns true when the stored nonce matches and clears storage', () => {
-      const nonce = generateAndStoreNonce('shopify');
-
-      const result = verifyAndClearNonce('shopify', nonce);
-
-      expect(result).toBe(true);
-      expect(sessionStorage.getItem(`${STORAGE_PREFIX}shopify`)).toBeNull();
-    });
-
-    it('returns false when the stored nonce does not match and STILL clears storage', () => {
-      generateAndStoreNonce('shopify');
-
-      const result = verifyAndClearNonce('shopify', 'attacker-nonce');
-
-      expect(result).toBe(false);
-      expect(sessionStorage.getItem(`${STORAGE_PREFIX}shopify`)).toBeNull();
-    });
-
-    it('returns false when no nonce is stored for that serviceId', () => {
-      const result = verifyAndClearNonce('shopify', 'anything');
-
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('clearNonce', () => {
-    it('removes the stored nonce', () => {
-      generateAndStoreNonce('shopify');
-
-      clearNonce('shopify');
-
-      expect(sessionStorage.getItem(`${STORAGE_PREFIX}shopify`)).toBeNull();
-    });
-
-    it('is a no-op when nothing is stored', () => {
-      expect(() => clearNonce('shopify')).not.toThrow();
     });
   });
 

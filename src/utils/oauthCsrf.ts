@@ -1,9 +1,5 @@
 import { ConfirmResponse } from '../types/OAuthCsrf';
 
-const STORAGE_PREFIX = 'apideck_oauth_nonce_';
-
-const storageKey = (serviceId: string) => `${STORAGE_PREFIX}${serviceId}`;
-
 const generateUuid = (): string => {
   const c: any =
     (typeof window !== 'undefined' ? window.crypto : undefined) ||
@@ -17,22 +13,14 @@ const generateUuid = (): string => {
     .slice(2)}-${Math.random().toString(36).slice(2)}`;
 };
 
-export function generateAndStoreNonce(serviceId: string): string {
-  const nonce = generateUuid();
-  sessionStorage.setItem(storageKey(serviceId), nonce);
-  return nonce;
-}
-
-export function verifyAndClearNonce(serviceId: string, nonce: string): boolean {
-  const key = storageKey(serviceId);
-  const stored = sessionStorage.getItem(key);
-  sessionStorage.removeItem(key);
-  if (stored === null) return false;
-  return stored === nonce;
-}
-
-export function clearNonce(serviceId: string): void {
-  sessionStorage.removeItem(storageKey(serviceId));
+// The nonce is an opaque value appended to the authorize URL purely as unify's
+// opt-in trigger for the confirm flow. unify echoes it back verbatim and never
+// verifies it server-side (CallbackConnectionUseCase.ts:394/475/494). The real
+// CSRF protection is the single-use, context-bound `confirm_token` enforced by
+// ConfirmConnectionUseCase.ts:62-69 against the authenticated session. So the
+// client only needs to generate a fresh value — no storage, no verification.
+export function generateNonce(): string {
+  return generateUuid();
 }
 
 export async function callConfirmEndpoint(params: {

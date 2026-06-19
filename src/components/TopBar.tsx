@@ -8,7 +8,7 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { useConnectionActions } from '../utils/connectionActions';
-import { generateAndStoreNonce } from '../utils/oauthCsrf';
+import { generateNonce } from '../utils/oauthCsrf';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
@@ -237,7 +237,7 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          const nonce = generateAndStoreNonce(selectedConnection.service_id);
+          const nonce = generateNonce();
           const url = new URL(authorizeUrl);
           url.searchParams.append('nonce', nonce);
           handleRedirect(url.href, onConnectionChange);

@@ -6,12 +6,7 @@ import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
-import {
-  callConfirmEndpoint,
-  clearNonce,
-  generateAndStoreNonce,
-  verifyAndClearNonce,
-} from '../utils/oauthCsrf';
+import { callConfirmEndpoint, generateNonce } from '../utils/oauthCsrf';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 
@@ -106,7 +101,7 @@ const AuthorizeButton = ({
     } else {
       const serviceId = connection.service_id;
       const unifiedApi = connection.unified_api;
-      const nonce = generateAndStoreNonce(serviceId);
+      const nonce = generateNonce();
 
       const url = new URL(authorizeUrl);
       url.searchParams.append('nonce', nonce);
@@ -138,17 +133,6 @@ const AuthorizeButton = ({
           addToast({
             title: t('Authorization failed'),
             description: data.errorDescription || data.error,
-            type: 'error',
-            autoClose: true,
-          });
-          clearNonce(serviceId);
-          cleanup();
-          return;
-        }
-
-        if (!verifyAndClearNonce(serviceId, data.nonce)) {
-          addToast({
-            title: t('Could not confirm authorization'),
             type: 'error',
             autoClose: true,
           });

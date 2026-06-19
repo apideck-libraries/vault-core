@@ -1,0 +1,11 @@
+{
+  "plan": "2026-06-19-GH-9546-drop-client-nonce-storage.md",
+  "current_phase": 1,
+  "total_phases": 4,
+  "phases": [
+    {"id": 1, "name": "Rewrite Tests to Target Behavior (TDD - RED)", "status": "pending"},
+    {"id": 2, "name": "Remove Nonce Storage Across Util + Consumers (TDD - GREEN)", "status": "pending"},
+    {"id": 3, "name": "Verify Full Suite (TDD - GREEN verification)", "status": "pending"},
+    {"id": 4, "name": "Cleanup (TDD - REFACTOR)", "status": "pending"}
+  ]
+}
