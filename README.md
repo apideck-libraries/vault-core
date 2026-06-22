@@ -167,3 +167,7 @@ If you want to provide a custom logo on top of the modal, you can set the `logo`
 | showLanguageSwitch     | boolean                          | false    | false   | Show language switch at bottom                                                                                                                    |
 | showButtonLayout       | boolean                          | false    | false   | Show button layout instead of dropdown menu in TopBar for connection actions                                                                      |
 | autoStartAuthorization | boolean                          | false    | false   | Automatically start the authorization process. Applies Works only in the single connection mode                                                   |
+
+## Deploy
+
+User `np` to publish to NPM (2FA required). After publishing of new version make sure to upgrade `@apideck/react-vault` package inside the `iframe-vault` project and deploy it.
