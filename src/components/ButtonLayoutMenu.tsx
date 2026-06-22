@@ -7,7 +7,7 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { useConnectionActions } from '../utils/connectionActions';
-import { generateAndStoreNonce } from '../utils/oauthCsrf';
+import { generateNonce } from '../utils/oauthCsrf';
 import { getApiName } from '../utils/getApiName';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
@@ -95,7 +95,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const nonce = generateAndStoreNonce(connection.service_id);
+          const nonce = generateNonce();
           const url = new URL(
             `${authorize_url}&redirect_uri=${
               session?.redirect_uri ?? REDIRECT_URL
@@ -283,7 +283,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const nonce = generateAndStoreNonce(connection.service_id);
+          const nonce = generateNonce();
           const url = new URL(
             `${authorize_url}&redirect_uri=${
               session?.redirect_uri ?? REDIRECT_URL

@@ -145,7 +145,6 @@ describe('Authorize button visibility', () => {
   });
 });
 
-const STORAGE_PREFIX = 'apideck_oauth_nonce_';
 const SERVICE_ID = 'shopify';
 const UNIFIED_API = 'ecommerce';
 const CONNECTIONS_URL = 'https://unify.apideck.com/vault/connections';
@@ -197,7 +196,6 @@ describe('Authorize button OAuth CSRF flow', () => {
   beforeEach(() => {
     jest.spyOn(window, 'fetch');
     setupIntersectionObserverMock();
-    sessionStorage.clear();
     fakeChild = { closed: false, close: jest.fn() };
     openSpy = jest
       .spyOn(window, 'open')
@@ -237,7 +235,7 @@ describe('Authorize button OAuth CSRF flow', () => {
     return { screen, mockData };
   };
 
-  it('appends &nonce= to the authorize URL and stores nonce in sessionStorage', async () => {
+  it('appends &nonce= to the authorize URL', async () => {
     await renderAndClickAuthorize();
 
     expect(openSpy).toHaveBeenCalledTimes(1);
@@ -247,12 +245,9 @@ describe('Authorize button OAuth CSRF flow', () => {
     const url = new URL(openedUrl);
     const nonceFromUrl = url.searchParams.get('nonce');
     expect(nonceFromUrl).toBeTruthy();
-
-    const stored = sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`);
-    expect(stored).toBe(nonceFromUrl);
   });
 
-  it('on oauth_complete with valid nonce: POSTs to /confirm and clears the nonce', async () => {
+  it('on oauth_complete with valid nonce: POSTs to /confirm', async () => {
     const { mockData } = await renderAndClickAuthorize();
 
     const openedUrl = openSpy.mock.calls[0][0] as string;
@@ -283,8 +278,6 @@ describe('Authorize button OAuth CSRF flow', () => {
         confirm_token: 'token-xyz',
       });
     });
-
-    expect(sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`)).toBeNull();
   });
 
   it('on oauth_error: shows toast and does NOT call /confirm', async () => {
@@ -342,16 +335,16 @@ describe('Authorize button OAuth CSRF flow', () => {
     expect(confirmCall).toBeUndefined();
   });
 
-  it('on nonce mismatch: skips /confirm and surfaces an error toast', async () => {
-    const { screen, mockData } = await renderAndClickAuthorize();
+  it('on oauth_complete with an arbitrary nonce: still POSTs to /confirm', async () => {
+    const { mockData } = await renderAndClickAuthorize();
 
-    // Stored nonce is now whatever was generated. Send a different nonce.
+    // The client no longer verifies the nonce, so any value still confirms.
     await act(async () => {
       window.dispatchEvent(
         new MessageEvent('message', {
           data: {
             type: 'oauth_complete',
-            nonce: 'attacker-nonce',
+            nonce: 'arbitrary-value',
             confirmToken: 'token-xyz',
             serviceId: SERVICE_ID,
             success: true,
@@ -362,13 +355,15 @@ describe('Authorize button OAuth CSRF flow', () => {
     });
 
     await waitFor(() => {
-      expect(
-        screen.queryByText('Could not confirm authorization')
-      ).toBeInTheDocument();
+      const confirmCall = mockData.calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(confirmCall).toBeDefined();
+      expect(confirmCall?.init?.method).toBe('POST');
+      expect(JSON.parse(confirmCall?.init?.body as string)).toEqual({
+        confirm_token: 'token-xyz',
+      });
     });
-
-    const confirmCall = mockData.calls.find((c) => c.url.endsWith('/confirm'));
-    expect(confirmCall).toBeUndefined();
   });
 
   it('falls back to mutate after 1000ms grace when child closes with no postMessage', async () => {

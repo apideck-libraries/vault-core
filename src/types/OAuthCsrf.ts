@@ -1,5 +1,7 @@
 export interface OAuthCompleteMessage {
   type: 'oauth_complete';
+  // Echoed back by unify for wire compatibility; received but unused — the
+  // client no longer verifies it (see oauthCsrf.ts `generateNonce`).
   nonce: string;
   confirmToken: string;
   serviceId: string;

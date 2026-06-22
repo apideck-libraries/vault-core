@@ -9,10 +9,9 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { ConnectionsProvider } from '../src/utils/useConnections';
 import { useConnectionActions } from '../src/utils/connectionActions';
-import { generateAndStoreNonce } from '../src/utils/oauthCsrf';
+import { generateNonce } from '../src/utils/oauthCsrf';
 import '../src/utils/i18n';
 
-const STORAGE_PREFIX = 'apideck_oauth_nonce_';
 const SERVICE_ID = 'shopify';
 const UNIFIED_API = 'ecommerce';
 const UNIFY_BASE_URL = 'https://unify.apideck.com';
@@ -119,7 +118,6 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
 
   beforeEach(() => {
     jest.spyOn(window, 'fetch');
-    sessionStorage.clear();
     fakeChild = { closed: false, close: jest.fn() };
     openSpy = jest
       .spyOn(window, 'open')
@@ -135,8 +133,8 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
   const triggerAndOpen = async () => {
     const result = renderHost({
       url: AUTHORIZE_URL_BASE,
-      buildUrlAtClick: (serviceId, base) => {
-        const nonce = generateAndStoreNonce(serviceId);
+      buildUrlAtClick: (_serviceId, base) => {
+        const nonce = generateNonce();
         const u = new URL(base);
         u.searchParams.append('nonce', nonce);
         return u.href;
@@ -155,7 +153,7 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     return result;
   };
 
-  it('appends &nonce= to the authorize URL and stores nonce in sessionStorage', async () => {
+  it('appends &nonce= to the authorize URL', async () => {
     await triggerAndOpen();
 
     expect(openSpy).toHaveBeenCalledTimes(1);
@@ -163,12 +161,9 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     expect(openedUrl).toContain('nonce=');
     const nonceFromUrl = new URL(openedUrl).searchParams.get('nonce');
     expect(nonceFromUrl).toBeTruthy();
-    expect(sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`)).toBe(
-      nonceFromUrl
-    );
   });
 
-  it('on oauth_complete with valid nonce: POSTs to /confirm and clears the nonce', async () => {
+  it('on oauth_complete with valid nonce: POSTs to /confirm', async () => {
     const { calls } = await triggerAndOpen();
 
     const openedUrl = openSpy.mock.calls[0][0] as string;
@@ -199,8 +194,6 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
         confirm_token: 'token-xyz',
       });
     });
-
-    expect(sessionStorage.getItem(`${STORAGE_PREFIX}${SERVICE_ID}`)).toBeNull();
   });
 
   it('on oauth_error: shows toast and does NOT call /confirm', async () => {
@@ -257,15 +250,16 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     expect(confirmCall).toBeUndefined();
   });
 
-  it('on nonce mismatch: skips /confirm and surfaces an error toast', async () => {
-    const result = await triggerAndOpen();
+  it('on oauth_complete with an arbitrary nonce: still POSTs to /confirm', async () => {
+    const { calls } = await triggerAndOpen();
 
+    // The client no longer verifies the nonce, so any value still confirms.
     await act(async () => {
       window.dispatchEvent(
         new MessageEvent('message', {
           data: {
             type: 'oauth_complete',
-            nonce: 'attacker-nonce',
+            nonce: 'arbitrary-value',
             confirmToken: 'token-xyz',
             serviceId: SERVICE_ID,
             success: true,
@@ -276,21 +270,23 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     });
 
     await waitFor(() => {
-      expect(
-        result.queryByText('Could not confirm authorization')
-      ).toBeInTheDocument();
+      const c = calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(c).toBeDefined();
+      expect(c?.init?.method).toBe('POST');
+      expect(JSON.parse(c?.init?.body as string)).toEqual({
+        confirm_token: 'token-xyz',
+      });
     });
-
-    const confirmCall = result.calls.find((c) => c.url.endsWith('/confirm'));
-    expect(confirmCall).toBeUndefined();
   });
 
   it('falls back to mutate after 1000ms grace when child closes with no postMessage', async () => {
     jest.useFakeTimers();
     const { calls, getByText } = renderHost({
       url: AUTHORIZE_URL_BASE,
-      buildUrlAtClick: (serviceId, base) => {
-        const nonce = generateAndStoreNonce(serviceId);
+      buildUrlAtClick: (_serviceId, base) => {
+        const nonce = generateNonce();
         const u = new URL(base);
         u.searchParams.append('nonce', nonce);
         return u.href;

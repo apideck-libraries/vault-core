@@ -6,11 +6,7 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
 import { SessionSettings, VaultAction } from '../types/Session';
-import {
-  callConfirmEndpoint,
-  clearNonce,
-  verifyAndClearNonce,
-} from './oauthCsrf';
+import { callConfirmEndpoint } from './oauthCsrf';
 import { useConnections } from './useConnections';
 
 export const useConnectionActions = () => {
@@ -124,17 +120,6 @@ export const useConnectionActions = () => {
           addToast({
             title: t('Authorization failed'),
             description: data.errorDescription || data.error,
-            type: 'error',
-            autoClose: true,
-          });
-          clearNonce(serviceId);
-          cleanup();
-          return;
-        }
-
-        if (!verifyAndClearNonce(serviceId, data.nonce)) {
-          addToast({
-            title: t('Could not confirm authorization'),
             type: 'error',
             autoClose: true,
           });
