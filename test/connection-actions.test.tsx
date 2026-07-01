@@ -444,4 +444,72 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     );
     expect(callableCalls).toHaveLength(1);
   });
+
+  it('emits onConnectionChange once when enabling an unselected connection straight to callable', async () => {
+    const onConnectionChange = jest.fn();
+    const conn = makeConnection({ state: 'available' });
+    (window.fetch as any).mockImplementation((_url: string, init?: any) => {
+      if (init?.method === 'PATCH') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            status_code: 200,
+            data: { ...conn, state: 'callable' },
+          }),
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ status_code: 200, data: [conn] }),
+      };
+    });
+
+    let updateConnectionFn: any;
+    const Grab = () => {
+      const { updateConnection, connections } = useConnections();
+      updateConnectionFn = updateConnection;
+      return <span data-testid="loaded">{connections ? 'yes' : 'no'}</span>;
+    };
+
+    const { getByTestId } = render(
+      // Multi-connection mode (no unifiedApi/serviceId): nothing is auto-selected.
+      <SWRConfig value={{ provider: () => new Map() }}>
+        <ToastProvider>
+          <ConnectionsProvider
+            appId="app-id"
+            consumerId="consumer-id"
+            token="jwt-token"
+            isOpen
+            unifyBaseUrl={UNIFY_BASE_URL}
+            onClose={() => undefined}
+            onConnectionChange={onConnectionChange}
+          >
+            <Grab />
+          </ConnectionsProvider>
+        </ToastProvider>
+      </SWRConfig>
+    );
+
+    // The connections list must be loaded before enabling (updateConnection
+    // updates the list cache in multi-connection mode).
+    await waitFor(() => expect(getByTestId('loaded').textContent).toBe('yes'));
+
+    // Enabling an unselected list connection straight to `callable` must be
+    // emitted by updateConnection — the provider effect can't see a prior
+    // non-callable render for a connection that was never selected.
+    await act(async () => {
+      await updateConnectionFn({
+        unifiedApi: UNIFIED_API,
+        serviceId: SERVICE_ID,
+        values: { enabled: true },
+      });
+    });
+
+    const callableCalls = onConnectionChange.mock.calls.filter(
+      ([c]) => c?.state === 'callable'
+    );
+    expect(callableCalls).toHaveLength(1);
+  });
 });

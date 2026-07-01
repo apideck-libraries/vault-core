@@ -365,7 +365,9 @@ export const ConnectionsProvider = ({
     resource?: string;
     quiet?: boolean;
   }): Promise<Connection | null> => {
-    const previousState = selectedConnection?.state;
+    // The connection as currently rendered, BEFORE this update. Used below to
+    // decide whether the provider's callable-transition effect will emit.
+    const connectionBeforeUpdate = connection;
     try {
       setIsUpdating(true);
       let updateUrl = `${unifyBaseUrl}/vault/connections/${unifiedApi}/${serviceId}`;
@@ -420,12 +422,18 @@ export const ConnectionsProvider = ({
         }
 
         // The provider's callable-transition effect emits an entry into
-        // `callable` exactly once; skip it here so the consumer isn't notified
-        // twice. Every other change (settings saved, enabled/disabled, or a
-        // connection that was already callable) still emits here.
-        const becameCallable =
-          result.data?.state === 'callable' && previousState !== 'callable';
-        if (!becameCallable) {
+        // `callable` — but only when the connection was already selected at a
+        // non-callable state (so `prevConnection` carries it). Skip here in that
+        // case to avoid notifying the consumer twice; otherwise emit. The
+        // "otherwise" covers enabling a connection straight to `callable` from
+        // the list (it was never selected, so the effect can't see a prior
+        // non-callable render) as well as every non-callable / already-callable
+        // change (settings saved, enabled/disabled).
+        const effectWillEmit =
+          result.data?.state === 'callable' &&
+          connectionBeforeUpdate?.id === result.data?.id &&
+          connectionBeforeUpdate?.state !== 'callable';
+        if (!effectWillEmit) {
           onConnectionChange?.(result.data);
         }
 
