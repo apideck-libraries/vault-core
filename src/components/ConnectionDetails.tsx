@@ -472,7 +472,6 @@ const ConnectionDetails = ({
             <div className="mt-3">
               <AuthorizeButton
                 connection={selectedConnection}
-                onConnectionChange={onConnectionChange}
                 autoStartAuthorization={autoStartAuthorization}
               />
             </div>

@@ -38,6 +38,17 @@ export const useConnectionActions = () => {
     onConnectionChange?: (connection: Connection) => any
   ) => {
     setIsReAuthorizing(true);
+
+    // The provider's callable-transition effect (useConnections) emits an entry
+    // into `callable` exactly once. Skip it here so a re-authorize that moves a
+    // connection into `callable` doesn't fire onConnectionChange twice; a re-auth
+    // that leaves the state unchanged (e.g. already-callable) still emits.
+    const previousState = selectedConnection?.state;
+    const emitUnlessBecameCallable = (data?: any) => {
+      if (data?.state === 'callable' && previousState !== 'callable') return;
+      onConnectionChange?.(data);
+    };
+
     if (
       selectedConnection?.oauth_grant_type === 'client_credentials' ||
       selectedConnection?.oauth_grant_type === 'password'
@@ -65,7 +76,7 @@ export const useConnectionActions = () => {
         mutate(
           `${connectionsUrl}/${selectedConnection?.unified_api}/${selectedConnection?.service_id}`
         ).then((result) => {
-          onConnectionChange?.(result.data);
+          emitUnlessBecameCallable(result.data);
         });
         mutate('/vault/connections');
       } catch (error) {
@@ -91,7 +102,7 @@ export const useConnectionActions = () => {
       const handleChildWindowClose = () => {
         mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
           (result) => {
-            onConnectionChange?.(result?.data);
+            emitUnlessBecameCallable(result?.data);
           }
         );
         setIsReAuthorizing(false);
@@ -150,7 +161,7 @@ export const useConnectionActions = () => {
 
         mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
           (result) => {
-            onConnectionChange?.(result?.data);
+            emitUnlessBecameCallable(result?.data);
           }
         );
         mutate('/vault/connections');
@@ -165,6 +176,13 @@ export const useConnectionActions = () => {
         '_blank',
         'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
       );
+
+      // A popup blocker makes window.open return null. Reset state so the
+      // re-authorize action can be retried from a user gesture.
+      if (!child) {
+        cleanup();
+        return;
+      }
 
       timer = setInterval(() => {
         if (child?.closed) {

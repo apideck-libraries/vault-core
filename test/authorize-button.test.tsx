@@ -476,4 +476,21 @@ describe('Authorize button OAuth CSRF flow', () => {
     ).length;
     expect(confirmCallsAfter).toBe(confirmCallsBefore);
   });
+
+  it('unsticks the button (no toast) when the popup is blocked', async () => {
+    openSpy.mockImplementation(() => null as unknown as Window);
+    const { screen } = await renderAndClickAuthorize();
+
+    // No "allow pop-ups" toast — the button is simply clickable again, and a
+    // second click (a real user gesture) re-opens the popup.
+    expect(screen.queryByText('Popup blocked')).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByText('Authorize')).toBeInTheDocument()
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+    expect(openSpy).toHaveBeenCalledTimes(2);
+  });
 });

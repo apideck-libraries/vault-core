@@ -12,15 +12,10 @@ import { useSession } from '../utils/useSession';
 
 interface Props {
   connection: Connection;
-  onConnectionChange?: (connection: Connection) => any;
   autoStartAuthorization?: boolean;
 }
 
-const AuthorizeButton = ({
-  connection,
-  onConnectionChange,
-  autoStartAuthorization,
-}: Props) => {
+const AuthorizeButton = ({ connection, autoStartAuthorization }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { connectionsUrl, headers } = useConnections();
   const { addToast } = useToast();
@@ -48,9 +43,7 @@ const AuthorizeButton = ({
   const handleChildWindowClose = () => {
     mutate(
       `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
-    ).then((result) => {
-      onConnectionChange?.(result.data);
-    });
+    );
     setIsLoading(false);
   };
 
@@ -82,9 +75,7 @@ const AuthorizeButton = ({
         });
         mutate(
           `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
-        ).then((result) => {
-          onConnectionChange?.(result.data);
-        });
+        );
         mutate('/vault/connections');
       } catch (error) {
         addToast({
@@ -161,11 +152,7 @@ const AuthorizeButton = ({
           return;
         }
 
-        mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
-          (result) => {
-            onConnectionChange?.(result?.data);
-          }
-        );
+        mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`);
         mutate('/vault/connections');
         cleanup();
       };
@@ -178,6 +165,15 @@ const AuthorizeButton = ({
         '_blank',
         'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
       );
+
+      // A popup blocker (common when authorization is auto-started without a
+      // user gesture) makes window.open return null. Reset state so the button
+      // is clickable again — a manual click IS a user gesture and opens the
+      // popup, so no "allow pop-ups" prompt is needed.
+      if (!child) {
+        cleanup();
+        return;
+      }
 
       timer = setInterval(() => {
         if (child?.closed) {

@@ -105,12 +105,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           await handleRedirect(url.href, onConnectionChange);
         },
         variant: 'primary',
-        customComponent: (
-          <AuthorizeButton
-            connection={connection}
-            onConnectionChange={onConnectionChange}
-          />
-        ),
+        customComponent: <AuthorizeButton connection={connection} />,
       });
     }
 

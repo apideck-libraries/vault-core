@@ -171,6 +171,29 @@ export const ConnectionsProvider = ({
     }
   }, [connection]);
 
+  // GH-148: emit onConnectionChange when a connection transitions INTO the
+  // usable `callable` state. This lives in the provider (which does not unmount
+  // on the view switch), so it fires reliably regardless of the AuthorizeButton
+  // lifecycle — which is where the post-OAuth emit used to be dropped. The
+  // explicit emit paths (updateConnection, connectionActions.handleRedirect)
+  // deliberately skip an entry-into-callable so it is emitted here exactly once.
+  useEffect(() => {
+    if (!connection?.id || connection.state !== 'callable') return;
+
+    // Only a genuine transition into `callable` for the SAME connection — not
+    // the first sighting of an already-callable connection, nor a plain
+    // re-render, nor a switch to a different connection. Deriving this from the
+    // previous state (instead of a persistent "already emitted" flag) means a
+    // later re-entry — callable → invalid → callable, e.g. a revoked token that
+    // is re-authorized — correctly emits again.
+    const enteredCallable =
+      prevConnection?.id === connection.id &&
+      prevConnection?.state !== 'callable';
+    if (!enteredCallable) return;
+
+    onConnectionChange?.(connection);
+  }, [connection]);
+
   const denyConsent = async (
     connection: Connection,
     resources: any
@@ -342,6 +365,9 @@ export const ConnectionsProvider = ({
     resource?: string;
     quiet?: boolean;
   }): Promise<Connection | null> => {
+    // The connection as currently rendered, BEFORE this update. Used below to
+    // decide whether the provider's callable-transition effect will emit.
+    const connectionBeforeUpdate = connection;
     try {
       setIsUpdating(true);
       let updateUrl = `${unifyBaseUrl}/vault/connections/${unifiedApi}/${serviceId}`;
@@ -395,7 +421,21 @@ export const ConnectionsProvider = ({
           });
         }
 
-        onConnectionChange?.(result.data);
+        // The provider's callable-transition effect emits an entry into
+        // `callable` — but only when the connection was already selected at a
+        // non-callable state (so `prevConnection` carries it). Skip here in that
+        // case to avoid notifying the consumer twice; otherwise emit. The
+        // "otherwise" covers enabling a connection straight to `callable` from
+        // the list (it was never selected, so the effect can't see a prior
+        // non-callable render) as well as every non-callable / already-callable
+        // change (settings saved, enabled/disabled).
+        const effectWillEmit =
+          result.data?.state === 'callable' &&
+          connectionBeforeUpdate?.id === result.data?.id &&
+          connectionBeforeUpdate?.state !== 'callable';
+        if (!effectWillEmit) {
+          onConnectionChange?.(result.data);
+        }
 
         return result.data;
       } else {
