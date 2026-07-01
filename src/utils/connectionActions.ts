@@ -177,15 +177,9 @@ export const useConnectionActions = () => {
         'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
       );
 
-      // A popup blocker makes window.open return null. Surface it and reset
-      // state so the re-authorize action can be retried from a user gesture.
+      // A popup blocker makes window.open return null. Reset state so the
+      // re-authorize action can be retried from a user gesture.
       if (!child) {
-        addToast({
-          title: t('Popup blocked'),
-          description: t('Please allow pop-ups and try authorizing again.'),
-          type: 'error',
-          autoClose: true,
-        });
         cleanup();
         return;
       }

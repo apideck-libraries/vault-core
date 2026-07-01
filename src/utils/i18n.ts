@@ -75,9 +75,6 @@ const resources = {
       '{{connectionName}} is deleted': '{{connectionName}} is deleted',
       'Configurable Resources': 'Configurable Resources',
       'Re-authorize': 'Re-authorize',
-      'Popup blocked': 'Popup blocked',
-      'Please allow pop-ups and try authorizing again.':
-        'Please allow pop-ups and try authorizing again.',
       Disable: 'Disable',
       Enable: 'Enable',
       Disconnect: 'Disconnect',
@@ -192,9 +189,6 @@ const resources = {
       '{{connectionName}} is deleted': '{{connectionName}} is verwijderd',
       'Configurable Resources': 'Configruabelen Resources',
       'Re-authorize': 'Herverbinden',
-      'Popup blocked': 'Pop-up geblokkeerd',
-      'Please allow pop-ups and try authorizing again.':
-        'Sta pop-ups toe en probeer opnieuw te autoriseren.',
       Disable: 'Uitschakelen',
       Enable: 'Inschakelen',
       Disconnect: 'Ontkoppelen',
@@ -310,9 +304,6 @@ const resources = {
       '{{connectionName}} is deleted': '{{connectionName}} est supprimé',
       'Configurable Resources': 'Ressources configurables',
       'Re-authorize': 'Réautoriser',
-      'Popup blocked': 'Fenêtre pop-up bloquée',
-      'Please allow pop-ups and try authorizing again.':
-        'Veuillez autoriser les pop-ups et réessayer l’autorisation.',
       Disable: 'Désactiver',
       Enable: 'Activer',
       Disconnect: 'Déconnecter',
@@ -428,9 +419,6 @@ const resources = {
       '{{connectionName}} is deleted': '{{connectionName}} wurde gelöscht',
       'Configurable Resources': 'Konfigurierbare Ressourcen',
       'Re-authorize': 'Erneut autorisieren',
-      'Popup blocked': 'Pop-up blockiert',
-      'Please allow pop-ups and try authorizing again.':
-        'Bitte erlaube Pop-ups und versuche die Autorisierung erneut.',
       Disable: 'Deaktivieren',
       Enable: 'Aktivieren',
       Disconnect: 'Trennen',
@@ -547,9 +535,6 @@ const resources = {
       '{{connectionName}} is deleted': '{{connectionName}} ha sido eliminado',
       'Configurable Resources': 'Recursos Configurables',
       'Re-authorize': 'Reautorizar',
-      'Popup blocked': 'Ventana emergente bloqueada',
-      'Please allow pop-ups and try authorizing again.':
-        'Permite las ventanas emergentes e inténtalo de nuevo.',
       Disable: 'Deshabilitar',
       Enable: 'Habilitar',
       Disconnect: 'Desconectar',

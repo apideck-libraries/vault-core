@@ -167,15 +167,10 @@ const AuthorizeButton = ({ connection, autoStartAuthorization }: Props) => {
       );
 
       // A popup blocker (common when authorization is auto-started without a
-      // user gesture) makes window.open return null. Surface it and reset state
-      // so the button is clickable again — a manual click is a user gesture.
+      // user gesture) makes window.open return null. Reset state so the button
+      // is clickable again — a manual click IS a user gesture and opens the
+      // popup, so no "allow pop-ups" prompt is needed.
       if (!child) {
-        addToast({
-          title: t('Popup blocked'),
-          description: t('Please allow pop-ups and try authorizing again.'),
-          type: 'error',
-          autoClose: true,
-        });
         cleanup();
         return;
       }

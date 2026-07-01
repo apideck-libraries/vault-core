@@ -335,14 +335,18 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     expect(confirmCall).toBeUndefined();
   });
 
-  it('shows a toast when the popup is blocked', async () => {
+  it('does not hang or show a toast when the popup is blocked', async () => {
     openSpy.mockImplementation(() => null as unknown as Window);
-    const { getByText } = await triggerAndOpen();
+    const { getByText, queryByText } = await triggerAndOpen();
 
-    await waitFor(() => {
-      expect(getByText('Popup blocked')).toBeInTheDocument();
-    });
     expect(openSpy).toHaveBeenCalledTimes(1);
+    expect(queryByText('Popup blocked')).not.toBeInTheDocument();
+
+    // State was reset (not stuck): the re-authorize can be retried.
+    await act(async () => {
+      fireEvent.click(getByText('Trigger'));
+    });
+    expect(openSpy).toHaveBeenCalledTimes(2);
   });
 
   it('emits onConnectionChange once (not twice) when re-authorizing authorized -> callable', async () => {
