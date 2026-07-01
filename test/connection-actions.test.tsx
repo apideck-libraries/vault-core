@@ -7,7 +7,11 @@ import { ToastProvider } from '@apideck/components';
 import { act } from 'react-dom/test-utils';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { ConnectionsProvider } from '../src/utils/useConnections';
+import { mutate as globalMutate, SWRConfig } from 'swr';
+import {
+  ConnectionsProvider,
+  useConnections,
+} from '../src/utils/useConnections';
 import { useConnectionActions } from '../src/utils/connectionActions';
 import { generateNonce } from '../src/utils/oauthCsrf';
 import '../src/utils/i18n';
@@ -40,21 +44,26 @@ const makeConnection = (overrides: Record<string, any> = {}) => ({
 interface HostProps {
   url: string;
   buildUrlAtClick?: (serviceId: string, base: string) => string;
+  onConnectionChange?: (connection: any) => void;
 }
 
-const Host = ({ url, buildUrlAtClick }: HostProps) => {
+const Host = ({ url, buildUrlAtClick, onConnectionChange }: HostProps) => {
   const { handleRedirect } = useConnectionActions();
+  const { selectedConnection } = useConnections();
   return (
-    <button
-      onClick={() => {
-        const finalUrl = buildUrlAtClick
-          ? buildUrlAtClick(SERVICE_ID, url)
-          : url;
-        handleRedirect(finalUrl);
-      }}
-    >
-      Trigger
-    </button>
+    <>
+      <span data-testid="state">{selectedConnection?.state}</span>
+      <button
+        onClick={() => {
+          const finalUrl = buildUrlAtClick
+            ? buildUrlAtClick(SERVICE_ID, url)
+            : url;
+          handleRedirect(finalUrl, onConnectionChange);
+        }}
+      >
+        Trigger
+      </button>
+    </>
   );
 };
 
@@ -104,6 +113,7 @@ const renderHost = (
           serviceId={SERVICE_ID}
           unifyBaseUrl={UNIFY_BASE_URL}
           onClose={() => undefined}
+          onConnectionChange={hostProps.onConnectionChange}
         >
           <Host {...hostProps} />
         </ConnectionsProvider>
@@ -124,10 +134,21 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
       .mockImplementation(() => fakeChild as unknown as Window);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     cleanup();
     jest.useRealTimers();
     jest.restoreAllMocks();
+    // Clear the shared SWR cache so connection state doesn't leak between tests.
+    await globalMutate(
+      `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`,
+      undefined,
+      false
+    );
+    await globalMutate(
+      `${CONNECTIONS_URL}?api=${UNIFIED_API}`,
+      undefined,
+      false
+    );
   });
 
   const triggerAndOpen = async () => {
@@ -322,5 +343,105 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
       expect(getByText('Popup blocked')).toBeInTheDocument();
     });
     expect(openSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('emits onConnectionChange once (not twice) when re-authorizing authorized -> callable', async () => {
+    let confirmed = false;
+    const onConnectionChange = jest.fn();
+    const base = makeConnection({ state: 'authorized' });
+    const detailUrl = `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`;
+    const calls: { url: string; init?: any }[] = [];
+    (window.fetch as any).mockImplementation((url: string, init?: any) => {
+      calls.push({ url, init });
+      if (url.endsWith('/confirm') && init?.method === 'POST') {
+        confirmed = true;
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ status_code: 200, data: { confirmed: true } }),
+        };
+      }
+      if (url === detailUrl) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            status_code: 200,
+            data: { ...base, state: confirmed ? 'callable' : 'authorized' },
+          }),
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ status_code: 200, data: [base] }),
+      };
+    });
+
+    const { getByText, getByTestId } = render(
+      // Isolated SWR cache so this test's authorized->callable transition is not
+      // polluted by connection state cached by sibling tests.
+      <SWRConfig value={{ provider: () => new Map() }}>
+        <ToastProvider>
+          <ConnectionsProvider
+            appId="app-id"
+            consumerId="consumer-id"
+            token="jwt-token"
+            isOpen
+            unifiedApi={UNIFIED_API}
+            serviceId={SERVICE_ID}
+            unifyBaseUrl={UNIFY_BASE_URL}
+            onClose={() => undefined}
+            onConnectionChange={onConnectionChange}
+          >
+            <Host
+              url={AUTHORIZE_URL_BASE}
+              buildUrlAtClick={(_serviceId, b) => {
+                const u = new URL(b);
+                u.searchParams.append('nonce', generateNonce());
+                return u.href;
+              }}
+              onConnectionChange={onConnectionChange}
+            />
+          </ConnectionsProvider>
+        </ToastProvider>
+      </SWRConfig>
+    );
+
+    // Wait until the provider has selected + loaded the connection as `authorized`.
+    await waitFor(() =>
+      expect(getByTestId('state').textContent).toBe('authorized')
+    );
+
+    await act(async () => {
+      fireEvent.click(getByText('Trigger'));
+    });
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce: 'n',
+            confirmToken: 't',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() =>
+      expect(onConnectionChange).toHaveBeenCalledWith(
+        expect.objectContaining({ state: 'callable' })
+      )
+    );
+    // Exactly one callable emit: connectionActions skips the entry-into-callable
+    // (the provider effect owns it), so the consumer is not notified twice.
+    const callableCalls = onConnectionChange.mock.calls.filter(
+      ([c]) => c?.state === 'callable'
+    );
+    expect(callableCalls).toHaveLength(1);
   });
 });

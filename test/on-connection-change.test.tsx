@@ -14,6 +14,7 @@ const UNIFIED_API = 'ecommerce';
 const SERVICE_ID = 'shopify';
 const CONNECTIONS_URL = 'https://unify.apideck.com/vault/connections';
 const DETAIL_URL = `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`;
+const LIST_URL = `${CONNECTIONS_URL}?api=${UNIFIED_API}`;
 
 const baseConnection = (overrides: Record<string, any> = {}) => ({
   id: `${UNIFIED_API}+${SERVICE_ID}`,
@@ -71,9 +72,13 @@ describe('onConnectionChange callable transition (GH-148)', () => {
     jest.spyOn(window, 'fetch');
     setupIntersectionObserverMock();
   });
-  afterEach(() => {
+  afterEach(async () => {
     cleanup();
     jest.restoreAllMocks();
+    // Clear the shared SWR cache so tests don't leak connection state into each
+    // other (they reuse the same connection id / URLs).
+    await globalMutate(DETAIL_URL, undefined, false);
+    await globalMutate(LIST_URL, undefined, false);
   });
 
   const renderVault = async (onConnectionChange: jest.Mock) => {
@@ -132,5 +137,43 @@ describe('onConnectionChange callable transition (GH-148)', () => {
       ([c]) => c?.state === 'callable'
     );
     expect(callableCalls).toHaveLength(0);
+  });
+
+  it('emits callable again after a connection recovers from invalid (revoked token re-authorized)', async () => {
+    const { setState } = setupMock('callable');
+    const onConnectionChange = jest.fn();
+    await renderVault(onConnectionChange);
+
+    // Opened already-callable: no emit yet (no transition).
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(
+      onConnectionChange.mock.calls.filter(([c]) => c?.state === 'callable')
+    ).toHaveLength(0);
+
+    // Token revoked at the provider -> Apideck reports the connection invalid.
+    setState('invalid');
+    await act(async () => {
+      await globalMutate(DETAIL_URL);
+    });
+
+    // User re-authorizes -> connection becomes callable again.
+    setState('callable');
+    await act(async () => {
+      await globalMutate(DETAIL_URL);
+    });
+
+    await waitFor(() =>
+      expect(onConnectionChange).toHaveBeenCalledWith(
+        expect.objectContaining({ state: 'callable' })
+      )
+    );
+    // The re-entry into callable emits exactly once (it is NOT permanently
+    // suppressed by a stale dedup key).
+    const callableCalls = onConnectionChange.mock.calls.filter(
+      ([c]) => c?.state === 'callable'
+    );
+    expect(callableCalls).toHaveLength(1);
   });
 });

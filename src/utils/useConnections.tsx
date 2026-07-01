@@ -5,7 +5,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
@@ -125,10 +124,6 @@ export const ConnectionsProvider = ({
 
   const prevConnection: any = usePrevious(connection);
 
-  // Last `${id}:${state}` we emitted via onConnectionChange, from ANY path.
-  // Used to dedup the callable transition below against updateConnection.
-  const lastEmittedRef = useRef<string | null>(null);
-
   useEffect(() => {
     if (singleConnectionMode) {
       // Set unified_api and service_id id as selected connection so the component only shows the connection details view
@@ -176,24 +171,26 @@ export const ConnectionsProvider = ({
     }
   }, [connection]);
 
-  // GH-148: emit onConnectionChange once when a connection transitions into the
+  // GH-148: emit onConnectionChange when a connection transitions INTO the
   // usable `callable` state. This lives in the provider (which does not unmount
   // on the view switch), so it fires reliably regardless of the AuthorizeButton
-  // lifecycle — which is where the post-OAuth emit used to be dropped.
+  // lifecycle — which is where the post-OAuth emit used to be dropped. The
+  // explicit emit paths (updateConnection, connectionActions.handleRedirect)
+  // deliberately skip an entry-into-callable so it is emitted here exactly once.
   useEffect(() => {
     if (!connection?.id || connection.state !== 'callable') return;
 
-    const key = `${connection.id}:callable`;
-    if (lastEmittedRef.current === key) return;
+    // Only a genuine transition into `callable` for the SAME connection — not
+    // the first sighting of an already-callable connection, nor a plain
+    // re-render, nor a switch to a different connection. Deriving this from the
+    // previous state (instead of a persistent "already emitted" flag) means a
+    // later re-entry — callable → invalid → callable, e.g. a revoked token that
+    // is re-authorized — correctly emits again.
+    const enteredCallable =
+      prevConnection?.id === connection.id &&
+      prevConnection?.state !== 'callable';
+    if (!enteredCallable) return;
 
-    // First render we see this connection (e.g. opening one that is already
-    // callable): record it but do not emit — there was no transition.
-    if (prevConnection?.id !== connection.id) {
-      lastEmittedRef.current = key;
-      return;
-    }
-
-    lastEmittedRef.current = key;
     onConnectionChange?.(connection);
   }, [connection]);
 
@@ -368,6 +365,7 @@ export const ConnectionsProvider = ({
     resource?: string;
     quiet?: boolean;
   }): Promise<Connection | null> => {
+    const previousState = selectedConnection?.state;
     try {
       setIsUpdating(true);
       let updateUrl = `${unifyBaseUrl}/vault/connections/${unifiedApi}/${serviceId}`;
@@ -421,9 +419,14 @@ export const ConnectionsProvider = ({
           });
         }
 
-        onConnectionChange?.(result.data);
-        if (result.data?.id) {
-          lastEmittedRef.current = `${result.data.id}:${result.data.state}`;
+        // The provider's callable-transition effect emits an entry into
+        // `callable` exactly once; skip it here so the consumer isn't notified
+        // twice. Every other change (settings saved, enabled/disabled, or a
+        // connection that was already callable) still emits here.
+        const becameCallable =
+          result.data?.state === 'callable' && previousState !== 'callable';
+        if (!becameCallable) {
+          onConnectionChange?.(result.data);
         }
 
         return result.data;
