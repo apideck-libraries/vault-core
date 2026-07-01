@@ -313,4 +313,14 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     confirmCall = calls.find((c) => c.url.endsWith('/confirm'));
     expect(confirmCall).toBeUndefined();
   });
+
+  it('shows a toast when the popup is blocked', async () => {
+    openSpy.mockImplementation(() => null as unknown as Window);
+    const { getByText } = await triggerAndOpen();
+
+    await waitFor(() => {
+      expect(getByText('Popup blocked')).toBeInTheDocument();
+    });
+    expect(openSpy).toHaveBeenCalledTimes(1);
+  });
 });
