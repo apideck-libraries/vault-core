@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
@@ -124,6 +125,10 @@ export const ConnectionsProvider = ({
 
   const prevConnection: any = usePrevious(connection);
 
+  // Last `${id}:${state}` we emitted via onConnectionChange, from ANY path.
+  // Used to dedup the callable transition below against updateConnection.
+  const lastEmittedRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (singleConnectionMode) {
       // Set unified_api and service_id id as selected connection so the component only shows the connection details view
@@ -169,6 +174,27 @@ export const ConnectionsProvider = ({
     ) {
       getResourceConfig();
     }
+  }, [connection]);
+
+  // GH-148: emit onConnectionChange once when a connection transitions into the
+  // usable `callable` state. This lives in the provider (which does not unmount
+  // on the view switch), so it fires reliably regardless of the AuthorizeButton
+  // lifecycle — which is where the post-OAuth emit used to be dropped.
+  useEffect(() => {
+    if (!connection?.id || connection.state !== 'callable') return;
+
+    const key = `${connection.id}:callable`;
+    if (lastEmittedRef.current === key) return;
+
+    // First render we see this connection (e.g. opening one that is already
+    // callable): record it but do not emit — there was no transition.
+    if (prevConnection?.id !== connection.id) {
+      lastEmittedRef.current = key;
+      return;
+    }
+
+    lastEmittedRef.current = key;
+    onConnectionChange?.(connection);
   }, [connection]);
 
   const denyConsent = async (
@@ -396,6 +422,9 @@ export const ConnectionsProvider = ({
         }
 
         onConnectionChange?.(result.data);
+        if (result.data?.id) {
+          lastEmittedRef.current = `${result.data.id}:${result.data.state}`;
+        }
 
         return result.data;
       } else {
