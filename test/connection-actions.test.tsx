@@ -313,4 +313,95 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     confirmCall = calls.find((c) => c.url.endsWith('/confirm'));
     expect(confirmCall).toBeUndefined();
   });
+
+  // --- Storage-partitioned iframe (GH-9546) ---------------------------------
+  // handleRedirect must confirm even when the embedding iframe has no usable
+  // sessionStorage (writes dropped/throw, reads null). Guards against
+  // reintroducing a storage dependency in the redirect -> /confirm path.
+
+  const renderTriggerHost = () =>
+    renderHost({
+      url: AUTHORIZE_URL_BASE,
+      buildUrlAtClick: (_serviceId, base) => {
+        const u = new URL(base);
+        u.searchParams.append('nonce', generateNonce());
+        return u.href;
+      },
+    });
+
+  const clickAndComplete = async (result: ReturnType<typeof renderTriggerHost>) => {
+    await act(async () => {
+      fireEvent.click(result.getByText('Trigger'));
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce: 'arbitrary-value',
+            confirmToken: 'token-xyz',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      const c = result.calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(c).toBeDefined();
+    });
+  };
+
+  it('still POSTs /confirm when sessionStorage throws (denied storage)', async () => {
+    const result = renderTriggerHost();
+    // Let the single-connection auto-select effect settle before severing storage.
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const setItem = jest
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new DOMException('Access is denied.', 'SecurityError');
+      });
+    const getItem = jest
+      .spyOn(Storage.prototype, 'getItem')
+      .mockImplementation(() => {
+        throw new DOMException('Access is denied.', 'SecurityError');
+      });
+
+    await clickAndComplete(result);
+
+    expect(setItem).not.toHaveBeenCalled();
+    expect(getItem).not.toHaveBeenCalled();
+  });
+
+  it('still POSTs /confirm when sessionStorage is severed (writes dropped, reads null)', async () => {
+    const result = renderTriggerHost();
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const setItem = jest
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => undefined);
+    const getItem = jest
+      .spyOn(Storage.prototype, 'getItem')
+      .mockReturnValue(null);
+
+    await clickAndComplete(result);
+
+    expect(setItem).not.toHaveBeenCalled();
+    expect(getItem).not.toHaveBeenCalled();
+  });
 });

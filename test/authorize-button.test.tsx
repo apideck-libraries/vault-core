@@ -476,4 +476,114 @@ describe('Authorize button OAuth CSRF flow', () => {
     ).length;
     expect(confirmCallsAfter).toBe(confirmCallsBefore);
   });
+
+  // --- Storage-partitioned iframe (GH-9546) ---------------------------------
+  // When Vault is embedded in a third-party iframe, sessionStorage is commonly
+  // partitioned away: writes are dropped or throw, and reads return null. The
+  // authorize -> /confirm path must not depend on it. These guard against
+  // reintroducing any sessionStorage dependency (the example/iframe-test harness
+  // reproduces the same two failure modes manually).
+
+  const renderAndWaitForAuthorize = async () => {
+    const mockData = setupOAuthFetchMock(SERVICE_ID);
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <Vault
+          token="token123"
+          open
+          unifiedApi={UNIFIED_API}
+          serviceId={SERVICE_ID}
+        />
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Authorize')).toBeInTheDocument();
+    });
+    return { screen, mockData };
+  };
+
+  const dispatchComplete = async (nonce: string) => {
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_complete',
+            nonce,
+            confirmToken: 'token-xyz',
+            serviceId: SERVICE_ID,
+            success: true,
+          },
+          origin: 'https://vault.apideck.com',
+        })
+      );
+    });
+  };
+
+  it('still opens the popup and POSTs /confirm when sessionStorage throws (denied storage)', async () => {
+    const { screen, mockData } = await renderAndWaitForAuthorize();
+
+    // Sever storage only after mount, simulating a storage-blocked iframe.
+    const setItem = jest
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new DOMException('Access is denied.', 'SecurityError');
+      });
+    const getItem = jest
+      .spyOn(Storage.prototype, 'getItem')
+      .mockImplementation(() => {
+        throw new DOMException('Access is denied.', 'SecurityError');
+      });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+
+    // Click handler no longer touches storage, so the popup still opens.
+    expect(openSpy).toHaveBeenCalledTimes(1);
+
+    await dispatchComplete('arbitrary-value');
+
+    await waitFor(() => {
+      const c = mockData.calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(c).toBeDefined();
+      expect(JSON.parse(c?.init?.body as string)).toEqual({
+        confirm_token: 'token-xyz',
+      });
+    });
+
+    // The OAuth path is storage-independent: it never read or wrote storage.
+    expect(setItem).not.toHaveBeenCalled();
+    expect(getItem).not.toHaveBeenCalled();
+  });
+
+  it('still POSTs /confirm when sessionStorage is severed (writes dropped, reads null)', async () => {
+    const { screen, mockData } = await renderAndWaitForAuthorize();
+
+    const setItem = jest
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => undefined);
+    const getItem = jest
+      .spyOn(Storage.prototype, 'getItem')
+      .mockReturnValue(null);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+    expect(openSpy).toHaveBeenCalledTimes(1);
+
+    await dispatchComplete('arbitrary-value');
+
+    await waitFor(() => {
+      const c = mockData.calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(c).toBeDefined();
+    });
+
+    expect(setItem).not.toHaveBeenCalled();
+    expect(getItem).not.toHaveBeenCalled();
+  });
 });
