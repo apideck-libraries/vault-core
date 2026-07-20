@@ -1,6 +1,6 @@
 {
   "plan": "2026-07-17-oauth-confirm-grant-handoff.md",
-  "current_phase": 3,
+  "current_phase": 4,
   "total_phases": 7,
   "warnings": [
     "tsdx lint is broken environment-wide (pre-existing eslint-plugin-prettier resolution failure under Node 24, reproduced on a clean tree); Prettier --check on touched files used as substitute",
@@ -9,8 +9,8 @@
   "phases": [
     {"id": 1, "name": "Protocol Types + Constants (domain)", "status": "complete"},
     {"id": 2, "name": "Unit Tests for Grant-Handoff Utils (TDD - RED)", "status": "complete"},
-    {"id": 3, "name": "Implement Grant-Handoff Utils (TDD - GREEN)", "status": "in_progress"},
-    {"id": 4, "name": "Integration Tests for Both Flow Sites (TDD - RED)", "status": "pending"},
+    {"id": 3, "name": "Implement Grant-Handoff Utils (TDD - GREEN)", "status": "complete"},
+    {"id": 4, "name": "Integration Tests for Both Flow Sites (TDD - RED)", "status": "in_progress"},
     {"id": 5, "name": "Wire Components (TDD - GREEN)", "status": "pending"},
     {"id": 6, "name": "Verify Full Suite (TDD - GREEN verification)", "status": "pending"},
     {"id": 7, "name": "Cleanup (TDD - REFACTOR)", "status": "pending"}
