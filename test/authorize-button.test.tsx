@@ -10,6 +10,12 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { Vault } from '../src/components/Vault';
 import { act } from 'react-dom/test-utils';
 import { CONFIG } from './responses/config';
+import {
+  CALLABLE_POLL_BUDGET_MS,
+  CALLABLE_POLL_INTERVAL_MS,
+  LAUNCH_READY_TIMEOUT_MS,
+} from '../src/constants/oauthGrantHandoff';
+import { OAUTH_LAUNCH_PATH, REDIRECT_URL } from '../src/constants/urls';
 
 const makeConnection = (serviceId: string, overrides: Record<string, any>) => ({
   id: `ecommerce+${serviceId}`,
@@ -149,9 +155,82 @@ const SERVICE_ID = 'shopify';
 const UNIFIED_API = 'ecommerce';
 const CONNECTIONS_URL = 'https://unify.apideck.com/vault/connections';
 
+// The Vault test harness uses a non-JWT token ("token123"), so the decoded
+// session is empty and `session.redirect_uri` is unset — the launch origin
+// falls back to the REDIRECT_URL origin (https://vault.apideck.com).
+const LAUNCH_ORIGIN = new URL(REDIRECT_URL).origin;
+const LAUNCH_URL = `${LAUNCH_ORIGIN}${OAUTH_LAUNCH_PATH}?service_id=${SERVICE_ID}`;
+const WINDOW_FEATURES =
+  'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0';
+const AUTHORIZE_URL_PREFIX = `https://unify.apideck.com/vault/authorize/${SERVICE_ID}/abc`;
+const DETAIL_URL = `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`;
+
+type FakeChild = {
+  closed: boolean;
+  close: jest.Mock;
+  postMessage: jest.Mock;
+  location: { href: string };
+};
+
+const makeFakeChild = (): FakeChild => ({
+  closed: false,
+  close: jest.fn(),
+  postMessage: jest.fn(),
+  location: { href: '' },
+});
+
+const dispatchLaunchReady = async (child: FakeChild) => {
+  await act(async () => {
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: { type: 'oauth_launch_ready' },
+        origin: LAUNCH_ORIGIN,
+        source: child as any,
+      })
+    );
+  });
+};
+
+// Complete the opener -> popup handshake and return the legacy authorize URL
+// (containing the nonce) that the widget posted to the child.
+const completeHandshake = async (child: FakeChild) => {
+  await dispatchLaunchReady(child);
+  await waitFor(() => {
+    expect(child.postMessage).toHaveBeenCalled();
+  });
+  return child.postMessage.mock.calls[0][0].authorizeUrl as string;
+};
+
+const dispatchComplete = async (nonce: string) => {
+  await act(async () => {
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: {
+          type: 'oauth_complete',
+          nonce,
+          confirmToken: 'token-xyz',
+          serviceId: SERVICE_ID,
+          success: true,
+        },
+        origin: 'https://vault.apideck.com',
+      })
+    );
+  });
+};
+
+interface OAuthMockOptions {
+  // 'success' (default) responds with a grant; 'failure' responds non-2xx;
+  // 'pending' leaves the request unresolved until `releaseGrant` is invoked.
+  grant?: 'success' | 'failure' | 'pending';
+  // Initial connection state served by the detail endpoint (mutable per test
+  // via the returned `detailState` field).
+  detailState?: string;
+}
+
 const setupOAuthFetchMock = (
   serviceId: string,
-  overrides: Record<string, any> = {}
+  overrides: Record<string, any> = {},
+  options: OAuthMockOptions = {}
 ) => {
   const connection = makeConnection(serviceId, {
     auth_type: 'oauth2',
@@ -160,16 +239,43 @@ const setupOAuthFetchMock = (
     ...overrides,
   });
   const listResponse = { status_code: 200, status: 'OK', data: [connection] };
-  const detailResponse = { status_code: 200, status: 'OK', data: connection };
   const confirmResponse = {
     status_code: 200,
     status: 'OK',
     data: { confirmed: true },
   };
+  const grantResponse = {
+    status_code: 200,
+    status: 'OK',
+    data: { grant: 'grant-abc', expires_in: 300 },
+  };
 
   const calls: { url: string; init?: any }[] = [];
+  const mockData = {
+    calls,
+    // Mutable: tests flip this to drive the post-close callable poll.
+    detailState: options.detailState ?? ((connection as any).state as string),
+    releaseGrant: undefined as (() => void) | undefined,
+  };
+
   (window.fetch as any).mockImplementation((url: string, init?: any) => {
     calls.push({ url, init });
+    if (url.endsWith('/grant') && init?.method === 'POST') {
+      if (options.grant === 'failure') {
+        return {
+          ok: false,
+          status: 500,
+          json: async () => ({ message: 'grant unavailable' }),
+        };
+      }
+      if (options.grant === 'pending') {
+        return new Promise((resolve) => {
+          mockData.releaseGrant = () =>
+            resolve({ ok: true, status: 200, json: async () => grantResponse });
+        });
+      }
+      return { ok: true, status: 200, json: async () => grantResponse };
+    }
     if (url.endsWith('/confirm') && init?.method === 'POST') {
       return {
         ok: true,
@@ -178,7 +284,15 @@ const setupOAuthFetchMock = (
       };
     }
     if (url === `${CONNECTIONS_URL}/ecommerce/${serviceId}`) {
-      return { ok: true, status: 200, json: async () => detailResponse };
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          status_code: 200,
+          status: 'OK',
+          data: { ...connection, state: mockData.detailState },
+        }),
+      };
     }
     if (url.includes('/config')) {
       return { ok: true, status: 200, json: async () => CONFIG };
@@ -186,17 +300,17 @@ const setupOAuthFetchMock = (
     return { ok: true, status: 200, json: async () => listResponse };
   });
 
-  return { calls };
+  return mockData;
 };
 
 describe('Authorize button OAuth CSRF flow', () => {
-  let fakeChild: { closed: boolean; close: jest.Mock };
+  let fakeChild: FakeChild;
   let openSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.spyOn(window, 'fetch');
     setupIntersectionObserverMock();
-    fakeChild = { closed: false, close: jest.fn() };
+    fakeChild = makeFakeChild();
     openSpy = jest
       .spyOn(window, 'open')
       .mockImplementation(() => fakeChild as unknown as Window);
@@ -239,10 +353,12 @@ describe('Authorize button OAuth CSRF flow', () => {
     await renderAndClickAuthorize();
 
     expect(openSpy).toHaveBeenCalledTimes(1);
-    const openedUrl = openSpy.mock.calls[0][0] as string;
-    expect(openedUrl).toContain('nonce=');
+    // Phase 5: the popup opens on the launch URL; the legacy authorize URL
+    // (carrying the nonce) is delivered to the child via the handshake.
+    const authorizeUrl = await completeHandshake(fakeChild);
+    expect(authorizeUrl).toContain('nonce=');
 
-    const url = new URL(openedUrl);
+    const url = new URL(authorizeUrl);
     const nonceFromUrl = url.searchParams.get('nonce');
     expect(nonceFromUrl).toBeTruthy();
   });
@@ -250,8 +366,10 @@ describe('Authorize button OAuth CSRF flow', () => {
   it('on oauth_complete with valid nonce: POSTs to /confirm', async () => {
     const { mockData } = await renderAndClickAuthorize();
 
-    const openedUrl = openSpy.mock.calls[0][0] as string;
-    const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
+    // Phase 5: the opened URL is the launch URL; obtain the legacy authorize
+    // URL (with nonce) by completing the handshake.
+    const authorizeUrl = await completeHandshake(fakeChild);
+    const nonce = new URL(authorizeUrl).searchParams.get('nonce') as string;
 
     await act(async () => {
       window.dispatchEvent(
@@ -308,8 +426,9 @@ describe('Authorize button OAuth CSRF flow', () => {
   it('ignores postMessage with foreign serviceId', async () => {
     const { mockData } = await renderAndClickAuthorize();
 
-    const openedUrl = openSpy.mock.calls[0][0] as string;
-    const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
+    // Phase 5: read the nonce from the authorize URL posted to the child.
+    const authorizeUrl = await completeHandshake(fakeChild);
+    const nonce = new URL(authorizeUrl).searchParams.get('nonce') as string;
 
     await act(async () => {
       window.dispatchEvent(
@@ -439,7 +558,12 @@ describe('Authorize button OAuth CSRF flow', () => {
       fireEvent.click(screen.getByText('Authorize'));
     });
 
-    const openedUrl = openSpy.mock.calls[0][0] as string;
+    // Phase 5: force the ready-timeout fallback so the child is navigated to
+    // the legacy authorize URL, then read the nonce from it.
+    await act(async () => {
+      jest.advanceTimersByTime(LAUNCH_READY_TIMEOUT_MS);
+    });
+    const openedUrl = fakeChild.location.href;
     const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
 
     await act(async () => {
@@ -501,23 +625,6 @@ describe('Authorize button OAuth CSRF flow', () => {
       expect(screen.getByText('Authorize')).toBeInTheDocument();
     });
     return { screen, mockData };
-  };
-
-  const dispatchComplete = async (nonce: string) => {
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce,
-            confirmToken: 'token-xyz',
-            serviceId: SERVICE_ID,
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
   };
 
   it('still opens the popup and POSTs /confirm when sessionStorage throws (denied storage)', async () => {
@@ -585,5 +692,345 @@ describe('Authorize button OAuth CSRF flow', () => {
 
     expect(setItem).not.toHaveBeenCalled();
     expect(getItem).not.toHaveBeenCalled();
+  });
+});
+
+describe('Authorize button OAuth grant handoff flow', () => {
+  let fakeChild: FakeChild;
+  let openSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.spyOn(window, 'fetch');
+    setupIntersectionObserverMock();
+    fakeChild = makeFakeChild();
+    openSpy = jest
+      .spyOn(window, 'open')
+      .mockImplementation(() => fakeChild as unknown as Window);
+  });
+
+  afterEach(() => {
+    cleanup();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  const renderVaultAndWaitForAuthorize = async (
+    options: OAuthMockOptions = {},
+    vaultProps: Record<string, any> = {}
+  ) => {
+    const mockData = setupOAuthFetchMock(SERVICE_ID, {}, options);
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <Vault
+          token="token123"
+          open
+          unifiedApi={UNIFIED_API}
+          serviceId={SERVICE_ID}
+          {...(vaultProps as any)}
+        />
+      );
+    });
+    if (jest.isMockFunction(setTimeout)) {
+      await act(async () => {
+        jest.advanceTimersByTime(0);
+      });
+    }
+    await waitFor(() => {
+      expect(screen.getByText('Authorize')).toBeInTheDocument();
+    });
+    return { screen, mockData };
+  };
+
+  const clickAuthorize = async (screen: any) => {
+    await act(async () => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+  };
+
+  const detailFetchCount = (calls: { url: string; init?: any }[]) =>
+    calls.filter((c) => c.url === DETAIL_URL && c.init?.method === undefined)
+      .length;
+
+  it('opens the popup to the launch URL synchronously on click, before the grant mint resolves', async () => {
+    const { screen, mockData } = await renderVaultAndWaitForAuthorize({
+      grant: 'pending',
+    });
+
+    await clickAuthorize(screen);
+
+    // The popup must open synchronously on the launch URL — the grant mock is
+    // still unresolved here (it only resolves via releaseGrant).
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    expect(openSpy).toHaveBeenCalledWith(LAUNCH_URL, '_blank', WINDOW_FEATURES);
+
+    const grantCall = mockData.calls.find((c) => c.url.endsWith('/grant'));
+    expect(grantCall).toBeDefined();
+    expect(mockData.releaseGrant).toBeDefined();
+  });
+
+  it('still mints the grant with a POST to .../grant carrying the JWT headers', async () => {
+    const { screen, mockData } = await renderVaultAndWaitForAuthorize();
+
+    await clickAuthorize(screen);
+
+    await waitFor(() => {
+      const grantCall = mockData.calls.find(
+        (c) => c.url === `${DETAIL_URL}/grant`
+      );
+      expect(grantCall).toBeDefined();
+      expect(grantCall?.init?.method).toBe('POST');
+
+      // The mint must carry the same JWT headers as every other Vault API
+      // call in this harness (e.g. the SWR connection fetches).
+      const authenticatedCall = mockData.calls.find(
+        (c) => c.url === DETAIL_URL && c.init?.headers?.Authorization
+      );
+      expect(authenticatedCall).toBeDefined();
+      expect(grantCall?.init?.headers).toMatchObject({
+        Authorization: authenticatedCall?.init?.headers?.Authorization,
+        'X-APIDECK-AUTH-TYPE': 'JWT',
+      });
+    });
+  });
+
+  it('on oauth_launch_ready from the child at the launch origin: posts oauth_launch_start with grant + legacy authorize URL (containing &nonce=) and explicit targetOrigin', async () => {
+    const { screen } = await renderVaultAndWaitForAuthorize();
+
+    await clickAuthorize(screen);
+    await dispatchLaunchReady(fakeChild);
+
+    await waitFor(() => {
+      expect(fakeChild.postMessage).toHaveBeenCalledTimes(1);
+    });
+
+    const [message, targetOrigin] = fakeChild.postMessage.mock.calls[0];
+    expect(targetOrigin).toBe(LAUNCH_ORIGIN);
+    expect(message).toMatchObject({
+      type: 'oauth_launch_start',
+      grant: 'grant-abc',
+    });
+    expect(message.authorizeUrl).toContain(AUTHORIZE_URL_PREFIX);
+    expect(message.authorizeUrl).toContain(`redirect_uri=${REDIRECT_URL}`);
+    expect(message.authorizeUrl).toContain('nonce=');
+    expect(
+      new URL(message.authorizeUrl).searchParams.get('nonce')
+    ).toBeTruthy();
+    // The child was never navigated: the grant travels via postMessage only.
+    expect(fakeChild.location.href).toBe('');
+  });
+
+  it('when the grant mint returns non-2xx: navigates the popup to the legacy authorize URL and the legacy oauth_complete → /confirm path still works end-to-end', async () => {
+    const { screen, mockData } = await renderVaultAndWaitForAuthorize({
+      grant: 'failure',
+    });
+
+    await clickAuthorize(screen);
+    await dispatchLaunchReady(fakeChild);
+
+    await waitFor(() => {
+      expect(fakeChild.location.href).not.toBe('');
+    });
+    const legacyUrl = fakeChild.location.href;
+    expect(legacyUrl).toContain(AUTHORIZE_URL_PREFIX);
+    const nonce = new URL(legacyUrl).searchParams.get('nonce') as string;
+    expect(nonce).toBeTruthy();
+    expect(fakeChild.postMessage).not.toHaveBeenCalled();
+
+    await dispatchComplete(nonce);
+
+    await waitFor(() => {
+      const confirmCall = mockData.calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/confirm`)
+      );
+      expect(confirmCall).toBeDefined();
+      expect(confirmCall?.init?.method).toBe('POST');
+      expect(JSON.parse(confirmCall?.init?.body as string)).toEqual({
+        confirm_token: 'token-xyz',
+      });
+    });
+  });
+
+  it('when no oauth_launch_ready arrives within LAUNCH_READY_TIMEOUT_MS: navigates the popup to the legacy authorize URL', async () => {
+    jest.useFakeTimers();
+    const { screen } = await renderVaultAndWaitForAuthorize();
+
+    await clickAuthorize(screen);
+
+    await act(async () => {
+      jest.advanceTimersByTime(LAUNCH_READY_TIMEOUT_MS);
+    });
+
+    expect(fakeChild.location.href).toContain(AUTHORIZE_URL_PREFIX);
+    expect(
+      new URL(fakeChild.location.href).searchParams.get('nonce')
+    ).toBeTruthy();
+    expect(fakeChild.postMessage).not.toHaveBeenCalled();
+  });
+
+  it('legacy oauth_complete received after a completed handoff handshake: still POSTs /confirm exactly once (popup-side fallback; no double confirm with the poller)', async () => {
+    jest.useFakeTimers();
+    const { screen, mockData } = await renderVaultAndWaitForAuthorize();
+
+    await clickAuthorize(screen);
+    const authorizeUrl = await completeHandshake(fakeChild);
+    const nonce = new URL(authorizeUrl).searchParams.get('nonce') as string;
+
+    await dispatchComplete(nonce);
+
+    await waitFor(() => {
+      expect(
+        mockData.calls.filter((c) => c.url.endsWith('/confirm')).length
+      ).toBe(1);
+    });
+
+    // The popup closes afterwards — the completed flag keeps the close-poller
+    // (and the callable poll) from double reporting.
+    fakeChild.closed = true;
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(1100);
+    });
+    const ticks = CALLABLE_POLL_BUDGET_MS / CALLABLE_POLL_INTERVAL_MS;
+    for (let i = 0; i <= ticks; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(CALLABLE_POLL_INTERVAL_MS);
+      });
+    }
+
+    expect(
+      mockData.calls.filter((c) => c.url.endsWith('/confirm')).length
+    ).toBe(1);
+    expect(screen.queryByText(/not completed/i)).not.toBeInTheDocument();
+  });
+
+  it('on popup close after handoff without oauth_complete: polls the connection detail URL and, on state=callable, mutates and fires onConnectionChange without an error toast', async () => {
+    jest.useFakeTimers();
+    const onConnectionChange = jest.fn();
+    const { screen, mockData } = await renderVaultAndWaitForAuthorize(
+      { detailState: 'pending_confirmation' },
+      { onConnectionChange }
+    );
+
+    await clickAuthorize(screen);
+    await completeHandshake(fakeChild);
+    onConnectionChange.mockClear();
+
+    fakeChild.closed = true;
+    // 500ms close poll + 1000ms grace, as today.
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    // Still pending_confirmation: no blind mutate success — the widget must
+    // poll the detail URL instead of reporting success immediately.
+    expect(onConnectionChange).not.toHaveBeenCalled();
+
+    const fetchesBeforePoll = detailFetchCount(mockData.calls);
+    await act(async () => {
+      jest.advanceTimersByTime(CALLABLE_POLL_INTERVAL_MS);
+    });
+    expect(detailFetchCount(mockData.calls)).toBeGreaterThan(fetchesBeforePoll);
+
+    mockData.detailState = 'callable';
+    await act(async () => {
+      jest.advanceTimersByTime(CALLABLE_POLL_INTERVAL_MS);
+    });
+
+    await waitFor(() => {
+      expect(onConnectionChange).toHaveBeenCalledWith(
+        expect.objectContaining({ state: 'callable' })
+      );
+    });
+    expect(screen.queryByText(/not completed/i)).not.toBeInTheDocument();
+  });
+
+  it('on popup close with the connection stuck pending_confirmation: shows an actionable error toast after the poll budget, never a silent success', async () => {
+    jest.useFakeTimers();
+    const onConnectionChange = jest.fn();
+    const { screen, mockData } = await renderVaultAndWaitForAuthorize(
+      { detailState: 'pending_confirmation' },
+      { onConnectionChange }
+    );
+
+    await clickAuthorize(screen);
+    await completeHandshake(fakeChild);
+    onConnectionChange.mockClear();
+
+    fakeChild.closed = true;
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    const ticks = CALLABLE_POLL_BUDGET_MS / CALLABLE_POLL_INTERVAL_MS;
+    for (let i = 0; i <= ticks; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(CALLABLE_POLL_INTERVAL_MS);
+      });
+    }
+
+    // Actionable error toast — never a silent fake success.
+    expect(screen.getByText(/not completed/i)).toBeInTheDocument();
+    expect(onConnectionChange).not.toHaveBeenCalled();
+    expect(
+      mockData.calls.find((c) => c.url.endsWith('/confirm'))
+    ).toBeUndefined();
+  });
+
+  it('on oauth_error: toasts, does not confirm, and does not start the callable poll', async () => {
+    jest.useFakeTimers();
+    const { screen, mockData } = await renderVaultAndWaitForAuthorize();
+
+    await clickAuthorize(screen);
+
+    // The handoff flow opened the popup on the launch URL.
+    expect(openSpy).toHaveBeenCalledWith(LAUNCH_URL, '_blank', WINDOW_FEATURES);
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'oauth_error',
+            error: 'access_denied',
+            errorDescription: 'User denied consent',
+            serviceId: SERVICE_ID,
+          },
+          origin: LAUNCH_ORIGIN,
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('User denied consent')).toBeInTheDocument();
+    });
+
+    const fetchesAfterError = detailFetchCount(mockData.calls);
+
+    fakeChild.closed = true;
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(1100);
+    });
+    for (let i = 0; i < 5; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(CALLABLE_POLL_INTERVAL_MS);
+      });
+    }
+
+    // No callable poll started after the grace window.
+    expect(detailFetchCount(mockData.calls)).toBe(fetchesAfterError);
+    expect(
+      mockData.calls.find((c) => c.url.endsWith('/confirm'))
+    ).toBeUndefined();
   });
 });
