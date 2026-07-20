@@ -174,16 +174,17 @@ export function pollForCallable(params: {
       resolve(outcome);
     };
 
-    interval = setInterval(() => {
-      fetch(params.detailUrl, { headers: params.headers })
-        .then((response) => response.json())
-        .then((body) => {
-          if (settled) return;
-          if (body?.data?.state === 'callable') settle('callable');
-        })
-        .catch(() => {
-          // Transient error — keep polling until budget or cancel.
+    interval = setInterval(async () => {
+      try {
+        const response = await fetch(params.detailUrl, {
+          headers: params.headers,
         });
+        const body = await response.json();
+        if (settled) return;
+        if (body?.data?.state === 'callable') settle('callable');
+      } catch {
+        // Transient error — keep polling until budget or cancel.
+      }
     }, CALLABLE_POLL_INTERVAL_MS);
 
     budgetTimer = setTimeout(() => settle('timeout'), CALLABLE_POLL_BUDGET_MS);

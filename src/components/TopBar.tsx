@@ -67,6 +67,8 @@ const TopBar = ({
       authorize_url,
       revoke_url,
       custom_mappings,
+      unified_api,
+      service_id,
     } = selectedConnection;
     const authorizeUrl = `${authorize_url}&redirect_uri=${
       session?.redirect_uri ?? REDIRECT_URL
@@ -240,7 +242,10 @@ const TopBar = ({
           const nonce = generateNonce();
           const url = new URL(authorizeUrl);
           url.searchParams.append('nonce', nonce);
-          handleRedirect(url.href, onConnectionChange);
+          handleRedirect(url.href, onConnectionChange, {
+            unifiedApi: unified_api,
+            serviceId: service_id,
+          });
         },
       });
     }

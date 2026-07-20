@@ -102,7 +102,10 @@ const ButtonLayoutMenu: React.FC<Props> = ({
             }`
           );
           url.searchParams.append('nonce', nonce);
-          await handleRedirect(url.href, onConnectionChange);
+          await handleRedirect(url.href, onConnectionChange, {
+            unifiedApi: connection.unified_api,
+            serviceId: connection.service_id,
+          });
         },
         variant: 'primary',
         customComponent: (
@@ -290,7 +293,10 @@ const ButtonLayoutMenu: React.FC<Props> = ({
             }`
           );
           url.searchParams.append('nonce', nonce);
-          await handleRedirect(url.href, onConnectionChange);
+          await handleRedirect(url.href, onConnectionChange, {
+            unifiedApi: connection.unified_api,
+            serviceId: connection.service_id,
+          });
         },
         variant: 'outline',
       });

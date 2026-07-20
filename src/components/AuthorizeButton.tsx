@@ -7,6 +7,12 @@ import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
 import { callConfirmEndpoint, generateNonce } from '../utils/oauthCsrf';
+import {
+  deriveLaunchUrl,
+  mintGrant,
+  pollForCallable,
+  runLaunchHandshake,
+} from '../utils/oauthGrantHandoff';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 
@@ -44,15 +50,6 @@ const AuthorizeButton = ({
       cleanupRef.current?.();
     };
   }, []);
-
-  const handleChildWindowClose = () => {
-    mutate(
-      `${connectionsUrl}/${connection?.unified_api}/${connection?.service_id}`
-    ).then((result) => {
-      onConnectionChange?.(result.data);
-    });
-    setIsLoading(false);
-  };
 
   const authorizeConnection = async () => {
     setIsLoading(true);
@@ -109,12 +106,15 @@ const AuthorizeButton = ({
       let completed = false;
       let timer: ReturnType<typeof setInterval> | undefined;
       let graceTimeout: ReturnType<typeof setTimeout> | undefined;
+      let cancelCallablePoll: (() => void) | undefined;
 
       const cleanup = () => {
         completed = true;
         window.removeEventListener('message', handler);
         if (timer) clearInterval(timer);
         if (graceTimeout) clearTimeout(graceTimeout);
+        cancelCallablePoll?.();
+        cancelCallablePoll = undefined;
         cleanupRef.current = null;
         setIsLoading(false);
       };
@@ -173,21 +173,73 @@ const AuthorizeButton = ({
       window.addEventListener('message', handler);
       cleanupRef.current = cleanup;
 
+      // Open the popup on the launch URL synchronously (popup blockers) and
+      // mint the grant in parallel — the grant is never awaited before open
+      // and never carried in a URL.
+      const { launchUrl, launchOrigin } = deriveLaunchUrl(
+        { redirect_uri },
+        serviceId
+      );
+
       const child = window.open(
-        url.href,
+        launchUrl,
         '_blank',
         'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
       );
+
+      const grantPromise = mintGrant({
+        unifiedApi,
+        serviceId,
+        connectionsUrl: connectionsUrl ?? '',
+        headers,
+      });
+
+      if (child) {
+        // Fire-and-forget: the handshake removes its own listener and timer
+        // once it resolves ('handoff' or 'legacy' fallback navigation).
+        runLaunchHandshake({
+          child,
+          launchOrigin,
+          legacyAuthorizeUrl: url.href,
+          grantPromise,
+        });
+      }
 
       timer = setInterval(() => {
         if (child?.closed) {
           if (timer) clearInterval(timer);
           timer = undefined;
           graceTimeout = setTimeout(() => {
-            if (!completed) {
-              handleChildWindowClose();
+            if (completed) return;
+            // The popup closed without a definitive oauth_complete /
+            // oauth_error message — poll the connection state instead of
+            // blindly reporting success.
+            const { promise, cancel } = pollForCallable({
+              detailUrl: `${connectionsUrl}/${unifiedApi}/${serviceId}`,
+              headers,
+            });
+            cancelCallablePoll = cancel;
+            promise.then((outcome) => {
+              cancelCallablePoll = undefined;
+              if (outcome === 'callable') {
+                mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
+                  (result) => {
+                    onConnectionChange?.(result?.data);
+                  }
+                );
+                mutate('/vault/connections');
+              } else {
+                addToast({
+                  title: t('Authorization was not completed'),
+                  description: t(
+                    'The authorization window was closed before the connection became ready. Please try again.'
+                  ),
+                  type: 'error',
+                  autoClose: true,
+                });
+              }
               cleanup();
-            }
+            });
           }, 1000);
         }
       }, 500);

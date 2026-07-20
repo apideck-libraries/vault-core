@@ -7,11 +7,21 @@ import { ConnectionViewType } from '../types/ConnectionViewType';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
 import { SessionSettings, VaultAction } from '../types/Session';
 import { callConfirmEndpoint } from './oauthCsrf';
+import {
+  deriveLaunchUrl,
+  mintGrant,
+  pollForCallable,
+  runLaunchHandshake,
+} from './oauthGrantHandoff';
 import { useConnections } from './useConnections';
+import { useSession } from './useSession';
 
 export const useConnectionActions = () => {
   const { selectedConnection, updateConnection, connectionsUrl, headers } =
     useConnections();
+  // May be undefined when no SessionProvider is mounted — deriveLaunchUrl
+  // falls back to the default REDIRECT_URL origin in that case.
+  const { session } = useSession();
   const [isReAuthorizing, setIsReAuthorizing] = useState(false);
   const { mutate } = useSWRConfig();
   const { addToast } = useToast();
@@ -35,7 +45,8 @@ export const useConnectionActions = () => {
 
   const handleRedirect = async (
     url: string,
-    onConnectionChange?: (connection: Connection) => any
+    onConnectionChange?: (connection: Connection) => any,
+    grantHandoff?: { unifiedApi: string; serviceId: string }
   ) => {
     setIsReAuthorizing(true);
     if (
@@ -81,12 +92,15 @@ export const useConnectionActions = () => {
         setIsReAuthorizing(false);
       }
     } else {
-      const serviceId = selectedConnection?.service_id;
-      const unifiedApi = selectedConnection?.unified_api;
+      const serviceId =
+        grantHandoff?.serviceId ?? selectedConnection?.service_id;
+      const unifiedApi =
+        grantHandoff?.unifiedApi ?? selectedConnection?.unified_api;
 
       let completed = false;
       let timer: ReturnType<typeof setInterval> | undefined;
       let graceTimeout: ReturnType<typeof setTimeout> | undefined;
+      let cancelCallablePoll: (() => void) | undefined;
 
       const handleChildWindowClose = () => {
         mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
@@ -102,6 +116,8 @@ export const useConnectionActions = () => {
         window.removeEventListener('message', handler);
         if (timer) clearInterval(timer);
         if (graceTimeout) clearTimeout(graceTimeout);
+        cancelCallablePoll?.();
+        cancelCallablePoll = undefined;
         cleanupRef.current = null;
         setIsReAuthorizing(false);
       };
@@ -160,21 +176,87 @@ export const useConnectionActions = () => {
       window.addEventListener('message', handler);
       cleanupRef.current = cleanup;
 
-      const child = window.open(
-        url,
-        '_blank',
-        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-      );
+      let child: Window | null;
+      if (grantHandoff) {
+        // Grant-handoff flow: open the popup on the launch URL synchronously
+        // (popup blockers) and mint the grant in parallel — the grant is
+        // never awaited before open and never carried in a URL.
+        const { launchUrl, launchOrigin } = deriveLaunchUrl(
+          session,
+          grantHandoff.serviceId
+        );
+        child = window.open(
+          launchUrl,
+          '_blank',
+          'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+        );
+        const grantPromise = mintGrant({
+          unifiedApi: grantHandoff.unifiedApi,
+          serviceId: grantHandoff.serviceId,
+          connectionsUrl: connectionsUrl ?? '',
+          headers,
+        });
+        if (child) {
+          // Fire-and-forget: the handshake removes its own listener and
+          // timer once it resolves ('handoff' or 'legacy' fallback
+          // navigation).
+          runLaunchHandshake({
+            child,
+            launchOrigin,
+            legacyAuthorizeUrl: url,
+            grantPromise,
+          });
+        }
+      } else {
+        // Revoke (and other non-handoff) call sites: open the URL directly,
+        // exactly as before — no grant mint, no handshake.
+        child = window.open(
+          url,
+          '_blank',
+          'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
+        );
+      }
 
       timer = setInterval(() => {
         if (child?.closed) {
           if (timer) clearInterval(timer);
           timer = undefined;
           graceTimeout = setTimeout(() => {
-            if (!completed) {
+            if (completed) return;
+            if (!grantHandoff) {
               handleChildWindowClose();
               cleanup();
+              return;
             }
+            // The popup closed without a definitive oauth_complete /
+            // oauth_error message — poll the connection state instead of
+            // blindly reporting success.
+            const { promise, cancel } = pollForCallable({
+              detailUrl: `${connectionsUrl}/${unifiedApi}/${serviceId}`,
+              headers,
+            });
+            cancelCallablePoll = cancel;
+            promise.then((outcome) => {
+              cancelCallablePoll = undefined;
+              if (outcome === 'callable') {
+                mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
+                  (result) => {
+                    onConnectionChange?.(result?.data);
+                  }
+                );
+                mutate('/vault/connections');
+              } else {
+                addToast({
+                  title: t('Authorization was not completed'),
+                  description: t(
+                    'The authorization window was closed before the connection became ready. Please try again.'
+                  ),
+                  type: 'error',
+                  autoClose: true,
+                });
+              }
+              cleanup();
+            });
           }, 1000);
         }
       }, 500);

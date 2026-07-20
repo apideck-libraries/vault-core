@@ -3,6 +3,7 @@ import React, { ReactElement, forwardRef, useEffect, useState } from 'react';
 import { ToastProvider } from '@apideck/components';
 import jwtDecode from 'jwt-decode';
 import { useTranslation } from 'react-i18next';
+import { SWRConfig } from 'swr';
 import { BASE_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
@@ -188,34 +189,38 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
           showAttribution={showAttribution}
           applicationId={session?.application_id}
         >
-          <ToastProvider>
-            <ConnectionsProvider
-              appId={session?.application_id as string}
-              consumerId={session?.consumer_id as string}
-              token={jwt as string}
-              isOpen={isOpen}
-              onClose={onCloseModal}
-              onConnectionChange={onConnectionChange}
-              onConnectionDelete={onConnectionDelete}
-              unifiedApi={unifiedApi}
-              serviceId={serviceId}
-              unifyBaseUrl={unifyBaseUrl}
-            >
-              <SessionProvider session={session}>
-                <ModalContent
-                  onClose={onCloseModal}
-                  onConnectionChange={onConnectionChange}
-                  consumer={
-                    showConsumer ? session?.consumer_metadata : undefined
-                  }
-                  initialView={initialView}
-                  showLanguageSwitch={showLanguageSwitch}
-                  showButtonLayout={showButtonLayout}
-                  autoStartAuthorization={autoStartAuthorization}
-                />
-              </SessionProvider>
-            </ConnectionsProvider>
-          </ToastProvider>
+          {/* A fresh SWR cache per Vault mount: connection state must never
+              leak between mounts (or between consumers embedding Vault). */}
+          <SWRConfig value={{ provider: () => new Map() }}>
+            <ToastProvider>
+              <ConnectionsProvider
+                appId={session?.application_id as string}
+                consumerId={session?.consumer_id as string}
+                token={jwt as string}
+                isOpen={isOpen}
+                onClose={onCloseModal}
+                onConnectionChange={onConnectionChange}
+                onConnectionDelete={onConnectionDelete}
+                unifiedApi={unifiedApi}
+                serviceId={serviceId}
+                unifyBaseUrl={unifyBaseUrl}
+              >
+                <SessionProvider session={session}>
+                  <ModalContent
+                    onClose={onCloseModal}
+                    onConnectionChange={onConnectionChange}
+                    consumer={
+                      showConsumer ? session?.consumer_metadata : undefined
+                    }
+                    initialView={initialView}
+                    showLanguageSwitch={showLanguageSwitch}
+                    showButtonLayout={showButtonLayout}
+                    autoStartAuthorization={autoStartAuthorization}
+                  />
+                </SessionProvider>
+              </ConnectionsProvider>
+            </ToastProvider>
+          </SWRConfig>
         </Modal>
       ) : null}
     </div>
