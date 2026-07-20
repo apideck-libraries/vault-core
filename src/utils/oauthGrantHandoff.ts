@@ -6,6 +6,20 @@
  * - thoughts/shared/research/2026-07-14-oauth-confirm-iframe-context.md
  * - thoughts/shared/research/2026-07-16-oauth-confirm-handoff-sequence-diagrams.md
  *
+ * Fallback ladder for confirming the authorization (strongest first):
+ * 1. sessionStorage self-confirm — vault's callback page finds the grant that
+ *    its launch page stashed in sessionStorage and confirms the connection
+ *    itself, without involving the opener.
+ * 2. Legacy opener postMessage — the callback posts `oauth_complete` to the
+ *    opener, which calls the confirm endpoint (the pre-handoff flow).
+ * 3. Loud error — neither channel completed; after the popup closes the
+ *    widget polls the connection state and surfaces an actionable error toast
+ *    instead of silently reporting success.
+ *
+ * Deployment-order dependency (each layer degrades gracefully until the next
+ * one is live): unify grant endpoints → vault launch page/callback →
+ * vault-core release.
+ *
  * Invariants:
  * - The grant is NEVER carried in a URL (no query params, no fragments).
  * - The opener → popup postMessage handshake (with an explicit, pinned
@@ -18,6 +32,9 @@ import {
   CALLABLE_POLL_BUDGET_MS,
   CALLABLE_POLL_INTERVAL_MS,
   LAUNCH_READY_TIMEOUT_MS,
+  OAUTH_POPUP_FEATURES,
+  POPUP_CLOSE_CHECK_INTERVAL_MS,
+  POPUP_CLOSE_GRACE_MS,
 } from '../constants/oauthGrantHandoff';
 import { OAUTH_LAUNCH_PATH, REDIRECT_URL } from '../constants/urls';
 import {
@@ -196,4 +213,117 @@ export function pollForCallable(params: {
   };
 
   return { promise, cancel };
+}
+
+/**
+ * Open the grant-handoff popup and kick off the flow: open the vault launch
+ * page synchronously (popup blockers), mint the grant in parallel (never
+ * awaited before open, never carried in a URL), and run the launch handshake
+ * fire-and-forget — it removes its own listener and timer once it resolves
+ * ('handoff', or 'legacy' fallback navigation).
+ *
+ * Returns the popup window (`null` when the popup was blocked) so the caller
+ * can watch it for close.
+ */
+export function openGrantHandoffPopup(params: {
+  session: { redirect_uri?: string } | null | undefined;
+  unifiedApi: string;
+  serviceId: string;
+  connectionsUrl: string;
+  headers: Record<string, string>;
+  legacyAuthorizeUrl: string;
+}): Window | null {
+  const { launchUrl, launchOrigin } = deriveLaunchUrl(
+    params.session,
+    params.serviceId
+  );
+  const child = window.open(launchUrl, '_blank', OAUTH_POPUP_FEATURES);
+  const grantPromise = mintGrant({
+    unifiedApi: params.unifiedApi,
+    serviceId: params.serviceId,
+    connectionsUrl: params.connectionsUrl,
+    headers: params.headers,
+  });
+  if (child) {
+    runLaunchHandshake({
+      child,
+      launchOrigin,
+      legacyAuthorizeUrl: params.legacyAuthorizeUrl,
+      grantPromise,
+    });
+  }
+  return child;
+}
+
+/**
+ * Watch a popup for close. Once it closes, wait POPUP_CLOSE_GRACE_MS (gives
+ * an in-flight `oauth_complete` / `oauth_error` message time to arrive and
+ * settle the flow first), then invoke `onClosed` — unless `isCompleted()`
+ * reports the flow already finished. `cancel()` stops the watcher without
+ * invoking `onClosed`.
+ */
+export function watchPopupClose(params: {
+  child: Window | null;
+  isCompleted: () => boolean;
+  onClosed: () => void;
+}): { cancel: () => void } {
+  let graceTimer: ReturnType<typeof setTimeout> | undefined;
+  let interval: ReturnType<typeof setInterval> | undefined = setInterval(() => {
+    if (!params.child?.closed) return;
+    if (interval !== undefined) clearInterval(interval);
+    interval = undefined;
+    graceTimer = setTimeout(() => {
+      if (params.isCompleted()) return;
+      params.onClosed();
+    }, POPUP_CLOSE_GRACE_MS);
+  }, POPUP_CLOSE_CHECK_INTERVAL_MS);
+
+  return {
+    cancel: () => {
+      if (interval !== undefined) clearInterval(interval);
+      if (graceTimer !== undefined) clearTimeout(graceTimer);
+    },
+  };
+}
+
+/**
+ * Watch a popup for close and, once the grace period elapses without the
+ * flow completing, poll the connection detail endpoint for state `callable`
+ * (the popup closed without a definitive `oauth_complete` / `oauth_error`
+ * message, so poll instead of blindly reporting success). `onOutcome`
+ * receives 'callable' or 'timeout'; `cancel()` stops the watcher and any
+ * in-flight poll without invoking `onOutcome`.
+ */
+export function watchPopupCloseAndPoll(params: {
+  child: Window | null;
+  detailUrl: string;
+  headers: Record<string, string>;
+  isCompleted: () => boolean;
+  onOutcome: (outcome: PollOutcome) => void;
+}): { cancel: () => void } {
+  let cancelPoll: (() => void) | undefined;
+
+  const watcher = watchPopupClose({
+    child: params.child,
+    isCompleted: params.isCompleted,
+    onClosed: () => {
+      const { promise, cancel } = pollForCallable({
+        detailUrl: params.detailUrl,
+        headers: params.headers,
+      });
+      cancelPoll = cancel;
+      promise.then((outcome) => {
+        cancelPoll = undefined;
+        params.onOutcome(outcome);
+      });
+    },
+  });
+
+  return {
+    cancel: () => {
+      watcher.cancel();
+      cancelPoll?.();
+      cancelPoll = undefined;
+    },
+  };
 }

@@ -6,12 +6,12 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
 import { SessionSettings, VaultAction } from '../types/Session';
+import { OAUTH_POPUP_FEATURES } from '../constants/oauthGrantHandoff';
 import { callConfirmEndpoint } from './oauthCsrf';
 import {
-  deriveLaunchUrl,
-  mintGrant,
-  pollForCallable,
-  runLaunchHandshake,
+  openGrantHandoffPopup,
+  watchPopupClose,
+  watchPopupCloseAndPoll,
 } from './oauthGrantHandoff';
 import { useConnections } from './useConnections';
 import { useSession } from './useSession';
@@ -98,9 +98,7 @@ export const useConnectionActions = () => {
         grantHandoff?.unifiedApi ?? selectedConnection?.unified_api;
 
       let completed = false;
-      let timer: ReturnType<typeof setInterval> | undefined;
-      let graceTimeout: ReturnType<typeof setTimeout> | undefined;
-      let cancelCallablePoll: (() => void) | undefined;
+      let cancelCloseWatch: (() => void) | undefined;
 
       const handleChildWindowClose = () => {
         mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
@@ -114,12 +112,19 @@ export const useConnectionActions = () => {
       const cleanup = () => {
         completed = true;
         window.removeEventListener('message', handler);
-        if (timer) clearInterval(timer);
-        if (graceTimeout) clearTimeout(graceTimeout);
-        cancelCallablePoll?.();
-        cancelCallablePoll = undefined;
+        cancelCloseWatch?.();
+        cancelCloseWatch = undefined;
         cleanupRef.current = null;
         setIsReAuthorizing(false);
+      };
+
+      const refreshConnection = () => {
+        mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
+          (result) => {
+            onConnectionChange?.(result?.data);
+          }
+        );
+        mutate('/vault/connections');
       };
 
       const handler = async (event: MessageEvent) => {
@@ -164,102 +169,58 @@ export const useConnectionActions = () => {
           return;
         }
 
-        mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
-          (result) => {
-            onConnectionChange?.(result?.data);
-          }
-        );
-        mutate('/vault/connections');
+        refreshConnection();
         cleanup();
       };
 
       window.addEventListener('message', handler);
       cleanupRef.current = cleanup;
 
-      let child: Window | null;
       if (grantHandoff) {
-        // Grant-handoff flow: open the popup on the launch URL synchronously
-        // (popup blockers) and mint the grant in parallel — the grant is
-        // never awaited before open and never carried in a URL.
-        const { launchUrl, launchOrigin } = deriveLaunchUrl(
+        const child = openGrantHandoffPopup({
           session,
-          grantHandoff.serviceId
-        );
-        child = window.open(
-          launchUrl,
-          '_blank',
-          'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-        );
-        const grantPromise = mintGrant({
           unifiedApi: grantHandoff.unifiedApi,
           serviceId: grantHandoff.serviceId,
           connectionsUrl: connectionsUrl ?? '',
           headers,
+          legacyAuthorizeUrl: url,
         });
-        if (child) {
-          // Fire-and-forget: the handshake removes its own listener and
-          // timer once it resolves ('handoff' or 'legacy' fallback
-          // navigation).
-          runLaunchHandshake({
-            child,
-            launchOrigin,
-            legacyAuthorizeUrl: url,
-            grantPromise,
-          });
-        }
+
+        cancelCloseWatch = watchPopupCloseAndPoll({
+          child,
+          detailUrl: `${connectionsUrl}/${unifiedApi}/${serviceId}`,
+          headers,
+          isCompleted: () => completed,
+          onOutcome: (outcome) => {
+            if (outcome === 'callable') {
+              refreshConnection();
+            } else {
+              addToast({
+                title: t('Authorization was not completed'),
+                description: t(
+                  'The authorization window was closed before the connection became ready. Please try again.'
+                ),
+                type: 'error',
+                autoClose: true,
+              });
+            }
+            cleanup();
+          },
+        }).cancel;
       } else {
         // Revoke (and other non-handoff) call sites: open the URL directly,
-        // exactly as before — no grant mint, no handshake.
-        child = window.open(
-          url,
-          '_blank',
-          'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-        );
-      }
+        // exactly as before — no grant mint, no handshake, no callable poll.
+        const child = window.open(url, '_blank', OAUTH_POPUP_FEATURES);
 
-      timer = setInterval(() => {
-        if (child?.closed) {
-          if (timer) clearInterval(timer);
-          timer = undefined;
-          graceTimeout = setTimeout(() => {
-            if (completed) return;
-            if (!grantHandoff) {
-              handleChildWindowClose();
-              cleanup();
-              return;
-            }
-            // The popup closed without a definitive oauth_complete /
-            // oauth_error message — poll the connection state instead of
-            // blindly reporting success.
-            const { promise, cancel } = pollForCallable({
-              detailUrl: `${connectionsUrl}/${unifiedApi}/${serviceId}`,
-              headers,
-            });
-            cancelCallablePoll = cancel;
-            promise.then((outcome) => {
-              cancelCallablePoll = undefined;
-              if (outcome === 'callable') {
-                mutate(`${connectionsUrl}/${unifiedApi}/${serviceId}`).then(
-                  (result) => {
-                    onConnectionChange?.(result?.data);
-                  }
-                );
-                mutate('/vault/connections');
-              } else {
-                addToast({
-                  title: t('Authorization was not completed'),
-                  description: t(
-                    'The authorization window was closed before the connection became ready. Please try again.'
-                  ),
-                  type: 'error',
-                  autoClose: true,
-                });
-              }
-              cleanup();
-            });
-          }, 1000);
-        }
-      }, 500);
+        cancelCloseWatch = watchPopupClose({
+          child,
+          isCompleted: () => completed,
+          onClosed: () => {
+            handleChildWindowClose();
+            cleanup();
+          },
+        }).cancel;
+      }
     }
   };
 

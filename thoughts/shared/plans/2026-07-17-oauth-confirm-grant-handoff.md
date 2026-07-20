@@ -1,5 +1,5 @@
 ---
-status: draft
+status: implemented
 related_research:
   - thoughts/shared/research/2026-07-14-oauth-confirm-iframe-context.md
   - thoughts/shared/research/2026-07-16-oauth-confirm-handoff-sequence-diagrams.md
