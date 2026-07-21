@@ -25,6 +25,17 @@ const pages = {
   storageLaunch: path.resolve(__dirname, 'storage-roundtrip/launch.html'),
   storageProvider: path.resolve(__dirname, 'storage-roundtrip/provider.html'),
   storageCallback: path.resolve(__dirname, 'storage-roundtrip/callback.html'),
+  // grant-handoff end-to-end harness (grant-handoff/): the REAL <Vault> on the
+  // NEW grant-handoff code path against REAL local unify (https://localhost:3050)
+  // with a REAL OAuth round-trip. The harness only serves its OWN vault-side
+  // oauth/launch + oauth/callback stand-ins (so it can inject COOP on the
+  // callback); everything unify does is real. Proves severed mode still reaches
+  // state `callable`.
+  grantHandoffOuter: path.resolve(__dirname, 'grant-handoff/outer.html'),
+  grantHandoffMiddle: path.resolve(__dirname, 'grant-handoff/middle.html'),
+  grantHandoffWidget: path.resolve(__dirname, 'grant-handoff/widget.html'),
+  grantHandoffLaunch: path.resolve(__dirname, 'grant-handoff/launch.html'),
+  grantHandoffCallback: path.resolve(__dirname, 'grant-handoff/callback.html'),
 };
 
 // Deterministically reproduce the OCTA opener severance with a REAL header
@@ -78,9 +89,12 @@ function storageRoundtripPlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url ?? '';
-        if (url.startsWith('/storage-roundtrip/api/report') && req.method === 'POST') {
+        if (
+          url.startsWith('/storage-roundtrip/api/report') &&
+          req.method === 'POST'
+        ) {
           let body = '';
-          req.on('data', chunk => (body += chunk));
+          req.on('data', (chunk) => (body += chunk));
           req.on('end', () => {
             try {
               const data = JSON.parse(body);
@@ -114,11 +128,67 @@ function storageRoundtripPlugin(): Plugin {
   };
 }
 
+// grant-handoff end-to-end harness support (grant-handoff/). This harness drives
+// the REAL <Vault> against REAL local unify (https://localhost:3050) with a REAL
+// OAuth round-trip — there is NO unify stub and NO CORS shim here (unify serves
+// its own endpoints and its own CORS). The dev server's ONLY jobs are:
+//   1. Internal rewrites (keep the query string) so deriveLaunchUrl's hard-coded
+//      /oauth/launch and unify's redirect to /oauth/callback resolve to our own
+//      COOP-controllable stand-in pages.
+//   2. COOP lever: Cross-Origin-Opener-Policy: same-origin on the CALLBACK ONLY
+//      in severed mode (NEVER the launch page) — this is what severs the popup's
+//      window.opener, reproducing the OCTA condition. Real unify redirects back
+//      to /oauth/callback without our ?opener param, so severed mode is read from
+//      the `gh_opener` cookie the outer host set on the localhost origin (with a
+//      query-param fallback for direct hits).
+function grantHandoffPlugin(): Plugin {
+  const isSevered = (query: URLSearchParams, cookie: string): boolean => {
+    if (query.get('opener') === 'severed') return true;
+    return /(?:^|;\s*)gh_opener=severed(?:;|$)/.test(cookie);
+  };
+
+  return {
+    name: 'grant-handoff',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const rawUrl = req.url ?? '';
+        const [pathOnly, search = ''] = rawUrl.split('?');
+        const query = new URLSearchParams(search);
+
+        // 1. Internal rewrites (keep the query string) so /oauth/launch and
+        //    /oauth/callback resolve to our real stand-in pages.
+        if (pathOnly === '/oauth/launch') {
+          req.url = `/grant-handoff/launch.html${search ? `?${search}` : ''}`;
+        } else if (pathOnly === '/oauth/callback') {
+          req.url = `/grant-handoff/callback.html${search ? `?${search}` : ''}`;
+        }
+
+        // 2. COOP lever in severed mode — the CALLBACK ONLY, never the launch
+        //    page. The launch page must keep window.opener intact by
+        //    construction; severance happens here, on the final callback.
+        const coopTarget = /\/grant-handoff\/callback\.html/.test(
+          req.url ?? ''
+        );
+        if (coopTarget && isSevered(query, req.headers.cookie ?? '')) {
+          res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        }
+
+        next();
+      });
+    },
+  };
+}
+
 // Force a single React copy across the example AND the in-tree vault-core source.
 // Without this, Vite finds nested React copies in the parent's node_modules and
 // the React tree fails with "Invalid hook call".
 export default defineConfig({
-  plugins: [react(), openerCoopPlugin(), storageRoundtripPlugin()],
+  plugins: [
+    react(),
+    openerCoopPlugin(),
+    storageRoundtripPlugin(),
+    grantHandoffPlugin(),
+  ],
   resolve: {
     dedupe: ['react', 'react-dom'],
     alias: {
