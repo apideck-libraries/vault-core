@@ -17,6 +17,7 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   style?: CSSProperties;
   showAttribution?: boolean;
+  attribution?: { hidden?: boolean; hideable?: boolean };
   applicationId?: string;
 }
 
@@ -53,6 +54,7 @@ const Modal: any = ({
   onClose,
   isOpen = false,
   showAttribution,
+  attribution,
   applicationId,
   className = '',
   style = {},
@@ -159,8 +161,15 @@ const Modal: any = ({
                 {children}
               </div>
             </Transition.Child>
+            {/*
+              The prop and the claim are independent vetoes, mirroring
+              showConsumer x settings.hide_consumer_card in ModalContent: a
+              lower-plan customer passing showAttribution={false} still hides the
+              pill. Enforcing entitlement against the prop is a separate,
+              deliberate follow-up, not this change.
+            */}
             <Transition
-              show={isOpen && showAttribution}
+              show={isOpen && showAttribution && !attribution?.hidden}
               as={Fragment}
               enter="ease-out duration-300 delay-300"
               enterFrom="opacity-0 translate-y-4"

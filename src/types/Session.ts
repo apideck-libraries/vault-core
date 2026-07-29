@@ -34,4 +34,14 @@ export interface Session {
   consumer_metadata?: SessionConsumerMetadata;
   jwt?: string;
   data_scopes?: { enabled?: boolean };
+  /**
+   * Server-derived, resolved at session-mint time.
+   * `hidden` is true only when the application has the setting on AND the
+   * account is entitled to it, so a plan downgrade re-enables attribution on
+   * the next session with no migration.
+   * `hideable` reports the entitlement itself, which is what distinguishes an
+   * authorised suppression from an unauthorised one.
+   * Absent on tokens minted without an account (e.g. management sessions).
+   */
+  attribution?: { hidden?: boolean; hideable?: boolean };
 }
