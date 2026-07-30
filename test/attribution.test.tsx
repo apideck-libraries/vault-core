@@ -71,12 +71,54 @@ describe('Vault - Apideck attribution', () => {
   // The prop and the claim are independent vetoes for now. Enforcing
   // entitlement against the prop is a separate follow-up, so an unentitled
   // caller passing showAttribution={false} must still hide the pill.
-  it('still honours showAttribution={false} when the claim allows the pill', async () => {
-    const screen = await renderVault(
-      { attribution: { hidden: false, hideable: false } },
-      { showAttribution: false }
-    );
+  describe('showAttribution enforcement', () => {
+    // The behaviour change. Previously the prop was an independent veto, so any
+    // plan could suppress the badge from client code.
+    it('ignores showAttribution={false} when the account is not entitled', async () => {
+      const screen = await renderVault(
+        { attribution: { hidden: false, hideable: false } },
+        { showAttribution: false }
+      );
 
-    expect(screen.queryByText('Powered by')).not.toBeInTheDocument();
+      expect(screen.queryByText('Powered by')).toBeInTheDocument();
+    });
+
+    it('honours showAttribution={false} when the account is entitled', async () => {
+      const screen = await renderVault(
+        { attribution: { hidden: false, hideable: true } },
+        { showAttribution: false }
+      );
+
+      expect(screen.queryByText('Powered by')).not.toBeInTheDocument();
+    });
+
+    // Enforcement keys on hideable === false, a positive "not entitled" signal.
+    // unify omits the claim entirely for sessions minted without an account
+    // (management sessions), and older deployments never send it — those must keep
+    // honouring the prop rather than silently having it stop working.
+    it('honours showAttribution={false} when there is no attribution claim', async () => {
+      const screen = await renderVault({}, { showAttribution: false });
+
+      expect(screen.queryByText('Powered by')).not.toBeInTheDocument();
+    });
+
+    it('honours showAttribution={false} when the claim omits hideable', async () => {
+      const screen = await renderVault(
+        { attribution: { hidden: false } },
+        { showAttribution: false }
+      );
+
+      expect(screen.queryByText('Powered by')).not.toBeInTheDocument();
+    });
+
+    // hidden always wins, regardless of the prop.
+    it('keeps the pill hidden when the claim says hidden even with showAttribution={true}', async () => {
+      const screen = await renderVault(
+        { attribution: { hidden: true, hideable: true } },
+        { showAttribution: true }
+      );
+
+      expect(screen.queryByText('Powered by')).not.toBeInTheDocument();
+    });
   });
 });

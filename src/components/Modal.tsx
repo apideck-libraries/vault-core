@@ -65,6 +65,19 @@ const Modal: any = ({
     setMounted(true);
   }, []);
 
+  // `showAttribution: false` is only honoured when the account is entitled to hide
+  // the badge. Previously the prop and the claim were independent vetoes, so any
+  // plan could suppress attribution from client code.
+  //
+  // Enforcement is deliberately keyed on `hideable === false` — a *positive* signal
+  // that the account is not entitled — rather than on `!hideable`. An absent claim
+  // must keep honouring the prop: unify omits `attribution` entirely for sessions
+  // minted without an account (management sessions), and any deployment older than
+  // the claim sends nothing at all. Treating absent as "not entitled" would make
+  // the prop silently stop working for both.
+  const notEntitled = attribution?.hideable === false;
+  const propSuppressesBadge = showAttribution === false && !notEntitled;
+
   // Close on Escape regardless of where focus currently sits. Headless UI's own
   // Escape handler can fail to fire when the host app's focus is outside the
   // portal, leaving users unable to dismiss with the keyboard.
@@ -162,14 +175,12 @@ const Modal: any = ({
               </div>
             </Transition.Child>
             {/*
-              The prop and the claim are independent vetoes, mirroring
-              showConsumer x settings.hide_consumer_card in ModalContent: a
-              lower-plan customer passing showAttribution={false} still hides the
-              pill. Enforcing entitlement against the prop is a separate,
-              deliberate follow-up, not this change.
+              Hidden when the server says so, or when the caller asked and is
+              entitled to ask. See propSuppressesBadge above for why an absent
+              claim still honours the prop.
             */}
             <Transition
-              show={isOpen && showAttribution && !attribution?.hidden}
+              show={isOpen && !attribution?.hidden && !propSuppressesBadge}
               as={Fragment}
               enter="ease-out duration-300 delay-300"
               enterFrom="opacity-0 translate-y-4"
