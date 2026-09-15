@@ -6,6 +6,7 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
 import { SessionSettings, VaultAction } from '../types/Session';
+import { getPopupFeatures } from './getPopupFeatures';
 import { callConfirmEndpoint } from './oauthCsrf';
 import { useConnections } from './useConnections';
 
@@ -171,11 +172,7 @@ export const useConnectionActions = () => {
       window.addEventListener('message', handler);
       cleanupRef.current = cleanup;
 
-      const child = window.open(
-        url,
-        '_blank',
-        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-      );
+      const child = window.open(url, '_blank', getPopupFeatures());
 
       // A popup blocker makes window.open return null. Reset state so the
       // re-authorize action can be retried from a user gesture.

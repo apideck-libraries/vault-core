@@ -6,6 +6,7 @@ import { useSWRConfig } from 'swr';
 import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
+import { getPopupFeatures } from '../utils/getPopupFeatures';
 import { callConfirmEndpoint, generateNonce } from '../utils/oauthCsrf';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
@@ -160,11 +161,7 @@ const AuthorizeButton = ({ connection, autoStartAuthorization }: Props) => {
       window.addEventListener('message', handler);
       cleanupRef.current = cleanup;
 
-      const child = window.open(
-        url.href,
-        '_blank',
-        'location=no,height=750,width=550,scrollbars=yes,status=yes,left=0,top=0'
-      );
+      const child = window.open(url.href, '_blank', getPopupFeatures());
 
       // A popup blocker (common when authorization is auto-started without a
       // user gesture) makes window.open return null. Reset state so the button
