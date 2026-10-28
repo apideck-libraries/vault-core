@@ -43,22 +43,22 @@ const makeConnection = (overrides: Record<string, any> = {}) => ({
 });
 
 interface HostProps {
-  url: string;
+  url: string | null;
   buildUrlAtClick?: (serviceId: string, base: string) => string;
   onConnectionChange?: (connection: any) => void;
 }
 
 const Host = ({ url, buildUrlAtClick, onConnectionChange }: HostProps) => {
-  const { handleRedirect } = useConnectionActions();
+  const { handleRedirect, isReAuthorizing } = useConnectionActions();
   const { selectedConnection } = useConnections();
   return (
     <>
       <span data-testid="state">{selectedConnection?.state}</span>
+      <span data-testid="re-authorizing">{String(isReAuthorizing)}</span>
       <button
         onClick={() => {
-          const finalUrl = buildUrlAtClick
-            ? buildUrlAtClick(SERVICE_ID, url)
-            : url;
+          const finalUrl =
+            buildUrlAtClick && url ? buildUrlAtClick(SERVICE_ID, url) : url;
           handleRedirect(finalUrl, onConnectionChange);
         }}
       >
@@ -70,7 +70,10 @@ const Host = ({ url, buildUrlAtClick, onConnectionChange }: HostProps) => {
 
 const renderHost = (
   hostProps: HostProps,
-  connectionOverrides: Record<string, any> = {}
+  connectionOverrides: Record<string, any> = {},
+  // An isolated SWR cache lets the connection details load; the shared cache
+  // dedupes the detail fetch against sibling tests.
+  { isolatedCache = false }: { isolatedCache?: boolean } = {}
 ) => {
   const connection = makeConnection(connectionOverrides);
   const listResponse = { status_code: 200, status: 'OK', data: [connection] };
@@ -101,24 +104,32 @@ const renderHost = (
     return { ok: true, status: 200, json: async () => listResponse };
   });
 
+  const tree = (
+    <ToastProvider>
+      <ConnectionsProvider
+        appId="app-id"
+        consumerId="consumer-id"
+        token="jwt-token"
+        isOpen
+        unifiedApi={UNIFIED_API}
+        serviceId={SERVICE_ID}
+        unifyBaseUrl={UNIFY_BASE_URL}
+        onClose={() => undefined}
+        onConnectionChange={hostProps.onConnectionChange}
+      >
+        <Host {...hostProps} />
+      </ConnectionsProvider>
+    </ToastProvider>
+  );
+
   return {
     calls,
     ...render(
-      <ToastProvider>
-        <ConnectionsProvider
-          appId="app-id"
-          consumerId="consumer-id"
-          token="jwt-token"
-          isOpen
-          unifiedApi={UNIFIED_API}
-          serviceId={SERVICE_ID}
-          unifyBaseUrl={UNIFY_BASE_URL}
-          onClose={() => undefined}
-          onConnectionChange={hostProps.onConnectionChange}
-        >
-          <Host {...hostProps} />
-        </ConnectionsProvider>
-      </ToastProvider>
+      isolatedCache ? (
+        <SWRConfig value={{ provider: () => new Map() }}>{tree}</SWRConfig>
+      ) : (
+        tree
+      )
     ),
   };
 };
@@ -332,6 +343,59 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
       fireEvent.click(getByText('Trigger'));
     });
     expect(openSpy).toHaveBeenCalledTimes(2);
+  });
+
+  // unify returns authorize_url: null for client_credentials and password
+  // connections, so buildAuthorizeUrl gives null and the token grant runs
+  // without a popup URL.
+  it('posts to /token for a client_credentials connection even without an authorize URL', async () => {
+    const { calls, getByText, getByTestId } = renderHost(
+      { url: null },
+      { oauth_grant_type: 'client_credentials', authorize_url: null },
+      { isolatedCache: true }
+    );
+    // handleRedirect picks the grant from the loaded connection details.
+    await waitFor(() =>
+      expect(getByTestId('state').textContent).toBe('callable')
+    );
+
+    await act(async () => {
+      fireEvent.click(getByText('Trigger'));
+    });
+
+    await waitFor(() => {
+      const tokenCall = calls.find((c) =>
+        c.url.endsWith(`/${UNIFIED_API}/${SERVICE_ID}/token`)
+      );
+      expect(tokenCall?.init?.method).toBe('POST');
+    });
+    expect(openSpy).not.toHaveBeenCalled();
+  });
+
+  it('does nothing for a popup grant without an authorize URL', async () => {
+    const addListenerSpy = jest.spyOn(window, 'addEventListener');
+    const { calls, getByText, getByTestId } = renderHost(
+      { url: null },
+      { oauth_grant_type: 'authorization_code', authorize_url: null },
+      { isolatedCache: true }
+    );
+    await waitFor(() =>
+      expect(getByTestId('state').textContent).toBe('callable')
+    );
+
+    await act(async () => {
+      fireEvent.click(getByText('Trigger'));
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(
+      addListenerSpy.mock.calls.filter(([type]) => type === 'message')
+    ).toHaveLength(0);
+    expect(getByTestId('re-authorizing')).toHaveTextContent('false');
+    expect(calls.find((c) => c.url.endsWith('/token'))).toBeUndefined();
   });
 
   it('emits onConnectionChange once (not twice) when re-authorizing authorized -> callable', async () => {

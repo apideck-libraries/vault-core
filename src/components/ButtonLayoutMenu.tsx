@@ -274,9 +274,10 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const url = buildAuthorizeUrl(authorize_url);
-          if (!url) return;
-          await handleRedirect(url, onConnectionChange);
+          await handleRedirect(
+            buildAuthorizeUrl(authorize_url),
+            onConnectionChange
+          );
         },
         variant: 'outline',
       });

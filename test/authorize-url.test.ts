@@ -155,6 +155,38 @@ describe('buildAuthorizeUrl', () => {
     expect(url.searchParams.get('embed_origin')).toBe(window.location.origin);
   });
 
+  describe('in a frame whose location.origin differs from its document origin', () => {
+    // about:blank and srcdoc frames report location.origin 'null' while
+    // window.origin is the origin they inherit.
+    const DOCUMENT_ORIGIN = 'https://parent.example';
+    let originalOrigin: PropertyDescriptor | undefined;
+
+    beforeEach(() => {
+      originalOrigin = Object.getOwnPropertyDescriptor(window, 'origin');
+      Object.defineProperty(window, 'origin', {
+        value: DOCUMENT_ORIGIN,
+        configurable: true,
+      });
+    });
+
+    afterEach(() => {
+      if (originalOrigin) {
+        Object.defineProperty(window, 'origin', originalOrigin);
+      } else {
+        delete (window as any).origin;
+      }
+    });
+
+    it('uses window.origin for opener_origin and the embed_origin default', () => {
+      expect(window.location.origin).not.toBe(DOCUMENT_ORIGIN);
+
+      const url = build();
+
+      expect(url.searchParams.get('opener_origin')).toBe(DOCUMENT_ORIGIN);
+      expect(url.searchParams.get('embed_origin')).toBe(DOCUMENT_ORIGIN);
+    });
+  });
+
   it('adds a non-empty nonce that differs between calls', () => {
     const first = build().searchParams.get('nonce');
     const second = build().searchParams.get('nonce');

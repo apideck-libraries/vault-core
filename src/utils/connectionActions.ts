@@ -40,9 +40,11 @@ export const useConnectionActions = () => {
   // message or the popup closing. Messages are accepted only from that popup
   // and only from the origin of the `redirect_uri` inside `url`; a `url`
   // without a single http(s) `redirect_uri` accepts no message, and the flow
-  // then ends through the popup-close refresh.
+  // then ends through the popup-close refresh. `url` is null when the
+  // connection has no authorize_url (unify sends none for client_credentials
+  // and password grants); the token grant never uses it.
   const handleRedirect = async (
-    url: string,
+    url: string | null,
     onConnectionChange?: (connection: Connection) => any
   ) => {
     setIsReAuthorizing(true);
@@ -100,6 +102,11 @@ export const useConnectionActions = () => {
         setIsReAuthorizing(false);
       }
     } else {
+      if (!url) {
+        setIsReAuthorizing(false);
+        return;
+      }
+
       const serviceId = selectedConnection?.service_id;
       const unifiedApi = selectedConnection?.unified_api;
       const acceptedOrigin = messageOriginForPopupUrl(url);

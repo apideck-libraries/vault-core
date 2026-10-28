@@ -235,9 +235,7 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          const url = buildAuthorizeUrl(authorize_url);
-          if (!url) return;
-          handleRedirect(url, onConnectionChange);
+          handleRedirect(buildAuthorizeUrl(authorize_url), onConnectionChange);
         },
       });
     }

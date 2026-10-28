@@ -12,9 +12,6 @@ import { Vault } from '../src/components/Vault';
 import { setupIntersectionObserverMock } from './mock';
 import { CONFIG } from './responses/config';
 
-// Kept apart from the other component tests: passing `embedOrigin` to <Vault>
-// is a type error until the prop exists, and ts-jest fails the whole file on it.
-
 const SERVICE_ID = 'shopify';
 const UNIFIED_API = 'ecommerce';
 const BASE_URL = 'https://unify.apideck.com';
