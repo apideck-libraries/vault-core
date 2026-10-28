@@ -6,8 +6,10 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
 import { SessionSettings, VaultAction } from '../types/Session';
+import { messageOriginForPopupUrl } from './authorizeUrl';
 import { getPopupFeatures } from './getPopupFeatures';
 import { callConfirmEndpoint } from './oauthCsrf';
+import { isMessageFromPopup } from './oauthMessage';
 import { useConnections } from './useConnections';
 
 export const useConnectionActions = () => {
@@ -34,8 +36,15 @@ export const useConnectionActions = () => {
       return settings.allow_actions.includes(action);
     };
 
+  // Opens `url` in a popup (OAuth grants) and waits for the callback page's
+  // message or the popup closing. Messages are accepted only from that popup
+  // and only from the origin of the `redirect_uri` inside `url`; a `url`
+  // without a single http(s) `redirect_uri` accepts no message, and the flow
+  // then ends through the popup-close refresh. `url` is null when the
+  // connection has no authorize_url (unify sends none for client_credentials
+  // and password grants); the token grant never uses it.
   const handleRedirect = async (
-    url: string,
+    url: string | null,
     onConnectionChange?: (connection: Connection) => any
   ) => {
     setIsReAuthorizing(true);
@@ -93,10 +102,17 @@ export const useConnectionActions = () => {
         setIsReAuthorizing(false);
       }
     } else {
+      if (!url) {
+        setIsReAuthorizing(false);
+        return;
+      }
+
       const serviceId = selectedConnection?.service_id;
       const unifiedApi = selectedConnection?.unified_api;
+      const acceptedOrigin = messageOriginForPopupUrl(url);
 
       let completed = false;
+      let popup: Window | null = null;
       let timer: ReturnType<typeof setInterval> | undefined;
       let graceTimeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -119,6 +135,7 @@ export const useConnectionActions = () => {
       };
 
       const handler = async (event: MessageEvent) => {
+        if (!isMessageFromPopup(event, popup, acceptedOrigin)) return;
         const data = event.data as OAuthPostMessage | undefined;
         if (
           !data ||
@@ -172,17 +189,17 @@ export const useConnectionActions = () => {
       window.addEventListener('message', handler);
       cleanupRef.current = cleanup;
 
-      const child = window.open(url, '_blank', getPopupFeatures());
+      popup = window.open(url, '_blank', getPopupFeatures());
 
       // A popup blocker makes window.open return null. Reset state so the
       // re-authorize action can be retried from a user gesture.
-      if (!child) {
+      if (!popup) {
         cleanup();
         return;
       }
 
       timer = setInterval(() => {
-        if (child?.closed) {
+        if (popup?.closed) {
           if (timer) clearInterval(timer);
           timer = undefined;
           graceTimeout = setTimeout(() => {

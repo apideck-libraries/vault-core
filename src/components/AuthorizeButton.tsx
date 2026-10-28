@@ -3,11 +3,13 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useSWRConfig } from 'swr';
-import { REDIRECT_URL } from '../constants/urls';
 import { Connection } from '../types/Connection';
 import { OAuthPostMessage } from '../types/OAuthCsrf';
+import { messageOriginForPopupUrl } from '../utils/authorizeUrl';
 import { getPopupFeatures } from '../utils/getPopupFeatures';
-import { callConfirmEndpoint, generateNonce } from '../utils/oauthCsrf';
+import { callConfirmEndpoint } from '../utils/oauthCsrf';
+import { isMessageFromPopup } from '../utils/oauthMessage';
+import { useAuthorizeUrlBuilder } from '../utils/useAuthorizeUrlBuilder';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 
@@ -21,17 +23,14 @@ const AuthorizeButton = ({ connection, autoStartAuthorization }: Props) => {
   const { connectionsUrl, headers } = useConnections();
   const { addToast } = useToast();
   const {
-    session: { theme, redirect_uri },
+    session: { theme },
   } = useSession();
+  const buildAuthorizeUrl = useAuthorizeUrlBuilder();
   const { mutate } = useSWRConfig();
   const { t } = useTranslation();
 
   const isAuthorizationEnabled =
     connection.integration_state !== 'needs_configuration' && !isLoading;
-
-  const authorizeUrl = `${connection.authorize_url}&redirect_uri=${
-    redirect_uri ?? REDIRECT_URL
-  }`;
 
   const cleanupRef = useRef<(() => void) | null>(null);
 
@@ -93,12 +92,15 @@ const AuthorizeButton = ({ connection, autoStartAuthorization }: Props) => {
     } else {
       const serviceId = connection.service_id;
       const unifiedApi = connection.unified_api;
-      const nonce = generateNonce();
-
-      const url = new URL(authorizeUrl);
-      url.searchParams.append('nonce', nonce);
+      const popupUrl = buildAuthorizeUrl(connection.authorize_url);
+      if (!popupUrl) {
+        setIsLoading(false);
+        return;
+      }
+      const acceptedOrigin = messageOriginForPopupUrl(popupUrl);
 
       let completed = false;
+      let popup: Window | null = null;
       let timer: ReturnType<typeof setInterval> | undefined;
       let graceTimeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -112,6 +114,7 @@ const AuthorizeButton = ({ connection, autoStartAuthorization }: Props) => {
       };
 
       const handler = async (event: MessageEvent) => {
+        if (!isMessageFromPopup(event, popup, acceptedOrigin)) return;
         const data = event.data as OAuthPostMessage | undefined;
         if (
           !data ||
@@ -161,19 +164,19 @@ const AuthorizeButton = ({ connection, autoStartAuthorization }: Props) => {
       window.addEventListener('message', handler);
       cleanupRef.current = cleanup;
 
-      const child = window.open(url.href, '_blank', getPopupFeatures());
+      popup = window.open(popupUrl, '_blank', getPopupFeatures());
 
       // A popup blocker (common when authorization is auto-started without a
       // user gesture) makes window.open return null. Reset state so the button
       // is clickable again — a manual click IS a user gesture and opens the
       // popup, so no "allow pop-ups" prompt is needed.
-      if (!child) {
+      if (!popup) {
         cleanup();
         return;
       }
 
       timer = setInterval(() => {
-        if (child?.closed) {
+        if (popup?.closed) {
           if (timer) clearInterval(timer);
           timer = undefined;
           graceTimeout = setTimeout(() => {
