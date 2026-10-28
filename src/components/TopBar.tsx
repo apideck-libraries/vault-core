@@ -8,7 +8,7 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { useConnectionActions } from '../utils/connectionActions';
-import { generateNonce } from '../utils/oauthCsrf';
+import { useAuthorizeUrlBuilder } from '../utils/useAuthorizeUrlBuilder';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import ConfirmModal from './ConfirmModal';
@@ -44,6 +44,7 @@ const TopBar = ({
 }: Props) => {
   const { selectedConnection, deleteConnection } = useConnections();
   const { session } = useSession();
+  const buildAuthorizeUrl = useAuthorizeUrlBuilder();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { t } = useTranslation();
   const {
@@ -68,9 +69,6 @@ const TopBar = ({
       revoke_url,
       custom_mappings,
     } = selectedConnection;
-    const authorizeUrl = `${authorize_url}&redirect_uri=${
-      session?.redirect_uri ?? REDIRECT_URL
-    }`;
     const revokeUrl = `${revoke_url}&redirect_uri=${
       session?.redirect_uri ?? REDIRECT_URL
     }`;
@@ -237,10 +235,9 @@ const TopBar = ({
           </button>
         ),
         onClick: () => {
-          const nonce = generateNonce();
-          const url = new URL(authorizeUrl);
-          url.searchParams.append('nonce', nonce);
-          handleRedirect(url.href, onConnectionChange);
+          const url = buildAuthorizeUrl(authorize_url);
+          if (!url) return;
+          handleRedirect(url, onConnectionChange);
         },
       });
     }

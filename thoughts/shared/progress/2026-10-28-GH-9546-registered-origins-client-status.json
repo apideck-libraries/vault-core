@@ -1,6 +1,6 @@
 {
   "plan": "2026-10-28-GH-9546-registered-origins-client.md",
-  "current_phase": 2,
+  "current_phase": 3,
   "total_phases": 5,
   "phases": [
     {
@@ -12,12 +12,12 @@
     {
       "id": 2,
       "name": "Authorize URL Helper at All Authorize Sites (TDD - GREEN)",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "id": 3,
       "name": "Write Tests for Popup Message Filter and embedOrigin (TDD - RED)",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "id": 4,

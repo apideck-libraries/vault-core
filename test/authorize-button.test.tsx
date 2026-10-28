@@ -267,6 +267,37 @@ describe('Authorize button OAuth CSRF flow', () => {
     ]);
   });
 
+  it('does not open a popup when the connection has no authorize_url', async () => {
+    // Own service id: SWR's cache would otherwise serve the shopify connection
+    // (with an authorize_url) cached by the previous tests.
+    const serviceId = 'no-authorize-url-connector';
+    setupOAuthFetchMock(serviceId, { authorize_url: null });
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <Vault
+          token="token123"
+          open
+          unifiedApi={UNIFIED_API}
+          serviceId={serviceId}
+        />
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Authorize')).toBeInTheDocument();
+    });
+
+    // Synchronous act and assertions: with the old string concatenation,
+    // `new URL` threw inside the async click handler, and an assertion running
+    // after Node reports that rejection would land outside the test.
+    act(() => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(screen.getByText('Authorize').closest('button')).not.toBeDisabled();
+  });
+
   it('on oauth_complete with valid nonce: POSTs to /confirm', async () => {
     const { mockData } = await renderAndClickAuthorize();
 
