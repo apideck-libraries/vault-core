@@ -1,3 +1,5 @@
+import { act } from 'react-dom/test-utils';
+
 import { ADDED_CONNECTIONS_RESPONSE } from './responses/with-added-connections';
 import { ADD_CONNECTION_RESPONSE } from './responses/add-connection';
 import { CONFIG } from './responses/config';
@@ -60,4 +62,47 @@ const setupIntersectionObserverMock = ({
   });
 };
 
-export { fetchMock, fetchMockRejected, setupIntersectionObserverMock };
+// jwt-decode does not verify signatures, so an unsigned token is enough to
+// drive the session the component reads.
+const tokenWithClaims = (claims: Record<string, unknown>) => {
+  const encode = (value: object) =>
+    Buffer.from(JSON.stringify(value)).toString('base64url');
+
+  return [
+    encode({ alg: 'HS256', typ: 'JWT' }),
+    encode({
+      application_id: 'app-1',
+      consumer_id: 'consumer-1',
+      ...claims,
+    }),
+    'not-a-real-signature',
+  ].join('.');
+};
+
+// Dispatches a `message` event on `window` as the OAuth callback page would.
+// `source` is the sending window: jsdom returns the object passed here from
+// `event.source`, so the fake popup returned by a `window.open` spy can stand
+// in for the real one. It is typed `unknown` because those fakes are plain
+// objects, not `MessageEventSource`s.
+const dispatchMessage = async (
+  data: unknown,
+  { origin, source }: { origin: string; source?: unknown }
+) => {
+  await act(async () => {
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data,
+        origin,
+        source: (source ?? null) as MessageEventSource | null,
+      })
+    );
+  });
+};
+
+export {
+  dispatchMessage,
+  fetchMock,
+  fetchMockRejected,
+  setupIntersectionObserverMock,
+  tokenWithClaims,
+};

@@ -15,6 +15,7 @@ import {
 import { useConnectionActions } from '../src/utils/connectionActions';
 import { generateNonce } from '../src/utils/oauthCsrf';
 import '../src/utils/i18n';
+import { dispatchMessage } from './mock';
 
 const SERVICE_ID = 'shopify';
 const UNIFIED_API = 'ecommerce';
@@ -515,5 +516,117 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
       ([c]) => c?.state === 'callable'
     );
     expect(callableCalls).toHaveLength(1);
+  });
+  describe('popup message filter', () => {
+    // AUTHORIZE_URL_BASE carries redirect_uri=http://localhost:3000, so that is
+    // the only origin handleRedirect may accept messages from.
+    const REDIRECT_ORIGIN = 'http://localhost:3000';
+    const completeMessage = {
+      type: 'oauth_complete',
+      nonce: 'n',
+      confirmToken: 'token-xyz',
+      serviceId: SERVICE_ID,
+      success: true,
+    };
+    let otherWindow: { closed: boolean; close: jest.Mock };
+
+    beforeEach(() => {
+      otherWindow = { closed: false, close: jest.fn() };
+    });
+
+    const flush = async () => {
+      await act(async () => {
+        await Promise.resolve();
+      });
+    };
+
+    const confirmCalls = (calls: { url: string }[]) =>
+      calls.filter((c) => c.url.endsWith('/confirm'));
+
+    it('ignores a message from the redirect_uri origin sent by another window', async () => {
+      const { calls } = await triggerAndOpen();
+
+      await dispatchMessage(completeMessage, {
+        origin: REDIRECT_ORIGIN,
+        source: otherWindow,
+      });
+      await flush();
+
+      expect(confirmCalls(calls)).toHaveLength(0);
+    });
+
+    it('ignores a message from the popup with the Apideck callback origin when redirect_uri is elsewhere', async () => {
+      const { calls } = await triggerAndOpen();
+
+      await dispatchMessage(completeMessage, {
+        origin: 'https://vault.apideck.com',
+        source: fakeChild,
+      });
+      await flush();
+
+      expect(confirmCalls(calls)).toHaveLength(0);
+    });
+
+    it('acts on no message when the popup URL has no redirect_uri', async () => {
+      const result = renderHost({
+        url: `${CONNECTIONS_URL}/authorize/${SERVICE_ID}/abc?state=s`,
+      });
+
+      await act(async () => {
+        fireEvent.click(result.getByText('Trigger'));
+      });
+      await flush();
+
+      expect(openSpy).toHaveBeenCalledTimes(1);
+      expect(
+        new URL(openSpy.mock.calls[0][0] as string).searchParams.has(
+          'redirect_uri'
+        )
+      ).toBe(false);
+
+      // Trusted source; neither the Apideck callback origin nor this page's
+      // origin can be accepted without a redirect_uri to derive it from.
+      await dispatchMessage(completeMessage, {
+        origin: 'https://vault.apideck.com',
+        source: fakeChild,
+      });
+      await dispatchMessage(completeMessage, {
+        origin: window.location.origin,
+        source: fakeChild,
+      });
+      await flush();
+
+      expect(confirmCalls(result.calls)).toHaveLength(0);
+    });
+
+    it('refreshes on popup close after ignoring a message', async () => {
+      jest.useFakeTimers();
+      const { calls, getByText } = renderHost({ url: AUTHORIZE_URL_BASE });
+      const detailUrl = `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`;
+      const detailGets = () => calls.filter((c) => c.url === detailUrl).length;
+
+      await act(async () => {
+        fireEvent.click(getByText('Trigger'));
+      });
+
+      await dispatchMessage(completeMessage, {
+        origin: REDIRECT_ORIGIN,
+        source: otherWindow,
+      });
+      await flush();
+      const detailGetsBeforeClose = detailGets();
+
+      fakeChild.closed = true;
+      await act(async () => {
+        jest.advanceTimersByTime(500);
+      });
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await flush();
+
+      expect(confirmCalls(calls)).toHaveLength(0);
+      expect(detailGets()).toBeGreaterThan(detailGetsBeforeClose);
+    });
   });
 });

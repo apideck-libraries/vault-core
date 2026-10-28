@@ -4,7 +4,7 @@ import 'whatwg-fetch';
 
 import * as React from 'react';
 
-import { setupIntersectionObserverMock } from './mock';
+import { dispatchMessage, setupIntersectionObserverMock } from './mock';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { Vault } from '../src/components/Vault';
@@ -543,5 +543,131 @@ describe('Authorize button OAuth CSRF flow', () => {
       fireEvent.click(screen.getByText('Authorize'));
     });
     expect(openSpy).toHaveBeenCalledTimes(2);
+  });
+  describe('popup message filter', () => {
+    // `token123` is not a JWT, so the session has no redirect_uri and the
+    // popup goes to the production callback page.
+    const CALLBACK_ORIGIN = 'https://vault.apideck.com';
+    const completeMessage = {
+      type: 'oauth_complete',
+      nonce: 'n',
+      confirmToken: 'token-xyz',
+      serviceId: SERVICE_ID,
+      success: true,
+    };
+    let otherWindow: { closed: boolean; close: jest.Mock };
+
+    beforeEach(() => {
+      otherWindow = { closed: false, close: jest.fn() };
+    });
+
+    const flush = async () => {
+      await act(async () => {
+        await Promise.resolve();
+      });
+    };
+
+    const confirmCalls = (calls: { url: string }[]) =>
+      calls.filter((c) => c.url.endsWith('/confirm'));
+
+    it('ignores oauth_complete from the callback origin sent by another window', async () => {
+      const { mockData } = await renderAndClickAuthorize();
+
+      await dispatchMessage(completeMessage, {
+        origin: CALLBACK_ORIGIN,
+        source: otherWindow,
+      });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+    });
+
+    it('ignores oauth_complete from the popup with another origin', async () => {
+      const { mockData } = await renderAndClickAuthorize();
+
+      await dispatchMessage(completeMessage, {
+        origin: 'https://evil.example',
+        source: fakeChild,
+      });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+    });
+
+    it('ignores oauth_error from an untrusted sender', async () => {
+      const { screen } = await renderAndClickAuthorize();
+
+      await dispatchMessage(
+        {
+          type: 'oauth_error',
+          error: 'access_denied',
+          errorDescription: 'User denied consent',
+          serviceId: SERVICE_ID,
+        },
+        { origin: CALLBACK_ORIGIN, source: otherWindow }
+      );
+      await flush();
+
+      expect(screen.queryByText('User denied consent')).not.toBeInTheDocument();
+    });
+
+    it('ignores a message without source', async () => {
+      const { mockData } = await renderAndClickAuthorize();
+
+      // The shape every message had before 0.24: right origin, no source.
+      await dispatchMessage(completeMessage, { origin: CALLBACK_ORIGIN });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+    });
+
+    it('refreshes the connection on popup close after ignoring a message', async () => {
+      jest.useFakeTimers();
+      const mockData = setupOAuthFetchMock(SERVICE_ID);
+      const detailUrl = `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`;
+      const detailGets = () =>
+        mockData.calls.filter((c) => c.url === detailUrl).length;
+
+      let screen: any;
+      await act(async () => {
+        screen = render(
+          <Vault
+            token="token123"
+            open
+            unifiedApi={UNIFIED_API}
+            serviceId={SERVICE_ID}
+          />
+        );
+      });
+      await act(async () => {
+        jest.advanceTimersByTime(0);
+      });
+      await waitFor(() => {
+        expect(screen.getByText('Authorize')).toBeInTheDocument();
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Authorize'));
+      });
+
+      await dispatchMessage(completeMessage, {
+        origin: CALLBACK_ORIGIN,
+        source: otherWindow,
+      });
+      await flush();
+      const detailGetsBeforeClose = detailGets();
+
+      fakeChild.closed = true;
+      await act(async () => {
+        jest.advanceTimersByTime(500);
+      });
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+      expect(detailGets()).toBeGreaterThan(detailGetsBeforeClose);
+    });
   });
 });
