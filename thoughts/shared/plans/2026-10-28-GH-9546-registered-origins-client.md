@@ -1,6 +1,6 @@
 ---
 status: implemented
-related_research: /Users/geisermenoia/orca/workspaces/unify/gh-9546-plan/thoughts/shared/research/2026-10-26-GH-9546-oauth-csrf-current-state-and-handoff.md
+related_research: apideck-io/unify:thoughts/shared/research/2026-10-26-GH-9546-oauth-csrf-current-state-and-handoff.md
 ---
 
 # GH-9546 G3 vault-core: registered-origins client (react-vault 0.24.0)
@@ -327,9 +327,9 @@ Manual:
 
 ## References
 
-- unify plan (contract, gates): `/Users/geisermenoia/orca/workspaces/unify/gh-9546-plan/thoughts/shared/plans/2026-10-26-GH-9546-registered-origins.md` (`:92-104` rollout and external gates, `:98-101` G3)
+- unify plan (contract, gates): `apideck-io/unify:thoughts/shared/plans/2026-10-26-GH-9546-registered-origins.md` (`:92-104` rollout and external gates, `:98-101` G3)
 - unify sources (branch `feat/GH-9546-oauth-consent-screen`): `src/modules/connection/application/useCases/authorizeConnection/AuthorizeConnectionController.ts` (`:72` parameters, `:418-446` `findUnregisteredValue`; `origin/main` `:61`), `CallbackConnectionUseCase.ts` (confirm fragment and `target_origin`, per the G3 research brief)
-- Related research: `/Users/geisermenoia/orca/workspaces/unify/gh-9546-plan/thoughts/shared/research/2026-10-26-GH-9546-oauth-csrf-current-state-and-handoff.md`
+- Related research: `apideck-io/unify:thoughts/shared/research/2026-10-26-GH-9546-oauth-csrf-current-state-and-handoff.md`
 - vault-core: `src/components/AuthorizeButton.tsx`, `src/components/ButtonLayoutMenu.tsx`, `src/components/TopBar.tsx`, `src/components/Vault.tsx`, `src/utils/connectionActions.ts`, `src/utils/oauthCsrf.ts`, `src/utils/useConnections.tsx`, `src/utils/useSession.tsx`, `src/constants/urls.ts`, `src/types/OAuthCsrf.ts`, `src/types/Session.ts`, `README.md:151-173`, `package.json`, `example/index.tsx`, `example/.env.example`, `example/iframe-test/README.md`, `test/authorize-button.test.tsx`, `test/connection-actions.test.tsx`, `test/oauth-csrf.test.ts`, `test/attribution.test.tsx`, `test/mock.ts`, `.claude/CLAUDE.md:38-42`
 - Earlier vault-core plans: `thoughts/shared/plans/2026-06-19-GH-9546-drop-client-nonce-storage.md` (`:66` the "no origin check" rationale this plan supersedes), `thoughts/shared/plans/2026-05-05-GH-9546-csrf-fix-vault-core.md`
-- Sibling G3 plans: iframe-vault (`/Users/geisermenoia/Workspace/apideck/iframe-vault-gh9546`), Hosted Vault (`/Users/geisermenoia/Workspace/apideck/vault-gh9546`)
+- Sibling G3 plans: iframe-vault (`apideck-io/iframe-vault`), Hosted Vault (`apideck-samples/vault`)
