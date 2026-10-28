@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 related_research: /Users/geisermenoia/orca/workspaces/unify/gh-9546-plan/thoughts/shared/research/2026-10-26-GH-9546-oauth-csrf-current-state-and-handoff.md
 ---
 

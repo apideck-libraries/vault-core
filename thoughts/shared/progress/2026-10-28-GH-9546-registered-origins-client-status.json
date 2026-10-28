@@ -1,6 +1,6 @@
 {
   "plan": "2026-10-28-GH-9546-registered-origins-client.md",
-  "current_phase": 5,
+  "current_phase": 6,
   "total_phases": 5,
   "phases": [
     {
@@ -27,7 +27,8 @@
     {
       "id": 5,
       "name": "Verify All Checks",
-      "status": "in_progress"
+      "status": "complete"
     }
-  ]
+  ],
+  "completed": true
 }
