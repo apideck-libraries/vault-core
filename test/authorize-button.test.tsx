@@ -247,6 +247,26 @@ describe('Authorize button OAuth CSRF flow', () => {
     expect(nonceFromUrl).toBeTruthy();
   });
 
+  it('opens the authorize popup with redirect_uri, nonce, opener_origin and embed_origin', async () => {
+    await renderAndClickAuthorize();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const url = new URL(openSpy.mock.calls[0][0] as string);
+
+    expect(url.pathname).toBe(`/vault/authorize/${SERVICE_ID}/abc`);
+    expect(url.searchParams.getAll('redirect_uri')).toEqual([
+      'https://vault.apideck.com/oauth/callback',
+    ]);
+    expect(url.searchParams.getAll('nonce')).toHaveLength(1);
+    expect(url.searchParams.get('nonce')).toBeTruthy();
+    expect(url.searchParams.getAll('opener_origin')).toEqual([
+      window.location.origin,
+    ]);
+    expect(url.searchParams.getAll('embed_origin')).toEqual([
+      window.location.origin,
+    ]);
+  });
+
   it('on oauth_complete with valid nonce: POSTs to /confirm', async () => {
     const { mockData } = await renderAndClickAuthorize();
 

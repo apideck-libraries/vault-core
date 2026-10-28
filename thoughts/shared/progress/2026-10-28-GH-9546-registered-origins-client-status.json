@@ -1,0 +1,33 @@
+{
+  "plan": "2026-10-28-GH-9546-registered-origins-client.md",
+  "current_phase": 2,
+  "total_phases": 5,
+  "phases": [
+    {
+      "id": 1,
+      "name": "Write Tests for Authorize URL Helper (TDD - RED)",
+      "status": "complete",
+      "note": "Deviation: 'does not open a popup when the connection has no authorize_url' moved to Phase 2. Against today's code the null authorize_url throws an unhandled rejection that jest-jasmine2 attributes to the next spec, so no clean assertion-level RED exists; the test lands with the null guard in Phase 2."
+    },
+    {
+      "id": 2,
+      "name": "Authorize URL Helper at All Authorize Sites (TDD - GREEN)",
+      "status": "in_progress"
+    },
+    {
+      "id": 3,
+      "name": "Write Tests for Popup Message Filter and embedOrigin (TDD - RED)",
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "Popup Message Filter and embedOrigin Prop (TDD - GREEN)",
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "name": "Verify All Checks",
+      "status": "pending"
+    }
+  ]
+}
