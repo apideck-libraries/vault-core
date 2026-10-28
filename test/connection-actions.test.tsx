@@ -191,20 +191,16 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     const openedUrl = openSpy.mock.calls[0][0] as string;
     const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce,
-            confirmToken: 'token-xyz',
-            serviceId: SERVICE_ID,
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce,
+        confirmToken: 'token-xyz',
+        serviceId: SERVICE_ID,
+        success: true,
+      },
+      { origin: 'http://localhost:3000', source: fakeChild }
+    );
 
     await waitFor(() => {
       const c = calls.find((c) =>
@@ -221,19 +217,15 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
   it('on oauth_error: shows toast and does NOT call /confirm', async () => {
     const result = await triggerAndOpen();
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_error',
-            error: 'access_denied',
-            errorDescription: 'User denied consent',
-            serviceId: SERVICE_ID,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_error',
+        error: 'access_denied',
+        errorDescription: 'User denied consent',
+        serviceId: SERVICE_ID,
+      },
+      { origin: 'http://localhost:3000', source: fakeChild }
+    );
 
     await waitFor(() => {
       expect(result.queryByText('User denied consent')).toBeInTheDocument();
@@ -249,20 +241,16 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     const openedUrl = openSpy.mock.calls[0][0] as string;
     const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce,
-            confirmToken: 'token-xyz',
-            serviceId: 'some-other-service',
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce,
+        confirmToken: 'token-xyz',
+        serviceId: 'some-other-service',
+        success: true,
+      },
+      { origin: 'http://localhost:3000', source: fakeChild }
+    );
 
     await act(async () => {
       await Promise.resolve();
@@ -276,20 +264,16 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
     const { calls } = await triggerAndOpen();
 
     // The client no longer verifies the nonce, so any value still confirms.
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce: 'arbitrary-value',
-            confirmToken: 'token-xyz',
-            serviceId: SERVICE_ID,
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce: 'arbitrary-value',
+        confirmToken: 'token-xyz',
+        serviceId: SERVICE_ID,
+        success: true,
+      },
+      { origin: 'http://localhost:3000', source: fakeChild }
+    );
 
     await waitFor(() => {
       const c = calls.find((c) =>
@@ -422,20 +406,16 @@ describe('useConnectionActions.handleRedirect OAuth CSRF flow', () => {
       fireEvent.click(getByText('Trigger'));
     });
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce: 'n',
-            confirmToken: 't',
-            serviceId: SERVICE_ID,
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce: 'n',
+        confirmToken: 't',
+        serviceId: SERVICE_ID,
+        success: true,
+      },
+      { origin: 'http://localhost:3000', source: fakeChild }
+    );
 
     await waitFor(() =>
       expect(onConnectionChange).toHaveBeenCalledWith(

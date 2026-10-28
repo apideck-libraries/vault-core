@@ -1,6 +1,6 @@
 {
   "plan": "2026-10-28-GH-9546-registered-origins-client.md",
-  "current_phase": 4,
+  "current_phase": 5,
   "total_phases": 5,
   "phases": [
     {
@@ -22,12 +22,12 @@
     {
       "id": 4,
       "name": "Popup Message Filter and embedOrigin Prop (TDD - GREEN)",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "id": 5,
       "name": "Verify All Checks",
-      "status": "pending"
+      "status": "in_progress"
     }
   ]
 }

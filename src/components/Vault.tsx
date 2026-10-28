@@ -57,6 +57,19 @@ export interface Props {
    * Should only be used for local development or in a staging environment
    */
   unifyBaseUrl?: string;
+  /**
+   * The origin of the page that embeds Vault, sent as `embed_origin` on every
+   * authorize URL so applications with OAuth protection can restrict which
+   * sites may embed Vault.
+   * Defaults to `window.location.origin`. Hosts that render Vault on behalf of
+   * another site (for example Apideck's iframe-vault) must pass that site's
+   * origin (e.g. the parent page's `event.origin`), because the default would
+   * report the host's own origin instead of the embedding site.
+   * Sent verbatim, including `'null'` for an opaque origin. An empty string is
+   * sent as `'null'`, because unify skips an empty `embed_origin` and the check
+   * would otherwise be turned off.
+   */
+  embedOrigin?: string;
 
   /**
    * Optionally you can show the consumer metadata information in the modal
@@ -115,6 +128,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
     unifiedApi,
     serviceId,
     unifyBaseUrl = BASE_URL,
+    embedOrigin,
     showConsumer = false,
     initialView,
     locale = 'en',
@@ -201,6 +215,7 @@ export const Vault = forwardRef<HTMLElement, Props>(function Vault(
               unifiedApi={unifiedApi}
               serviceId={serviceId}
               unifyBaseUrl={unifyBaseUrl}
+              embedOrigin={embedOrigin}
             >
               <SessionProvider session={session}>
                 <ModalContent
