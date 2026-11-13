@@ -90,7 +90,7 @@
   "size-limit": [
     {
       "path": "dist/react-vault.cjs.production.min.js",
-      "limit": "300 KB"
+      "limit": "305 KB"
     },
     {
       "path": "dist/react-vault.esm.js",

@@ -4,7 +4,7 @@ import 'whatwg-fetch';
 
 import * as React from 'react';
 
-import { setupIntersectionObserverMock } from './mock';
+import { dispatchMessage, setupIntersectionObserverMock } from './mock';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { Vault } from '../src/components/Vault';
@@ -247,26 +247,73 @@ describe('Authorize button OAuth CSRF flow', () => {
     expect(nonceFromUrl).toBeTruthy();
   });
 
+  it('opens the authorize popup with redirect_uri, nonce, opener_origin and embed_origin', async () => {
+    await renderAndClickAuthorize();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const url = new URL(openSpy.mock.calls[0][0] as string);
+
+    expect(url.pathname).toBe(`/vault/authorize/${SERVICE_ID}/abc`);
+    expect(url.searchParams.getAll('redirect_uri')).toEqual([
+      'https://vault.apideck.com/oauth/callback',
+    ]);
+    expect(url.searchParams.getAll('nonce')).toHaveLength(1);
+    expect(url.searchParams.get('nonce')).toBeTruthy();
+    expect(url.searchParams.getAll('opener_origin')).toEqual([
+      window.location.origin,
+    ]);
+    expect(url.searchParams.getAll('embed_origin')).toEqual([
+      window.location.origin,
+    ]);
+  });
+
+  it('does not open a popup when the connection has no authorize_url', async () => {
+    // Own service id: SWR's cache would otherwise serve the shopify connection
+    // (with an authorize_url) cached by the previous tests.
+    const serviceId = 'no-authorize-url-connector';
+    setupOAuthFetchMock(serviceId, { authorize_url: null });
+    let screen: any;
+    await act(async () => {
+      screen = render(
+        <Vault
+          token="token123"
+          open
+          unifiedApi={UNIFIED_API}
+          serviceId={serviceId}
+        />
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Authorize')).toBeInTheDocument();
+    });
+
+    // Synchronous act and assertions: with the old string concatenation,
+    // `new URL` threw inside the async click handler, and an assertion running
+    // after Node reports that rejection would land outside the test.
+    act(() => {
+      fireEvent.click(screen.getByText('Authorize'));
+    });
+
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(screen.getByText('Authorize').closest('button')).not.toBeDisabled();
+  });
+
   it('on oauth_complete with valid nonce: POSTs to /confirm', async () => {
     const { mockData } = await renderAndClickAuthorize();
 
     const openedUrl = openSpy.mock.calls[0][0] as string;
     const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce,
-            confirmToken: 'token-xyz',
-            serviceId: SERVICE_ID,
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce,
+        confirmToken: 'token-xyz',
+        serviceId: SERVICE_ID,
+        success: true,
+      },
+      { origin: 'https://vault.apideck.com', source: fakeChild }
+    );
 
     await waitFor(() => {
       const confirmCall = mockData.calls.find((c) =>
@@ -283,19 +330,15 @@ describe('Authorize button OAuth CSRF flow', () => {
   it('on oauth_error: shows toast and does NOT call /confirm', async () => {
     const { screen, mockData } = await renderAndClickAuthorize();
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_error',
-            error: 'access_denied',
-            errorDescription: 'User denied consent',
-            serviceId: SERVICE_ID,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_error',
+        error: 'access_denied',
+        errorDescription: 'User denied consent',
+        serviceId: SERVICE_ID,
+      },
+      { origin: 'https://vault.apideck.com', source: fakeChild }
+    );
 
     await waitFor(() => {
       expect(screen.queryByText('User denied consent')).toBeInTheDocument();
@@ -311,20 +354,16 @@ describe('Authorize button OAuth CSRF flow', () => {
     const openedUrl = openSpy.mock.calls[0][0] as string;
     const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce,
-            confirmToken: 'token-xyz',
-            serviceId: 'some-other-service',
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce,
+        confirmToken: 'token-xyz',
+        serviceId: 'some-other-service',
+        success: true,
+      },
+      { origin: 'https://vault.apideck.com', source: fakeChild }
+    );
 
     // Allow microtasks to flush
     await act(async () => {
@@ -339,20 +378,16 @@ describe('Authorize button OAuth CSRF flow', () => {
     const { mockData } = await renderAndClickAuthorize();
 
     // The client no longer verifies the nonce, so any value still confirms.
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce: 'arbitrary-value',
-            confirmToken: 'token-xyz',
-            serviceId: SERVICE_ID,
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce: 'arbitrary-value',
+        confirmToken: 'token-xyz',
+        serviceId: SERVICE_ID,
+        success: true,
+      },
+      { origin: 'https://vault.apideck.com', source: fakeChild }
+    );
 
     await waitFor(() => {
       const confirmCall = mockData.calls.find((c) =>
@@ -442,20 +477,16 @@ describe('Authorize button OAuth CSRF flow', () => {
     const openedUrl = openSpy.mock.calls[0][0] as string;
     const nonce = new URL(openedUrl).searchParams.get('nonce') as string;
 
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: {
-            type: 'oauth_complete',
-            nonce,
-            confirmToken: 'token-xyz',
-            serviceId: SERVICE_ID,
-            success: true,
-          },
-          origin: 'https://vault.apideck.com',
-        })
-      );
-    });
+    await dispatchMessage(
+      {
+        type: 'oauth_complete',
+        nonce,
+        confirmToken: 'token-xyz',
+        serviceId: SERVICE_ID,
+        success: true,
+      },
+      { origin: 'https://vault.apideck.com', source: fakeChild }
+    );
 
     await waitFor(() => {
       const c = mockData.calls.find((c) => c.url.endsWith('/confirm'));
@@ -492,5 +523,131 @@ describe('Authorize button OAuth CSRF flow', () => {
       fireEvent.click(screen.getByText('Authorize'));
     });
     expect(openSpy).toHaveBeenCalledTimes(2);
+  });
+  describe('popup message filter', () => {
+    // `token123` is not a JWT, so the session has no redirect_uri and the
+    // popup goes to the production callback page.
+    const CALLBACK_ORIGIN = 'https://vault.apideck.com';
+    const completeMessage = {
+      type: 'oauth_complete',
+      nonce: 'n',
+      confirmToken: 'token-xyz',
+      serviceId: SERVICE_ID,
+      success: true,
+    };
+    let otherWindow: { closed: boolean; close: jest.Mock };
+
+    beforeEach(() => {
+      otherWindow = { closed: false, close: jest.fn() };
+    });
+
+    const flush = async () => {
+      await act(async () => {
+        await Promise.resolve();
+      });
+    };
+
+    const confirmCalls = (calls: { url: string }[]) =>
+      calls.filter((c) => c.url.endsWith('/confirm'));
+
+    it('ignores oauth_complete from the callback origin sent by another window', async () => {
+      const { mockData } = await renderAndClickAuthorize();
+
+      await dispatchMessage(completeMessage, {
+        origin: CALLBACK_ORIGIN,
+        source: otherWindow,
+      });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+    });
+
+    it('ignores oauth_complete from the popup with another origin', async () => {
+      const { mockData } = await renderAndClickAuthorize();
+
+      await dispatchMessage(completeMessage, {
+        origin: 'https://evil.example',
+        source: fakeChild,
+      });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+    });
+
+    it('ignores oauth_error from an untrusted sender', async () => {
+      const { screen } = await renderAndClickAuthorize();
+
+      await dispatchMessage(
+        {
+          type: 'oauth_error',
+          error: 'access_denied',
+          errorDescription: 'User denied consent',
+          serviceId: SERVICE_ID,
+        },
+        { origin: CALLBACK_ORIGIN, source: otherWindow }
+      );
+      await flush();
+
+      expect(screen.queryByText('User denied consent')).not.toBeInTheDocument();
+    });
+
+    it('ignores a message without source', async () => {
+      const { mockData } = await renderAndClickAuthorize();
+
+      // The shape every message had before 0.24: right origin, no source.
+      await dispatchMessage(completeMessage, { origin: CALLBACK_ORIGIN });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+    });
+
+    it('refreshes the connection on popup close after ignoring a message', async () => {
+      jest.useFakeTimers();
+      const mockData = setupOAuthFetchMock(SERVICE_ID);
+      const detailUrl = `${CONNECTIONS_URL}/${UNIFIED_API}/${SERVICE_ID}`;
+      const detailGets = () =>
+        mockData.calls.filter((c) => c.url === detailUrl).length;
+
+      let screen: any;
+      await act(async () => {
+        screen = render(
+          <Vault
+            token="token123"
+            open
+            unifiedApi={UNIFIED_API}
+            serviceId={SERVICE_ID}
+          />
+        );
+      });
+      await act(async () => {
+        jest.advanceTimersByTime(0);
+      });
+      await waitFor(() => {
+        expect(screen.getByText('Authorize')).toBeInTheDocument();
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Authorize'));
+      });
+
+      await dispatchMessage(completeMessage, {
+        origin: CALLBACK_ORIGIN,
+        source: otherWindow,
+      });
+      await flush();
+      const detailGetsBeforeClose = detailGets();
+
+      fakeChild.closed = true;
+      await act(async () => {
+        jest.advanceTimersByTime(500);
+      });
+      await act(async () => {
+        jest.advanceTimersByTime(1100);
+      });
+      await flush();
+
+      expect(confirmCalls(mockData.calls)).toHaveLength(0);
+      expect(detailGets()).toBeGreaterThan(detailGetsBeforeClose);
+    });
   });
 });

@@ -4,29 +4,16 @@ import 'whatwg-fetch';
 
 import * as React from 'react';
 
-import { fetchMock, setupIntersectionObserverMock } from './mock';
+import {
+  fetchMock,
+  setupIntersectionObserverMock,
+  tokenWithClaims,
+} from './mock';
 
 import { NO_ADDED_CONNECTIONS_RESPONSE } from './responses/no-added-connections';
 import { Vault } from '../src/components/Vault';
 import { act } from 'react-dom/test-utils';
 import { render } from '@testing-library/react';
-
-// jwt-decode does not verify signatures, so an unsigned token is enough to
-// drive the session the component reads.
-const tokenWithClaims = (claims: Record<string, unknown>) => {
-  const encode = (value: object) =>
-    Buffer.from(JSON.stringify(value)).toString('base64url');
-
-  return [
-    encode({ alg: 'HS256', typ: 'JWT' }),
-    encode({
-      application_id: 'app-1',
-      consumer_id: 'consumer-1',
-      ...claims,
-    }),
-    'not-a-real-signature',
-  ].join('.');
-};
 
 describe('Vault - Apideck attribution', () => {
   beforeEach(() => jest.spyOn(window, 'fetch'));

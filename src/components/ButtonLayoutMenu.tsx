@@ -7,8 +7,8 @@ import { Connection } from '../types/Connection';
 import { ConnectionViewType } from '../types/ConnectionViewType';
 import { SessionSettings } from '../types/Session';
 import { useConnectionActions } from '../utils/connectionActions';
-import { generateNonce } from '../utils/oauthCsrf';
 import { getApiName } from '../utils/getApiName';
+import { useAuthorizeUrlBuilder } from '../utils/useAuthorizeUrlBuilder';
 import { useConnections } from '../utils/useConnections';
 import { useSession } from '../utils/useSession';
 import AuthorizeButton from './AuthorizeButton';
@@ -53,6 +53,7 @@ const ButtonLayoutMenu: React.FC<Props> = ({
     isActionAllowedForSettings,
   } = useConnectionActions();
   const { deleteConnection } = useConnections();
+  const buildAuthorizeUrl = useAuthorizeUrlBuilder();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const getButtonOptions = (): ButtonOption[] => {
@@ -95,14 +96,9 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const nonce = generateNonce();
-          const url = new URL(
-            `${authorize_url}&redirect_uri=${
-              session?.redirect_uri ?? REDIRECT_URL
-            }`
-          );
-          url.searchParams.append('nonce', nonce);
-          await handleRedirect(url.href, onConnectionChange);
+          const url = buildAuthorizeUrl(authorize_url);
+          if (!url) return;
+          await handleRedirect(url, onConnectionChange);
         },
         variant: 'primary',
         customComponent: <AuthorizeButton connection={connection} />,
@@ -278,14 +274,10 @@ const ButtonLayoutMenu: React.FC<Props> = ({
           </svg>
         ),
         onClick: async () => {
-          const nonce = generateNonce();
-          const url = new URL(
-            `${authorize_url}&redirect_uri=${
-              session?.redirect_uri ?? REDIRECT_URL
-            }`
+          await handleRedirect(
+            buildAuthorizeUrl(authorize_url),
+            onConnectionChange
           );
-          url.searchParams.append('nonce', nonce);
-          await handleRedirect(url.href, onConnectionChange);
         },
         variant: 'outline',
       });
